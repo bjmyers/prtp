@@ -1,5 +1,16 @@
 import numpy as np
 
+def factorial(x):
+    '''Inputs a list, returns a list of the factorial of each element of the input list
+       Ignores negatives'''
+    x = x.copy()
+    ignore = (x < 0)
+    y = np.where(ignore,0,x)
+    y = np.array(list(map(np.math.factorial,y)))
+    y = np.where(ignore,x,y)
+    return y
+    
+
 def radialpoly(rho,n,m):
     output = 0
     if (rho<=1):
@@ -93,7 +104,7 @@ def zernset(rho,theta,rorder,aorder,znum,polyout,derrho,dertheta):
                     rnm[i,j] = rho**n
                 elif (m==n-2):
                     rprime[i,j] = n*rprime[i,i] - (n-1)*rprime[i-2,i-2]
-                    rnm[i,j] = n*rnm[i,i] - (n-1)rnm[i-2,i-2]
+                    rnm[i,j] = n*rnm[i,i] - (n-1)*rnm[i-2,i-2]
                 else:
                     h3 = -4*(m+2)*(m+1)/(n+m+2)/(n-m)
                     h2 = h3*(n+m+4)*(n-m-2)/4.0/(m+3) + (m+2)
@@ -118,6 +129,8 @@ def zernset(rho,theta,rorder,aorder,znum,polyout,derrho,dertheta):
             polyout[i] = norm*np.sqrt(0.5)*rnm[int(n)+1,int(m)+1]
             derrho[i] = norm*np.sqrt(0.5)*rprime[int(n)+1,int(m)+1]
             dertheta[i] = 0
+    
+    return polyout,derrho,dertheta
 
 
 def zernike(rho,theta,n,m):
@@ -136,7 +149,7 @@ def radialder(rho,n,m):
     output = 0
     if(rho<=1):
         for j in range(0,(n-np.abs(m))/2):
-            const = (-1)**j*np.factorial(n-j)/np.factorial(j)/np.factorial((n+m)/2-j)/np.factorial((n-m)/2-j)
+            const = (-1)**j*np.math.factorial(n-j)/np.math.factorial(j)/np.math.factorial((n+m)/2-j)/np.math.factorial((n-m)/2-j)
             output += const*(n-2*j)*rho**(n-2*j-1)
     return output
 
@@ -162,58 +175,52 @@ def zernthetader(rho,theta,n,m):
     else:
         return 0
 
-
 def legendre(x,n):
-    if (np.abs(x) > 1.0):
-        x2 = x/np.abs(x)
-    else:
-        x2 = x
-    output = 0
-    if (n==0):
-        return 1
-    else:
-        for i in range(0,np.floor(float(n)/2)):
-            output += (-1)**(i)*np.factorial(2*n-2*i)/np.factorial(i)/np.factorial(n-i)/np.factorial(n-2*i)/2**n*x2**(n-2*i)
-        return output
-
-
-def legenrep(x,n):
-    output = 0
-    if (n==0):
-        pass
-    elif (n==1):
-        output = 1
-    elif (x==0 and n%2==0):
-        pass
-    else:
-        for i in range(0,np.floor(float(n)/2)):
-            output += (-1)**(i)*np.factorial(2*n-2*i)/np.factorial(i)/np.factorial(n-i)/np.factorial(n-2*i)/2**n*x2**(n-2*i)
+    '''Takes two lists as inputs'''
+    x = x.copy()
+    n = n.copy()
+    output = np.zeros(len(x))
     
-    if (np.abs(x) > 1):
-        output = 0
+    x = np.where(np.abs(x) > 1.0, x[:] / np.abs(x[:]),x[:])
+    
+    # Identify cases where no more calculations are needed
+    done = (n == 0) 
+    output = np.where(done,1,0)
+    
+    i = 0
+    while True:
+        needsaddition = ((np.floor(n[:])/2).astype(int) > i)
+        alldone = np.logical_not(needsaddition).all()
+        if (alldone):
+            break
+        output = np.where(np.logical_and(np.logical_not(done),needsaddition),output[:] + (-1)**(i)*factorial(2*n[:]-2*i)/np.math.factorial(i)/factorial(n[:]-i)/factorial(n[:]-2*i)/2**n[:]*x[:]**(n[:]-2*i),output[:])
+        i += 1
+        
     return output
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+def legendrep(x,n):
+    '''Takes two lists as inputs'''
+    x = x.copy()
+    n = n.copy()
+    output = np.zeros(len(x))
+    
+    case1 = (n==0)
+    case2 = (n==1)
+    output[case2] = 1
+    case3 = np.logical_and((x==0),(n%2==0))
+    
+    i = 0
+    while True:
+        needsaddition = ((np.floor(n[:])/2).astype(int) > i)
+        alldone = np.logical_not(needsaddition).all()
+        if (alldone):
+            break
+        add1 = np.logical_and(np.logical_not(case1),np.logical_not(case2))
+        add2 = np.logical_and(np.logical_not(case3),needsaddition)
+        add = np.logical_and(add1,add2)
+        output = np.where(add,output[:] + (-1)**(i)*factorial(2*n-2*i)/np.math.factorial(i)/factorial(n-i)/factorial(n-2*i)/2**n[:]*x[:]**(n-2*i),output[:])
+        i += 1
+    
+    return output
 
