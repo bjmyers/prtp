@@ -176,51 +176,158 @@ def zernthetader(rho,theta,n,m):
         return 0
 
 def legendre(x,n):
-    '''Takes two lists as inputs'''
+    '''
+    Inputs:
+    x - np.array - The center(?) of the Legendre Polynomial 
+    n - int or np.array - The order to which this function calculates the Legendre Polynomial
+    
+    If n is an int, every x will be calculated to the nth order
+    If n is an array, it must be the same length as x and each x will be calculated to an order equal to the
+    corresponding element in the n array
+    
+    Outputs:
+    int - The sum of the terms in the Legendre Polynomial
+    '''
     x = x.copy()
-    n = n.copy()
     output = np.zeros(len(x))
     
-    x = np.where(np.abs(x) > 1.0, x[:] / np.abs(x[:]),x[:])
-    
-    # Identify cases where no more calculations are needed
-    done = (n == 0) 
-    output = np.where(done,1,0)
-    
-    i = 0
-    while True:
-        needsaddition = ((np.floor(n[:])/2).astype(int) > i)
-        alldone = np.logical_not(needsaddition).all()
-        if (alldone):
-            break
-        output = np.where(np.logical_and(np.logical_not(done),needsaddition),output[:] + (-1)**(i)*factorial(2*n[:]-2*i)/np.math.factorial(i)/factorial(n[:]-i)/factorial(n[:]-2*i)/2**n[:]*x[:]**(n[:]-2*i),output[:])
-        i += 1
+    if isinstance(n,np.ndarray):
         
-    return output
+        n = n.copy()
+        
+        x = np.where(np.abs(x) > 1.0, x[:] / np.abs(x[:]),x[:])
+        
+        # Identify cases where no more calculations are needed
+        done = (n == 0) 
+        output = np.where(done,1,0)
+        
+        i = 0
+        while True:
+            needsaddition = ((np.floor(n[:])/2).astype(int) > i)
+            alldone = np.logical_not(needsaddition).all()
+            if (alldone):
+                break
+            output = np.where(np.logical_and(np.logical_not(done),needsaddition),output[:] + (-1)**(i)*factorial(2*n[:]-2*i)/np.math.factorial(i)/factorial(n[:]-i)/factorial(n[:]-2*i)/2**n[:]*x[:]**(n[:]-2*i),output[:])
+            i += 1
+            
+        return output
+        
+    elif isinstance(n,(int,float)):
+        
+        if (n==0):
+            return output + 1
+        x = np.where(np.abs(x) > 1.0, x/np.abs(x), x)
+        
+        for i in range(int((np.floor(n)/2))):
+            output += (-1)**(i)*np.math.factorial(2*n-2*i)/np.math.factorial(i)/np.math.factorial(n-i)/np.math.factorial(n-2*i)/2**n*x[:]**(n-2*i)
+            
+        return output
+        
+    else:
+        raise TypeError("Input must be a numpy array, integer, or float")
 
 
 def legendrep(x,n):
-    '''Takes two lists as inputs'''
+    '''
+    Inputs:
+    x - np.array - The center(?) of the Legendre Polynomial 
+    n - int or np.array - The order to which this function calculates the Legendre Polynomial's first derivative
+    
+    If n is an int, every x will be calculated to the nth order
+    If n is an array, it must be the same length as x and each x will be calculated to an order equal to the
+    corresponding element in the n array
+    
+    Outputs:
+    int - The sum of the terms in the Legendre Polynomial's first derivative
+    '''
     x = x.copy()
-    n = n.copy()
     output = np.zeros(len(x))
     
-    case1 = (n==0)
-    case2 = (n==1)
-    output[case2] = 1
-    case3 = np.logical_and((x==0),(n%2==0))
     
-    i = 0
-    while True:
-        needsaddition = ((np.floor(n[:])/2).astype(int) > i)
-        alldone = np.logical_not(needsaddition).all()
-        if (alldone):
-            break
-        add1 = np.logical_and(np.logical_not(case1),np.logical_not(case2))
-        add2 = np.logical_and(np.logical_not(case3),needsaddition)
-        add = np.logical_and(add1,add2)
-        output = np.where(add,output[:] + (-1)**(i)*factorial(2*n-2*i)/np.math.factorial(i)/factorial(n-i)/factorial(n-2*i)/2**n[:]*x[:]**(n-2*i),output[:])
-        i += 1
+    if isinstance(n, np.ndarray):
+        n = n.copy()
+        
+        case1 = (n==0)
+        case2 = (n==1)
+        output[case2] = 1
+        case3 = np.logical_and((x==0),(n%2==0))
+        
+        i = 0
+        while True:
+            needsaddition = ((np.floor(n[:])/2).astype(int) > i)
+            alldone = np.logical_not(needsaddition).all()
+            if (alldone):
+                break
+            add1 = np.logical_and(np.logical_not(case1),np.logical_not(case2))
+            add2 = np.logical_and(np.logical_not(case3),needsaddition)
+            add = np.logical_and(add1,add2)
+            output = np.where(add,output[:] + (-1)**(i)*factorial(2*n-2*i)/np.math.factorial(i)/factorial(n-i)/factorial(n-2*i)/2**n[:]*x[:]**(n-2*i),output[:])
+            i += 1
+        
+        output[np.abs(x) > 1.0] = 0
+        
+        return output
     
-    return output
+    elif (isinstance(n,(int,float))):
+        if (n==0):
+            return output
+        elif (n==1):
+            return output + 1
+        
+        for i in range(int((np.floor(n)/2))):
+            output += (-1)**(i)*np.math.factorial(2*n-2*i)/np.math.factorial(i)/np.math.factorial(n-i)/np.math.factorial(n-2*i)/2**n*x[:]**(n-2*i)
+            
+        case1 = np.logical_and((x==0),(n%2==0))
+        output[case1] = 0
+        output[np.abs(x) > 1.0] = 0
+        
+        return output
+    
+    else:
+        raise TypeError("Input must be a numpy array, integer, or float")
 
+
+def eliminate(rays, delt, thresh = 1e-10, eliminate="nan"):
+    '''
+    Inputs:
+    rays - np.ndarray - The rays that have been through Newton's method to trace them to a surface
+    delt - np.ndarray - The delta values from Newton's method
+    thresh - float - The threshold on delta, values above this threshold or NaNs will be eliminated
+    eliminate - string - has values or 'nan' or 'remove', specifies the method of removing rays
+        If 'nan': Rays that are removed will be replaced with NaN values
+        If 'remove': Rays will be removed from the array (returns a shorter array)
+    
+    Outputs:
+    rays - np.ndarray - The rays with some eliminated
+    '''
+    opd,x,y,z,l,m,n,ux,uy,uz = rays
+    
+    if (eliminate.lower() == "nan"):
+        with(np.errstate(invalid='ignore')):
+            unfinishedrays = (np.abs(delt) > thresh) | (np.isnan(delt[:]))
+        x[unfinishedrays] = np.nan
+        y[unfinishedrays] = np.nan
+        z[unfinishedrays] = np.nan
+        l[unfinishedrays] = np.nan
+        m[unfinishedrays] = np.nan
+        n[unfinishedrays] = np.nan
+        ux[unfinishedrays] = np.nan
+        uy[unfinishedrays] = np.nan
+        uz[unfinishedrays] = np.nan
+        opd[unfinishedrays] = np.nan
+
+    elif (eliminate.lower() == "remove"):
+        with(np.errstate(invalid='ignore')):
+            removelist = (np.abs(delt) <= thresh) | (np.isnan(delt[:]))
+        x = x[removelist]
+        y = y[removelist]
+        z = z[removelist]
+        l = l[removelist]
+        m = m[removelist]
+        n = n[removelist]
+        ux = ux[removelist]
+        uy = uy[removelist]
+        uz = uz[removelist]
+        opd = opd[removelist]
+
+    return [opd, x, y, z, l, m, n, ux, uy, uz]
