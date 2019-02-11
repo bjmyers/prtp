@@ -1,10 +1,8 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import time
-import sources
+import prtp.transformationsf as tran
+from prtp.analyses import analyticYPlane,analyticXPlane,analyticImagePlane
 
-def flat(rays,ind=None,nr=None, eliminate="nan"):
+def flat(rays,nr=None, eliminate="nan"):
     """
     Trace rays to the XY plane
     """
@@ -13,15 +11,7 @@ def flat(rays,ind=None,nr=None, eliminate="nan"):
     for lst in rays:
         raycopy.append(lst.copy())
     opd,x,y,z,l,m,n,ux,uy,uz = raycopy
-    if ind is not None:
-        #Temporary array
-        trays = [rays[i][ind] for i in range(10)]
-        #Trace
-        surf.flat(*trays[1:])
-        #Copy back to original
-        for i in range(1,10):
-            rays[i][ind] = trays[i]
-    elif nr is not None:
+    if nr is not None:
         delta = np.zeros(len(x))
         delta[:] = (-1)*z[:]/n[:]
         ux[:] = 0
@@ -321,7 +311,7 @@ def conic(rays,r,k,nr=None, eliminate="nan"):
         z[:] = np.where(noteliminated,z[:] + n[:]*s[:],np.nan)
         if (nr is not None):
             opd[:] = np.where(noteliminated,opd[:] + s[:]*nr,np.nan)
-        denom[:] = np.where(noteliminated,np.sqrt(r**2 + k*(x[:]**2+y[:]**2)),1)
+        denom[:] = np.where(noteliminated,np.sqrt(r**2 - k*(x[:]**2+y[:]**2)),1)
         with np.errstate(invalid='ignore'):
             ux[:] = np.where(noteliminated,-x[:]/denom[:],np.nan)
             uy[:] = np.where(noteliminated,-y[:]/denom[:],np.nan)
@@ -407,12 +397,12 @@ def torus(rays,rin,rout,eliminate="nan", maxiter=12):
     
     i = 0
     while (i < maxiter):
-        F[:]  = ((z[:]+rin+rout)**2+y[:]**2+x[:]**2+rout**2-rin**2)**2 - (4*rout**2*(y[:]**2+(z[:]+rin+rout)**2))
-        Fx[:] =4*x[:] * (-rin**2+(rin+rout+z[:])**2+rout**2+x[:]**2+y[:]**2)
-        Fy[:] = 4*y[:] * (2*rin*(rout+z[:]) + 2*rout*z[:] + z[:]**2+y[:]**2+x[:]**2)
-        Fz[:] = 4*(rout+rin+z[:])*(2*rin*(rout+z[:]) + 2*rout*z[:]+z[:]**2+y[:]**2+x[:]**2)
-        Fp[:] = Fx[:]*l[:] + Fy[:]*m[:] + Fz[:]*n[:]
         with(np.errstate(invalid='ignore',divide='ignore')):
+            F[:]  = ((z[:]+rin+rout)**2+y[:]**2+x[:]**2+rout**2-rin**2)**2 - (4*rout**2*(y[:]**2+(z[:]+rin+rout)**2))
+            Fx[:] =4*x[:] * (-rin**2+(rin+rout+z[:])**2+rout**2+x[:]**2+y[:]**2)
+            Fy[:] = 4*y[:] * (2*rin*(rout+z[:]) + 2*rout*z[:] + z[:]**2+y[:]**2+x[:]**2)
+            Fz[:] = 4*(rout+rin+z[:])*(2*rin*(rout+z[:]) + 2*rout*z[:]+z[:]**2+y[:]**2+x[:]**2)
+            Fp[:] = Fx[:]*l[:] + Fy[:]*m[:] + Fz[:]*n[:]
             delt[:] = -F[:]/Fp[:]
             x[:] += l[:]*delt[:]
             y[:] += m[:]*delt[:]
@@ -554,5 +544,25 @@ def conicplus(rays,r,k,p,Np,nr=None,eliminate='nan',maxiter=12):
         uz[:] = Fz/Fp[:]
 
     return [opd, x, y, z, l, m, n, ux, uy, uz]
+
+
+def focus(rays,fn,weights=None,nr=None):
+    dz1 = fn(rays,weights=weights)
+    rays = tran.transform(rays,0,0,-dz1,0,0,0)
+    rays = flat(rays,nr=nr)
+    dz2 = fn(rays,weights=weights)
+    rays = tran.transform(rays,0,0,-dz2,0,0,0)
+    rays = flat(rays,nr=nr)
+    
+    return (rays,dz1+dz2)
+
+def focusY(rays,weights=None,nr=None,coords=None):
+    return focus(rays,analyticYPlane,weights=weights,nr=nr)
+
+def focusX(rays,weights=None,nr=None,coords=None):
+    return focus(rays,analyticXPlane,weights=weights,nr=nr)
+
+def focusI(rays,weights=None,nr=None,coords=None):
+    return focus(rays,analyticImagePlane,weights=weights,nr=nr)
         
     
