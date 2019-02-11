@@ -1,5 +1,5 @@
 import numpy as np
-import specialFunctions as funcs
+import prtp.specialFunctions as funcs
 
 def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
     """
@@ -28,29 +28,29 @@ def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
     Fz = 2*p
     i = 0
     while (i < maxiter):
-        F = 2*p*z[:] + p**2 + 4*e**2*p*d/(e**2-1) - x[:]**2 - y[:]**2
-        Fx = -2.*x[:]
-        Fy = -2.*y[:]
-        Fp = Fx[:]*l[:] + Fy[:]*m[:] + Fz*Fn[:]
+        F = 2*p*z + p**2 + 4*e**2*p*d/(e**2-1) - x[:]**2 - y[:]**2
+        Fx = -2.*x
+        Fy = -2.*y
+        Fp = Fx*l + Fy*m + Fz*n
         
         with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F[:]/Fp[:]
-            x[:] += l[:]*delt[:]
-            y[:] += m[:]*delt[:]
-            z[:] += n[:]*delt[:]
+            delt = (-1)*F/Fp
+            x += l*delt
+            y += m*delt
+            z += n*delt
             if nr is not None:
-                opd[:] += nr*delt[:]
+                opd += nr*delt
             if (not (np.abs(delt) > 1.0e-10).any()):
                 break
         i += 1
     
     with(np.errstate(invalid='ignore')):
-        Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
-        ux[:] = Fx[:]/Fp[:]
-        uy[:] = Fy[:]/Fp[:]
-        uz[:] = Fz/Fp[:]
+        Fp = np.sqrt(Fx**2 + Fy**2 + Fz**2)
+        ux = Fx/Fp
+        uy = Fy/Fp
+        uz = Fz/Fp
 
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10,eliminate = eliminate)
+    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
     
     
 def woltersecondary(rays,r0,z0,psi,eliminate="nan",maxiter=10):
@@ -79,28 +79,27 @@ def woltersecondary(rays,r0,z0,psi,eliminate="nan",maxiter=10):
     delt = np.ones(len(x))*100
     i = 0
     while (i < maxiter):
-        F = e**2*(d+z[:])**2 - z[:]**2 - x[:]**2 - y[:]**2
-        Fx = -2.*x[:]
-        Fy = -2.*y[:]
-        Fz = 2*e**2*(d+z[:]) - 2*z[:]
-        Fp = Fx[:]*l[:] + Fy[:]*m[:] + Fz[:]*n[:] 
+        F = e**2*(d+z)**2 - z**2 - x**2 - y**2
+        Fx = -2.*x
+        Fy = -2.*y
+        Fz = 2*e**2*(d+z) - 2*z
+        Fp = Fx*l + Fy*m + Fz*n 
         
         with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F[:]/Fp[:]
-            x[:] += l[:]*delt[:]
-            y[:] += m[:]*delt[:]
-            z[:] += n[:]*delt[:]
+            delt[:] = (-1)*F/Fp
+            x += l*delt
+            y += m*delt
+            z += n*delt
             if (not (np.abs(delt) > 1.0e-10).any()):
                 break
         i += 1
-    
     with(np.errstate(invalid='ignore')):
-        Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
-        ux[:] = Fx[:]/Fp[:]
-        uy[:] = Fy[:]/Fp[:]
-        uz[:] = Fz[:]/Fp[:]
-
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10,eliminate = eliminate)
+        Fp = np.sqrt(Fx**2 + Fy**2 + Fz**2)
+        ux = Fx/Fp
+        uy = Fy/Fp
+        uz = Fz/Fp
+    return [opd,x,y,z,l,m,n,ux,uy,uz]
+    #return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
     
     
 def woltersine(rays,r0,z0,amp,freq,eliminate="nan",maxiter=12):
@@ -150,7 +149,7 @@ def woltersine(rays,r0,z0,amp,freq,eliminate="nan",maxiter=12):
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
 
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10,eliminate = eliminate)
+    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
     
 
 def wolterprimLL(rays,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',maxiter=10):
@@ -223,7 +222,7 @@ def wolterprimLL(rays,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',m
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10,eliminate = eliminate)
+    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
 
 
 def woltersecLL(rays,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',maxiter=10):
@@ -550,7 +549,7 @@ def ellipsoidWoltLL(rays,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,eliminat
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10,eliminate = eliminate)
+    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
 
 
 def wsprimaryBack(rays,alpha,z0,psi,thick):
@@ -699,4 +698,3 @@ def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
         uz[:] = Fz[:]/Fp[:]
     
     return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
-
