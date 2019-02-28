@@ -331,3 +331,21 @@ def eliminate(rays, delt, thresh = 1e-10, eliminate="nan"):
         opd = opd[removelist]
 
     return [opd, x, y, z, l, m, n, ux, uy, uz]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
