@@ -14,20 +14,20 @@ def flat(rays,nr=None, eliminate="nan"):
     if nr is not None:
         delta = np.zeros(len(x))
         delta = (-1)*z/n
-        ux = 0
-        uy = 0
-        uz = 1
-        z = 0
+        ux = np.zeros(len(x))
+        uy = np.zeros(len(x))
+        uz = np.ones(len(x))
+        z = np.zeros(len(x))
         x += delta*l
         y += delta*m
         opd += delta*nr
     else:
         delta = np.zeros(len(x))
         delta = (-1)*z/n
-        ux = 0
-        uy = 0
-        uz = 1
-        z = 0
+        ux = np.zeros(len(x))
+        uy = np.zeros(len(x))
+        uz = np.ones(len(x))
+        z = np.zeros(len(x))
         x += delta*l
         y += delta*m
     return [opd, x, y, z, l, m, n, ux, uy, uz]
@@ -548,10 +548,10 @@ def conicplus(rays,r,k,p,Np,nr=None,eliminate='nan',maxiter=12):
 
 def focus(rays,fn,weights=None,nr=None):
     dz1 = fn(rays,weights=weights)
-    rays = tran.transform(rays,0,0,-dz1,0,0,0)
+    rays = tran.transform(rays,0,0,dz1,0,0,0)
     rays = flat(rays,nr=nr)
     dz2 = fn(rays,weights=weights)
-    rays = tran.transform(rays,0,0,-dz2,0,0,0)
+    rays = tran.transform(rays,0,0,dz2,0,0,0)
     rays = flat(rays,nr=nr)
     
     return (rays,dz1+dz2)
@@ -564,3 +564,5 @@ def focusX(rays,weights=None,nr=None,coords=None):
 
 def focusI(rays,weights=None,nr=None,coords=None):
     return focus(rays,analyticImagePlane,weights=weights,nr=nr)
+        
+    

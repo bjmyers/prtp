@@ -400,9 +400,9 @@ def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
         
         x2y2 = x**2 + y**2
         
-        beta = np.atan2(np.sqrt(x2y2),z)
+        beta = np.arctan2(np.sqrt(x2y2),z)
         
-        case1 = (beta <= betas)
+        case1 = (beta < betas)
         beta = np.where(case1,betas,beta)
         a = np.where(case1,1/ff,(1-np.cos(beta))/(1-np.cos(betas))/ff + (1+np.cos(beta))/(2*g)*(kterm)**(1+k))
         kterm = np.where(case1,0,(1/k)*np.tan(beta/2)**2-1)
@@ -412,7 +412,7 @@ def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
         dadb = np.where(case1,0,np.sin(beta)/ff/(1-np.cos(betas)) - np.sin(beta)/(2*g)*(kterm)**(1+k) + (k+1)*(np.cos(beta) + 1) * np.tan(beta/2)*kterm**k/2/g/k/(np.cos(beta/2)**2))
         Fb = np.where(case1,0,-np.sin(beta)/a - np.cos(beta)/a**2*dadb)
         dadbs = np.where(case1,np.sin(betas)/ff/(1-np.cos(betas)) + (k+1)*(np.cos(betas)+1)*np.tan(betas/2)/np.cos(betas/2)**2/2/g/k,0)
-        dbdzs = np.where(case1, -1*np.sin(betas)**2/np.sqrt(x2y2),0)
+        dbdzs = np.where(case1, -1*(np.sin(betas)**2)/np.sqrt(x2y2),0)
         gam = np.where(case1,(-ff*np.sin(betas) - ff**2*np.cos(betas)*dadbs)*dbdzs,0)
         dbdx = np.where(case1,0,x*z/(x2y2 + z**2)/np.sqrt(x2y2))
         dbdy = np.where(case1,0,y*z/(x2y2 + z**2)/np.sqrt(x2y2))
@@ -420,24 +420,26 @@ def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
         
         F = np.where(case1,F + gam*(z - np.sqrt(x2y2)/np.tan(betas)),F)
         Fx = np.where(case1,-2.0/np.tan(betas)*x/np.sqrt(x2y2),Fb * dbdx)
-        Fx = np.where(case1,-2.0/np.tan(betas)*y/np.sqrt(x2y2),Fb * dbdy)
+        Fy = np.where(case1,-2.0/np.tan(betas)*y/np.sqrt(x2y2),Fb * dbdy)
         Fz = np.where(case1,gam - 1,-1.0 + Fb*dbdz)
         
         Fp = Fx*l + Fy*m + Fz*n
         
         with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F[:]/Fp[:]
-            x[:] += l[:]*delt[:]
-            y[:] += m[:]*delt[:]
-            z[:] += n[:]*delt[:]
+            delt = (-1)*F/Fp
+            x += l*delt
+            y += m*delt
+            z += n*delt
             if (not (np.abs(delt) > 1.0e-8).any()):
                 break
+        
+        i += 1
     
     with(np.errstate(invalid='ignore')):
-        Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
-        ux[:] = Fx[:]/Fp[:]
-        uy[:] = Fy[:]/Fp[:]
-        uz[:] = Fz[:]/Fp[:]
+        Fp = np.sqrt(Fx**2 + Fy**2 + Fz**2)
+        ux = Fx/Fp
+        uy = Fy/Fp
+        uzs = Fz/Fp
     
     return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
 
@@ -698,3 +700,4 @@ def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
         uz[:] = Fz[:]/Fp[:]
     
     return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
+
