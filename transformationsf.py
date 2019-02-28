@@ -1,5 +1,7 @@
 import numpy as np
-
+from numba import jit
+#'UniTuple(float64[:], 2)(float64[:],float64[:],float64[:],int32,int32)'
+@jit(cache=True,nopython=True)
 def rotatevector(x,y,z,theta,axis):
     #This function rotates a vector in a right handed fashion
     #axis is 1,2,3 for x,y,z axis rotation
@@ -34,8 +36,9 @@ def rotateaxis(x,y,z,ux,uy,uz,theta):
     tempy = (uy*ux*(1-c)+uz*s)*x + (c+uy**2*(1-c))*y + (uy*uz*(1-c)-ux*s)*z
     z = (uz*ux*(1-c)-uy*s)*x + (uz*uy*(1-c)+ux*s)*y + (c+uz**2*(1-c))*z
     return tempx,tempy,z
-    
-    
+
+#'float[:,:](float64[:,:])'
+@jit(cache=True,nopython=True)  
 def reflect(rays):
     # Temp list so inputs are not modified
     raycopy = []
@@ -50,7 +53,7 @@ def reflect(rays):
     
     return [opd, x, y, z, l, m, n, ux, uy, uz]
     
-    
+    'UniTuple(float64[:], 2)(float64[:],float64[:],float64[:],int32,int32)'
 def refract(rays,n1,n2):
     # Temp list so inputs are not modified
     raycopy = []
@@ -80,7 +83,7 @@ def refract(rays,n1,n2):
     
     return [opd, x, y, z, l, m, n, ux, uy, uz]
     
-    
+@jit(cache=True,nopython=True)
 def transform(rays,tx,ty,tz,rx,ry,rz):
     # Coordinate system transform, translations are done first, then rotations in XYZ order
     # Rotations act to rotate a surface via the right hand rule
@@ -92,6 +95,13 @@ def transform(rays,tx,ty,tz,rx,ry,rz):
     for lst in rays:
         raycopy.append(lst.copy())
     opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+
+    tx *= -1
+    ty *= -1
+    tz *= -1
+    rx *= -1
+    ry *= -1
+    rz *= -1    
 
     x += tx
     y += ty
@@ -283,3 +293,11 @@ def grat(rays,d,order,wave, eliminate="nan"):
         opd = opd[np.logical_not(removelist)]
         
     return [opd, x, y, z, l, m, n, ux, uy, uz]
+    
+   
+    
+    
+    
+    
+    
+    
