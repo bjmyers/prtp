@@ -24,6 +24,7 @@ class Rays:
         self.__len__()
         self.tags = []
         self.params = []
+        self.startingeff = None
     
     
     @classmethod
@@ -117,6 +118,33 @@ class Rays:
             return len(self.x)
         else:
             raise Exception('The x,y,x,l,m,n,ux,uy,uz Parameters must be of the same length!')
+    
+    
+    ## Update Functions
+    # These functions update the Rays object, this section does NOT include 
+    # motion functions or functions that pass photons through optical systems.
+    
+    def remove(self,trutharray=None,tags=None,delim=None):
+        if tags is not None:
+            trutharray = self.combineTags(tags,delim)
+        if trutharray is not None:
+            trutharray = (trutharray != 0)
+            
+        self.x = self.x[trutharray]
+        self.y = self.y[trutharray]
+        self.z = self.z[trutharray]
+        self.l = self.l[trutharray]
+        self.m = self.m[trutharray]
+        self.n = self.n[trutharray]
+        self.ux = self.ux[trutharray]
+        self.uy = self.uy[trutharray]
+        self.uz = self.uz[trutharray]
+        for tag in self.tags:
+            tag = (tag[0],tag[1][trutharray])
+        for param in self.params:
+            param = (param[0],param[1][trutharray])
+        
+        ## The above function for some reason does not correctly update tags when using the trutharray argument
     
     
     ## Tag Functions:
@@ -495,6 +523,88 @@ class Rays:
         return newrays
     
     
+    ## Efficiency Calculations:
+    # Functions needed to calculate the efficiency of optical systems
+    # Used to keep track the number of photons in a Rays object
+    
+    def starteffcalc(self):
+        '''
+        Function starteffcalc:
+        Saves the current length of the array, used before photons will be
+        removed to serve as a starting point in an efficiency calculation
+        
+        Inputs:
+        Nothing
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Calling this function again will overwrite the old starting point
+        '''
+        self.startingeff = self.__len__()
+    
+    def checkeffcalc(self):
+        '''
+        Function checkeffcalc:
+        Returns the paramarray for a Parameter in this Rays object
+        
+        Inputs:
+        Nothing
+        
+        Outputs:
+        startingeff - The saved photon length from a previous call of 
+        starteffcalc()
+        
+        Notes:
+        -Returns None starteffcalc() has not yet been called for this Rays
+        object
+        '''
+        return self.startingeff
+    
+    def geteff(self,display=False,header='Efficiency Calculation'):
+        '''
+        Function geteff:
+        Performs an efficiency calculation
+        
+        Inputs:
+        display - This argument should be true if the user wants the function
+        to print out information about the efficiency calculation
+        header - A user defined header to differentiate several efficiency
+        calculations, if None is specified, the header will be 'Efficiency
+        Calculation'
+        
+        Outputs:
+        efficiency - The fraction of photons that remain since the last call
+        of starteffcalc()
+        
+        Notes:
+        -Calling this function doesn't update self.startingeff, so efficiency
+        calculations can be performed at several ending points from the same
+        starting point
+        -An example of the display (using default header) is:
+        Efficiency Calculation
+        ----------------------
+        8 photons started
+        8 photons remain
+        Efficiency: 1.0
+        ======================
+        '''
+        if self.startingeff is None:
+            # Raise an exception if the efficiency calculation has not been started
+            raise Exception('Efficiency Calculation needs to be started with starteffcalc()')
+        starteff = self.startingeff
+        endeff = self.__len__()
+        if display:
+            print(header)
+            print('----------------------')
+            print(str(starteff) + ' photons started')
+            print(str(endeff) + ' photons remain')
+            print('Efficiency: ' + str(endeff / starteff))
+            print('======================')
+        return endeff / starteff
+    
+    
     ## Basic Motion Functions:
     
     def translate(self,dx=0,dy=0,dz=0):
@@ -735,11 +845,12 @@ class Rays:
     
     
 x = Rays.circularbeam(5,3)
-x.addParam('tag1',[0,1,0])
-x.addParam('sharedTag',[1,1,0])
+x.addTag('tag1',[0,1,0])
+x.addTag('sharedTag',[1,1,0])
 y = Rays.circularbeam(3,5)
-y.addParam('tag2',[1,1,1,1,1])
-y.addParam('sharedTag',[0,1,1,1,1])
+y.addTag('tag2',[1,1,1,1,1])
+y.addTag('sharedTag',[0,1,1,1,1])
+z = x+y
     
     
     
