@@ -7,6 +7,7 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 class Rays:
     
     ## Creation Functions:
+    # These functions create Rays Objects
     
     
     def __init__(self,x=[],y=[],z=[],l=[],m=[],n=[],ux=[],uy=[],uz=[]):
@@ -79,7 +80,7 @@ class Rays:
     @classmethod
     def convergingbeam2(cls,zset,xmin,xmax,ymin,ymax,num,lscat):
         opd,x,y,z,l,m,n,ux,uy,uz = sources.convergingbeam2(
-                                           zset,rin,rout,tmin,tmax,num,lscat)
+                                           zset,xmin,xmax,ymin,ymax,num,lscat)
         return cls(x,y,z,l,m,n,ux,uy,uz)
     
     
@@ -125,10 +126,33 @@ class Rays:
     # motion functions or functions that pass photons through optical systems.
     
     def remove(self,trutharray=None,tags=None,delim=None):
+        '''
+        Function remove:
+        Removes photons from a Rays object given a condition
+        
+        Inputs:
+        trutharray - The array that specifies which photons will be removed, a
+        0 (False) will be removed while a 1 (True) will be saved
+        tags, delim - If these arguments are specified, a trutharray will be
+        generated using the self.combinetags(tags,delim) method, this trutharray
+        will be used in the same way the previous argument would be
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -If the user tries to specify a trutharray, tags, and a delim, only the
+        trutharray will be used. There are ways to combine a trutharray with
+        existing tags (like creating a new tag), but that it not handled by this
+        function
+        '''
         if tags is not None:
             trutharray = self.combineTags(tags,delim)
-        if trutharray is not None:
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
             trutharray = (trutharray != 0)
+        else:
+            return
             
         self.x = self.x[trutharray]
         self.y = self.y[trutharray]
@@ -139,12 +163,50 @@ class Rays:
         self.ux = self.ux[trutharray]
         self.uy = self.uy[trutharray]
         self.uz = self.uz[trutharray]
-        for tag in self.tags:
+        # Iterate through tags and create new tags according to trutharray
+        for i in range(len(self.tags)):
+            tag = self.tags[i]
             tag = (tag[0],tag[1][trutharray])
-        for param in self.params:
+            self.tags[i] = tag
+        # Do the same for params
+        for i in range(len(self.params)):
+            param = self.param[i]
             param = (param[0],param[1][trutharray])
+            self.param[i] = param
+    
+    
+    def probRemove(self,probability=1.):
+        '''
+        Function probRemove:
+        Removes photons from a Rays object based on a probability. It is the
+        probability of survival, so a probability of 1 means the photon will 
+        always remain and a probability of 0 means that the photon will always
+        be removed.
         
-        ## The above function for some reason does not correctly update tags when using the trutharray argument
+        Inputs:
+        probability - An Array of floats or a single float. If it is a single
+        float, the same probability will be applied to every photon. If it is 
+        an array, it must be the same the length as the Rays object, and the
+        probability at index 0 will be applied to the first photon, repeated 
+        for the rest of the array.
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Generates probabilities using the fact that np.random.rand() has a 20%
+        chance to create a number below .2
+        '''
+        try:
+            l = len(probability)
+        except:
+            probability = np.array([probability] * len(self))
+        if len(probability) != len(self):
+            raise ValueError('Input Array must be the same length as Rays Object')
+            
+        choice = np.random.rand(len(self))
+        needToSave = choice < probability
+        self.remove(needToSave)
     
     
     ## Tag Functions:
@@ -244,7 +306,7 @@ class Rays:
         return None
     
     
-    def combineTags(self,tags,delim=None):
+    def combineTags(self,tags,delim=None,orcombination=True):
         '''
         Function combineTags:
         Combines the trutharray of several tags so that multiple tags can be
@@ -257,6 +319,9 @@ class Rays:
         If there is only one tagname in the string, leaving delim as None 
         is fine, but if there is more than one tag, delim should be specified.
         delim - The delimiting character that separates tagnames in a string
+        orcombination - The method of combining tags, if True, the boolean 
+        arrays will be combined using np.logical_or, if False, the boolean 
+        arrays will be combined using np.logical_and
         
         Outputs:
         outputarray - The combined trutharray
@@ -266,7 +331,7 @@ class Rays:
         To do so, use the '!' or '~' characters before the tagname
         '''
         # delim cannot be ~ or !, this would interfere with opposite tagarrays
-        if (delim == '!' or delim == '!'):
+        if (delim == '~' or delim == '!'):
             raise ValueError("Delimiter cannot be '~' or '!'")
         
         # Start the output array as False, because other arrays will be added
@@ -287,14 +352,20 @@ class Rays:
                     continue
                 else:
                     # Note that the logical_not is passed into the outputarray
-                    outputarray = np.logical_or(outputarray,np.logical_not(trutharray))
+                    if orcombination:
+                        outputarray = np.logical_or(outputarray,np.logical_not(trutharray))
+                    else:
+                        outputarray = np.logical_and(outputarray,np.logical_not(trutharray))
             # This block deals with tag not specified as opposite
             else:
                 trutharray = self.getTag(tag)
                 if trutharray is None:
                     continue
                 else:
-                    outputarray = np.logical_or(outputarray,trutharray)
+                    if orcombination:
+                        outputarray = np.logical_or(outputarray,trutharray)
+                    else:
+                        outputarray = np.logical_and(outputarray,trutharray)
         
         return outputarray
     
@@ -322,6 +393,10 @@ class Rays:
         Notes:
         -The input paramarray must be the same length as the Rays object
         '''
+        arr = self.getParam(paramname)
+        if arr is not None:
+            raise Exception('That Parameter already exists, remove the existing Parameter before adding a new one')
+            
         if (len(paramarray) == self.__len__()):
             self.params.append((paramname,paramarray))
         else:
@@ -851,8 +926,7 @@ y = Rays.circularbeam(3,5)
 y.addTag('tag2',[1,1,1,1,1])
 y.addTag('sharedTag',[0,1,1,1,1])
 z = x+y
-    
-    
+
     
     
     
