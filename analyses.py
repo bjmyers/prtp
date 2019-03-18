@@ -11,7 +11,7 @@ from scipy.optimize import curve_fit
 def centroid(rays,weights=None):
     """Compute the centroid of the rays in the xy plane
     """
-    x,y = rays[1:3]
+    x,y = rays.x,rays.y
     cx = np.average(x,weights=weights)
     cy = np.average(y,weights=weights)
     return cx,cy
@@ -19,21 +19,21 @@ def centroid(rays,weights=None):
 def rmsCentroid(rays,weights=None):
     """Compute the RMS of rays from centroid in xy plane
     """
-    x,y = rays[1:3]
+    x,y = rays.x,rays.y
     cx,cy = centroid(rays,weights=weights)
     rho = (x-cx)**2 + (y-cy)**2
     return np.sqrt(np.average(rho,weights=weights))
 
 def rmsX(rays,weights=None):
     """RMS from centroid in the X direction"""
-    x = rays[1]
+    x = rays.x
     cx = np.average(x,weights=weights)
     rmsx = np.sqrt(np.average((x-cx)**2,weights=weights))
     return rmsx
 
 def rmsY(rays,weights=None):
     """RMS from centroid in the Y direction"""
-    y = rays[2]
+    y = rays.y
     cy = np.average(y,weights=weights)
     rmsy = np.sqrt(np.average((y-cy)**2,weights=weights))
     return rmsy
@@ -42,7 +42,7 @@ def rho(rays,weights=None,cent=False):
     """
     Compute distance from centroid for all rays
     """
-    x,y = rays[1:3]
+    x,y = rays.x,rays.y
     if cent is True:
         cx,cy = centroid(rays,weights=weights)
     else:
@@ -74,14 +74,14 @@ def hpd(rays,weights=None):
         hpd = r[np.argmin(np.abs(cdf-.75))] - \
               r[np.argmin(np.abs(cdf-.25))]
     else:
-        hpd = np.median(rho)*2.
+        hpd = np.median(r)*2.
     return hpd
 
 def hpdY(rays,weights=None):
     """Compute HPD in y direction by taking median of radii from centroid
     Does rho need to be absolute value???
     """
-    y = rays[2]
+    y = rays.y
     cy = np.average(y,weights=weights)
     rho = np.abs(y-cy)
     if weights is not None:
@@ -100,7 +100,7 @@ def analyticImagePlane(rays,weights=None):
     """Find the image plane using the analytic method from
     Ron Elsner's paper
     """
-    x,y,z,l,m,n = rays[1:7]
+    x,y,z,l,m,n = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n
     bx = np.average(x*l/n,weights=weights)-np.average(x,weights=weights)\
          *np.average(l/n,weights=weights)
     ax = np.average((l/n)**2,weights=weights)\
@@ -116,7 +116,7 @@ def analyticImagePlane(rays,weights=None):
 def analyticYPlane(rays,weights=None):
     """Find the line plane using analytic method from
     Ron Elsner's paper"""
-    x,y,z,l,m,n = rays[1:7]
+    x,y,z,l,m,n = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n
     by = np.average(y*m/n,weights=weights)-np.average(y,weights=weights)\
          *np.average(m/n,weights=weights)
     ay = np.average((m/n)**2,weights=weights)\
@@ -127,7 +127,7 @@ def analyticYPlane(rays,weights=None):
 def analyticXPlane(rays,weights=None):
     """Find the line plane using analytic method from
     Ron Elsner's paper"""
-    x,y,z,l,m,n = rays[1:7]
+    x,y,z,l,m,n = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n
     bx = np.average(x*l/n,weights=weights)-np.average(x,weights=weights)\
          *np.average(l/n,weights=weights)
     ax = np.average((l/n)**2,weights=weights)\
@@ -147,18 +147,20 @@ def indAngle(rays,ind = None,normal = None):
     surface normal."""
     if normal is None:
         if ind is not None:
-            wave,x,y,z,l,m,n,ux,uy,uz = rays
+            x,y,z,l,m,n,ux,uy,uz = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
             tx,ty,tz,tl,tm,tn,tux,tuy,tuz = x[ind],y[ind],z[ind],l[ind],m[ind],n[ind],ux[ind],uy[ind],uz[ind]
             iangs = np.arccos(tl*tux + tm*tuy + tn*tuz)
         else:
-            iangs = np.arccos(rays[4]*rays[7] + rays[5]*rays[8] + rays[6]*rays[9])
+            l,m,n,ux,uy,uz = rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
+            iangs = np.arccos(l*ux + m*uy + n*uz)
     else:
         if ind is not None:
-            wave,x,y,z,l,m,n,ux,uy,uz = rays
+            x,y,z,l,m,n,ux,uy,uz = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
             dir_cosines = np.vstack((l[ind],m[ind],n[ind]))
             iangs = np.arccos(np.dot(np.array([normal]),dir_cosines))[0]
         else:
-            dir_cosines = np.vstack((rays[4],rays[5],rays[6]))
+            l,m,n = rays.l,rays.m,rays.n
+            dir_cosines = np.vstack((l,m,n))
             iangs = np.arccos(np.dot(np.array([normal]),dir_cosines))[0]
     return iangs
 
@@ -180,8 +182,25 @@ def interpolateVec(rays,I,Nx,Ny,xr=None,yr=None,method='linear',\
     I indicates which vector to interpolate
     """
     #Unpack needed vectors
-    x,y = rays[1:3]
-    interpVec = rays[I]
+    x,y = rays.x,rays.y
+    if I==1:
+        interpVec = rays.x
+    elif I==2:
+        interpVec = rays.y
+    elif I==3:
+        interpVec = rays.z
+    elif I==4:
+        interpVec = rays.l
+    elif I==5:
+        interpVec = rays.m
+    elif I==6:
+        interpVec = rays.n
+    elif I==7:
+        interpVec = rays.ux
+    elif I==8:
+        interpVec = rays.uy
+    else:
+        interpVec = rays.uz
     
     #Set up new grid
     if xr is None:
