@@ -1,7 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import sources
+import sources as sources
 import warnings
+import analyses as analyses
+import surfacesf as surfacesf 
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Rays:
@@ -119,6 +121,125 @@ class Rays:
             return len(self.x)
         else:
             raise Exception('The x,y,x,l,m,n,ux,uy,uz Parameters must be of the same length!')
+    
+    
+    ## Analysis Functions:
+    # These functions are calls to prtp.analyses
+    
+    def centroid(self,weights=None):
+        return analyses.centroid(self,weights)
+    
+    
+    def rmscentroid(self,weights=None):
+        return analyses.rmscentroid(self,weights)
+    
+    
+    def rmsX(self,weights=None):
+        return analyses.rmscentroid(self,weights)
+    
+    
+    def rmsY(self,weights=None):
+        return analyses.rmsX(self,weights)
+    
+    
+    def rho(self,weights=None,cent=False):
+        return analyses.rho(self,weights,cent)
+    
+    
+    def rhocdf(self,weights=None,cent=False):
+        return analyses.rhocdf(self,weights,cent)
+    
+    
+    def hpd(self,weights=None):
+        return analyses.hpd(self,weights)
+    
+    
+    def hpdY(self,weights=None):
+        return analyses.hpdY(self,weights)
+    
+    
+    def analyticImagePlane(self,weights=None):
+        return analyses.analyticImagePlane(self,weights)
+    
+    
+    def analyticXPlane(self,weights=None):
+        return analyses.analyticXPlane(self,weights)
+    
+    
+    def analyticYPlane(self,weights=None):
+        return analyses.analyticYPlane(self,weights)
+    
+    
+    def indAngle(self,ind=None,normal=None):
+        return analyses.indAngle(self,ind,normal)
+    
+    
+    def grazeAngle(self,ind=None):
+        return analyses.grazeAngle(self,ind)
+    
+    
+    def interpolateVec(self,I,Nx,Ny,xr=None,yr=None,method='linear',polar=False):
+        return analyses.interpolateVec(self,I,Nx,Ny,xr,yr,method,polar)
+    
+    # wavefront requires the no longer used utilities.imaging.man package
+    # def wavefront(self,Nx,Ny,method='cubic',polar=False):
+    #     return analyses.wavefront(self,Nx,Ny,method,polar)
+    
+    
+    # measurePower requires the no longer used utilities.imaging.man package
+    # def measurePower(self,Nx,Ny,method='linear'):
+    #     return analyses.measurePower(self,Nx,Ny,method)
+    
+    
+    ## Surfaces Functions:
+    # These functions call to prtp.surfacesf
+    
+    def flat(self):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.flat(self)
+    
+    
+    def sphere(self,rad,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.sphere(self,rad)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def cyl(self,rad,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.cyl(self,rad)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+
+    def cylconic(self,rad,k,eliminate='nan',maxiter=12):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.cylconic(self,rad,k,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def conic(self,rad,k,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.conic(self,rad,k)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def paraxial(self,f):
+        if (f==0):
+            raise ValueError('f cannot be 0')
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.paraxial(self,f)
+    
+    def paraxialY(self,f):
+        if (f==0):
+            raise ValueError('f cannot be 0')
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.paraxial(self,f)
+    
+    def torus(self,rin,rout,eliminate='nan',maxiter=12):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.torus(self,rin,rout,eliminate,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def conicplus(self,r,k,n,p,Np,eliminate='nan',maxiter=12):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.conicplus(self,r,k,n,p,Np,eliminate,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    #TODO: When you get transformationsf done, implement the focus functions at the end of surfacesf
+    
     
     
     ## Update Functions
