@@ -1,7 +1,7 @@
 import numpy as np
-import prtp.specialFunctions as funcs
+import specialFunctions as funcs
 
-def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
+def wolterprimary(rays,r0,z0,psi,maxiter=10):
     """
     This function traces to a Wolter I primary mirror
     Defined by Van Speybroeck prescription
@@ -9,11 +9,7 @@ def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
     Surface should be placed at common focus with z+ pointing toward mirrors
     """
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Van Speybroeck Parameters
     alpha = 0.25*np.arctan(r0/z0)
@@ -38,8 +34,6 @@ def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
             x += l*delt
             y += m*delt
             z += n*delt
-            if nr is not None:
-                opd += nr*delt
             if (not (np.abs(delt) > 1.0e-10).any()):
                 break
         i += 1
@@ -50,10 +44,10 @@ def wolterprimary(rays,r0,z0,psi,nr=None,eliminate="nan",maxiter=10):
         uy = Fy/Fp
         uz = Fz/Fp
 
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9)
     
     
-def woltersecondary(rays,r0,z0,psi,eliminate="nan",maxiter=10):
+def woltersecondary(rays,r0,z0,psi,maxiter=10):
     """
     This function traces to a Wolter I secondary mirror
     Defined by Van Speybroeck prescription
@@ -61,11 +55,7 @@ def woltersecondary(rays,r0,z0,psi,eliminate="nan",maxiter=10):
     Surface should be placed at common focus with z+ pointing toward mirrors
     """
 
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Van Speybroeck Parameters
     alpha = 0.25*np.arctan(r0/z0)
@@ -98,11 +88,10 @@ def woltersecondary(rays,r0,z0,psi,eliminate="nan",maxiter=10):
         ux = Fx/Fp
         uy = Fy/Fp
         uz = Fz/Fp
-    return [opd,x,y,z,l,m,n,ux,uy,uz]
-    #return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9)
     
     
-def woltersine(rays,r0,z0,amp,freq,eliminate="nan",maxiter=12):
+def woltersine(rays,r0,z0,amp,freq,maxiter=12):
     """
     This function traces to a Wolter I primary mirror with sinusoidal perturbation
     Defined by Van Speybroeck prescription
@@ -110,11 +99,7 @@ def woltersine(rays,r0,z0,amp,freq,eliminate="nan",maxiter=12):
     Surface should be placed at common focus with z+ pointing toward mirrors
     """
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     alpha = .25*np.arctan(r0/z0)
     thetah = 3.*alpha
@@ -149,21 +134,17 @@ def woltersine(rays,r0,z0,amp,freq,eliminate="nan",maxiter=12):
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
 
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10)
     
 
-def wolterprimLL(rays,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',maxiter=10):
+def wolterprimLL(rays,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10):
     """
     Construct a paraboloid as in Wolter but with Legendre-Legendre
     deformations. Define Legendre and Legendre derivative functions.
     Pass in coeff, axial order, and azimuthal order as in Zemax implementation
     """
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     alpha = .25*np.arctan(r0/z0)
     thetah = 3.*alpha
@@ -222,21 +203,17 @@ def wolterprimLL(rays,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',m
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-10)
 
 
-def woltersecLL(rays,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan',maxiter=10):
+def woltersecLL(rays,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10):
     """
     Construct a hyperboloid as in Wolter but with Legendre-Legendre
     deformations. Define Legendre and Legendre derivative functions.
     Pass in coeff, axial order, and azimuthal order as in Zemax implementation
     """
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     alpha = .25*np.arctan(r0/z0)
     thetah = 3.*alpha
@@ -295,10 +272,10 @@ def woltersecLL(rays,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,eliminate='nan
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-7,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-7)
 
 
-def wsprimary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
+def wsprimary(rays,alpha,z0,psi,maxiter=10):
     '''
     This function traces to a Wolter-Schwarzschild primary mirror
     Defined by Van Speybroeck prescription
@@ -307,11 +284,7 @@ def wsprimary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
     traced to minimum z position
     '''
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Chase parameters
     betas = 4*alpha
@@ -323,52 +296,51 @@ def wsprimary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
     delt = np.ones(num)*100
     kterm = np.zeros(num)
     r = np.zeros(num)
+    Fz = np.zeros(num)
     i = 0
     
     while (i < maxiter):
         
         x2y2 = x**2 + y**2
         
-        beta = np.arcsin(np.sqrt(x2y2)/ff)
+        with np.errstate(invalid='ignore',divide='ignore'):
+            beta = np.arcsin(np.sqrt(x2y2)/ff)
+            case1 = (beta <= betas)
+            beta = np.where(case1,betas,beta)
+            kterm = np.where(np.logical_not(case1),(1/k)*np.tan(beta/2)**2-1,0)
         
-        case1 = (beta <= betas)
-        beta = np.where(case1,betas,beta)
-        kterm = np.where(np.logical_not(case1),(1/k)*np.tan(beta/2)**2-1,0)
+            F = -z - ff*np.sin(betas/2)**2 + ff**2*np.sin(beta)**2/(4*ff*np.sin(betas/2)**2) + g*np.cos(beta/2)**4*(kterm)**(1-k)
+            Fb = ff**2*np.sin(beta)*np.cos(beta)/(2*ff*np.sin(betas/2)**2) - 2*g*np.cos(beta/2)**3*np.sin(beta/2)*(kterm)**(1-k) + g*(1-k)*np.cos(beta/2)*np.sin(beta/2)*(kterm)**(-k)*(1/k)
+            Fz[:] = -1
         
-        F = -z - ff*np.sin(betas/2)**2 + ff**2*np.sin(beta)**2/(4*ff*np.sin(betas/2)**2) + g*np.cos(beta/2)**4*(kterm)**(1-k)
-        Fb = ff**2*np.sin(beta)*np.cos(beta)/(2*ff*np.sin(betas/2)**2) - 2*g*np.cos(beta/2)**3*np.sin(beta/2)*(kterm)**(1-k) + g*(1-k)*np.cos(beta/2)*np.sin(beta/2)*(kterm)**(-k)*(1/k)
-        Fz[:] = -1
-        
-        r = np.where(case1,np.sqrt(x2y2),0)
-        Fb = np.where(case1,ff*2*np.sin(betas)*np.cos(betas)/(2*ff*np.sin(betas/2)**2) + g*(1-k)*np.cos(betas/2)*np.sin(betas/2)*(1-k),Fb[:])
-        F = np.where(case1,F + (r - ff*npsin(betas))*z/(r**2 + z**2)**2*Fb,F)
-        Fz = np.where(case1,Fz + (r-ff*np.sin(betas))*(r**2-z**2)/(r**2 + z**2)**2*Fb,Fz)
-        
-        dbdx = x/np.sqrt(1-(x2y2)/ff**2)/ff/np.sqrt(x2y2)
-        dbdy = y/np.sqrt(1-(x2y2)/ff**2)/ff/np.sqrt(x2y2)
-        Fx = Fb * dbdx
-        Fy = Fb * dbdy
-        Fp = Fx*l + Fy*m - n
-        
-        with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F[:]/Fp[:]
-            x[:] += l[:]*delt[:]
-            y[:] += m[:]*delt[:]
-            z[:] += n[:]*delt[:]
+            r = np.where(case1,np.sqrt(x2y2),0)
+            Fb = np.where(case1,ff*2*np.sin(betas)*np.cos(betas)/(2*ff*np.sin(betas/2)**2) + g*(1-k)*np.cos(betas/2)*np.sin(betas/2)*(1-k),Fb[:])
+            F = np.where(case1,F + (r - ff*np.sin(betas))*z/(r**2 + z**2)**2*Fb,F)
+            Fz = np.where(case1,Fz + (r-ff*np.sin(betas))*(r**2-z**2)/(r**2 + z**2)**2*Fb,Fz)
+       
+            dbdx = x/np.sqrt(1-(x2y2)/ff**2)/ff/np.sqrt(x2y2)
+            dbdy = y/np.sqrt(1-(x2y2)/ff**2)/ff/np.sqrt(x2y2)
+            Fx = Fb * dbdx
+            Fy = Fb * dbdy
+            Fp = Fx*l + Fy*m - n
+            delt = (-1)*F/Fp
+            x += l*delt
+            y += m*delt
+            z += n*delt
             if (not (np.abs(delt) > 1.0e-8).any()):
                 break
         i += 1
     
     with(np.errstate(invalid='ignore')):
-        Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
-        ux[:] = -Fx[:]/Fp[:]
-        uy[:] = -Fy[:]/Fp[:]
-        uz[:] = -Fz[:]/Fp[:]
+        Fp = np.sqrt(Fx**2 + Fy**2 + Fz**2)
+        ux = -Fx/Fp
+        uy = -Fy/Fp
+        uz = -Fz/Fp
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
 
 
-def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
+def wssecondary(rays,alpha,z0,psi,maxiter=10):
     '''
     This function traces to a Wolter-Schwarzschild secondary mirror
     Defined by Van Speybroeck prescription
@@ -377,11 +349,7 @@ def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
     traced to minimum z position
     '''
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Chase parameters
     betas = 4*alpha
@@ -441,16 +409,12 @@ def wssecondary(rays,alpha,z0,psi,eliminate='nan',maxiter=10):
         uy = Fy/Fp
         uzs = Fz/Fp
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
 
 
-def spoCone(rays,R0,tg, eliminate='nan'):
+def spoCone(rays,R0,tg):
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     sl = np.tan(tg)
     
@@ -467,7 +431,7 @@ def spoCone(rays,R0,tg, eliminate='nan'):
         t1 = np.where(np.abs(t2) < np.abs(t1),t2,t1)
         x += np.where(case1,t1*l,x)
         y += np.where(case1,t1*m,y)
-        z += np.where(case1,t1*nmz)
+        z += np.where(case1,t1*n,z)
         ux = np.where(case1,-x/np.sqrt(x**2 + y**2)*np.cos(tg),ux)
         uy = np.where(case1,-y/np.sqrt(x**2 + y**2)*np.cos(tg),uy)
         uz = np.where(case1,np.sin(tg),uz)
@@ -476,21 +440,17 @@ def spoCone(rays,R0,tg, eliminate='nan'):
     missed = np.ones(len(x))
     missed[case1] = 0
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],missed,thresh = 1e-2,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],missed,thresh = 1e-2)
 
 
-def ellipsoidWoltLL(rays,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,eliminate='nan',maxiter=10):
+def ellipsoidWoltLL(rays,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,maxiter=10):
     '''
     Construct an ellipsoid primary but with Legendre-Legendre
     deformations. Define Legendre and Legendre derivative functions.
     Pass in coeff, axial order, and azimuthal order as in Zemax implementation
     '''
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Telescope Parameters
     P = R0/np.sin((psi*np.arcsin(R0/z0) - np.arcsin(R0/S))/(1+psi))
@@ -544,6 +504,8 @@ def ellipsoidWoltLL(rays,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,eliminat
             z[:] += n[:]*delt[:]
             if (not (np.abs(delt) > 1.0e-10).any()):
                 break
+
+        i += 1
     
     with(np.errstate(invalid='ignore')):
         Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
@@ -551,10 +513,10 @@ def ellipsoidWoltLL(rays,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,eliminat
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9)
 
 
-def wsprimaryBack(rays,alpha,z0,psi,thick):
+def wsprimaryBack(rays,alpha,z0,psi,thick,maxiter=10):
     '''
     This function traces to a Wolter-Schwarzschild primary mirror
     Defined by Van Speybroeck prescription
@@ -563,11 +525,7 @@ def wsprimaryBack(rays,alpha,z0,psi,thick):
     traced to minimum z position
     '''
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Chase parameters
     betas = 4*alpha
@@ -580,6 +538,7 @@ def wsprimaryBack(rays,alpha,z0,psi,thick):
     kterm = np.zeros(num)
     a = np.zeros(num)
     r = np.zeros(num)
+    Fz = np.zeros(num)
     i = 0
     
     while (i < maxiter):
@@ -598,9 +557,9 @@ def wsprimaryBack(rays,alpha,z0,psi,thick):
         Fb = ff**2*np.sin(beta)*np.cos(beta)/(2*ff*np.sin(betas/2)**2) - 2*g*np.cos(beta/2)**3*np.sin(beta/2)*(kterm)**(1-k) + g*(1-k)*np.cos(beta/2)*np.sin(beta/2)*(kterm)**(-k)*(1/k)
         
         r = np.where(case1,np.sqrt(x2**2 + y2**2),0)
-        Fb = np.where(case1,ff**2*mp.sin(betas)*np.cos(betas)/(2*ff*np.sin(betas/2)**2) + g*(1-k)*np.cos(betas/2)*np.sin(betas/2)*(1/k),Fb)
-        F = np.where(case1,F + (r - ff*np.sin(betas))*z(i)/(r**2+z(i)**2)*Fb,F)
-        Fz = np.where(case1,Fz + (r-ff*np.sin(betas))*(r**2-z(i)**2)/(r**2+z(i)**2)**2*Fb,-1)
+        Fb = np.where(case1,ff**2*np.sin(betas)*np.cos(betas)/(2*ff*np.sin(betas/2)**2) + g*(1-k)*np.cos(betas/2)*np.sin(betas/2)*(1/k),Fb)
+        F = np.where(case1,F + (r - ff*np.sin(betas))*z/(r**2+z**2)*Fb,F)
+        Fz = np.where(case1,Fz + (r-ff*np.sin(betas))*(r**2-z**2)/(r**2+z**2)**2*Fb,-1)
         
         dbdx = x2/np.sqrt(1-(x2**2+y2**2)/ff**2)/ff/np.sqrt(x2**2+y2**2)
         dbdy = y2/np.sqrt(1-(x2**2+y2**2)/ff**2)/ff/np.sqrt(x2**2+y2**2)
@@ -609,23 +568,23 @@ def wsprimaryBack(rays,alpha,z0,psi,thick):
         Fp = Fx*l + Fy*m + Fz*n
         
         with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F[:]/Fp[:]
-            x[:] += l[:]*delt[:]
-            y[:] += m[:]*delt[:]
-            z[:] += n[:]*delt[:]
+            delt = (-1)*F/Fp
+            x += l*delt
+            y += m*delt
+            z += n*delt
             if (not (np.abs(delt) > 1.0e-8).any()):
                 break
                 
     with(np.errstate(invalid='ignore')):
-        Fp = np.sqrt(Fx[:]**2 + Fy[:]**2 + Fz[:]**2)
-        ux[:] = -Fx[:]/Fp[:]
-        uy[:] = -Fy[:]/Fp[:]
-        uz[:] = -Fz[:]/Fp[:]
+        Fp = np.sqrt(Fx**2 + Fy**2 + Fz**2)
+        ux = -Fx/Fp
+        uy = -Fy/Fp
+        uz = -Fz/Fp
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
 
 
-def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
+def wssecondaryBack(rays,alpha,z0,psi,thick,maxiter=10):
     '''
     This function traces to a Wolter-Schwarzschild secondary mirror
     Defined by Van Speybroeck prescription
@@ -634,11 +593,7 @@ def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
     traced to minimum z position
     '''
     
-    # Temp list so inputs are not modified
-    raycopy = []
-    for lst in rays:
-        raycopy.append(lst.copy())
-    opd,x,y,z,l,m,n,ux,uy,uz = raycopy
+    x,y,z,l,m,n,ux,uy,uz =         rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     # Chase parameters
     betas = 4*alpha
@@ -680,7 +635,7 @@ def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
         
         F = np.where(case1,F + gam*(z - np.sqrt(x2y2)/np.tan(betas)),F)
         Fx = np.where(case1,-2.0/np.tan(betas)*x2/np.sqrt(x2y2),Fb * dbdx)
-        Fx = np.where(case1,-2.0/np.tan(betas)*y2/np.sqrt(x2y2),Fb * dbdy)
+        Fy = np.where(case1,-2.0/np.tan(betas)*y2/np.sqrt(x2y2),Fb * dbdy)
         Fz = np.where(case1,gam - 1,-1.0 + Fb*dbdz)
         
         Fp = Fx*l + Fy*m + Fz*n
@@ -699,5 +654,5 @@ def wssecondaryBack(rays,alpha,z0,psi,thick,eliminate='nan',maxiter=10):
         uy[:] = Fy[:]/Fp[:]
         uz[:] = Fz[:]/Fp[:]
     
-    return funcs.eliminate([opd,x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8,eliminate = eliminate)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
 

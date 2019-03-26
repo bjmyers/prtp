@@ -3,7 +3,10 @@ import matplotlib.pyplot as plt
 import sources as sources
 import warnings
 import analyses as analyses
-import surfacesf as surfacesf 
+import surfacesf as surfacesf
+import transformationsf as transformationsf
+import woltsurf as wolt
+from analyses import analyticYPlane,analyticXPlane,analyticImagePlane
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Rays:
@@ -238,11 +241,118 @@ class Rays:
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
     
-    #TODO: When you get transformationsf done, implement the focus functions at the end of surfacesf
+    def focus(self,fn,weights=None):
+        output = surfacesf.focus(self,fn,weights)
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = output[0]
+        return output[1]
+    
+    def focusX(self,weights=None):
+        return self.focus(analyticXPlane,weights)
+    
+    def focusY(self,weights=None):
+        return self.focus(analyticYPlane,weights)
+    
+    def focusI(self,weights=None):
+        return self.focus(analyticImagePlane,weights)
     
     
+    ## Transformation Functions:
+    # These functions call to prtp.transformationsf
     
-    ## Update Functions
+    def rotatevector(self,theta,axis):
+        self.x,self.y,self.z = transformationsf.rotatevector(self.x,self.y,self.z,theta,axis)
+    
+    def rotateaxis(self,theta):
+        self.x,self.y,self.z,self.ux,self.uy,self.uz = transformationsf.rotateaxis(self.x,self.y,self.z,self.ux,self.uy,self.uz,theta)
+    
+    def reflect(self):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.reflect(self)
+    
+    def refract(self,n1,n2):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.refract(self,n1,n2)
+    
+    def transform(self,tx,ty,tz,rx,ry,rz):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.transform(self,tx,ty,tz,rx,ry,rz)
+    
+    def itransform(self,tx,ty,tz,rx,ry,rz):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.itransform(self,tx,ty,tz,rx,ry,rz)
+    
+    def radgrat(self,wave,dpermm,order,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.radgrat(self,wave,dpermm,order)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def radgratW(self,wave,dpermm,order,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.radgratW(self,wave,dpermm,order)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def grat(self,d,order,wave,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.grat(self,d,order,wave,eliminate)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    
+    ## Wolter Surfaces Functions:
+    # These functions call to prtp.woltsurf
+    
+    def wolterprimary(self,r0,z0,psi,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wolterprimary(self,r0,z0,psi,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def woltersecondary(self,r0,z0,psi,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersecondary(self,r0,z0,psi,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def woltersine(self,r0,z0,amp,freq,maxiter=12,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersine(self,r0,z0,amp,freq,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def wolterprimLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wolterprimLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def woltersecLL(self,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersecLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def wsprimary(self,alpha,z0,psi,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wsprimary(self,alpha,z0,psi,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def wssecondary(self,alpha,z0,psi,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wssecondary(self,alpha,z0,psi,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def spoCone(self,R0,tg,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.spoCone(self,R0,tg)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def ellipsoidWoltLL(self,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.ellipsoidWoltLL(self,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def wsprimaryBack(self,alpha,z0,psi,thick,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wsprimaryBack(self,alpha,z0,psi,thick,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    def wssecondaryBack(self,alpha,z0,psi,thick,maxiter=10,eliminate='nan'):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wssecondaryBack(self,alpha,z0,psi,thick,maxiter)
+        if eliminate.lower() == 'remove':
+            self.remove(np.logical_not(np.isnan(self.x)))
+    
+    
+    ## Update Functions:
     # These functions update the Rays object, this section does NOT include 
     # motion functions or functions that pass photons through optical systems.
     
@@ -1039,15 +1149,13 @@ class Rays:
         ax.set_zlabel(zlabel)
         plt.show()
     
-    
-x = Rays.circularbeam(5,3)
-x.addTag('tag1',[0,1,0])
-x.addTag('sharedTag',[1,1,0])
-y = Rays.circularbeam(3,5)
-y.addTag('tag2',[1,1,1,1,1])
-y.addTag('sharedTag',[0,1,1,1,1])
+## Testing Code:
+x = Rays.pointsource(.2,20)
+y = Rays.pointsource(.2,25)
 z = x+y
-
+z.rotatenormal(duz=1.)
+z.translate(dz=-3)
+z.flat()
     
     
     
