@@ -150,7 +150,6 @@ def conic(rays,r,k):
     """Wrapper for conic surface with radius of curvature R
     and conic constant K
     """
-    # Temp list so inputs are not modified
     x,y,z,l,m,n,ux,uy,uz = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     num = len(x)
@@ -200,7 +199,6 @@ def paraxial(rays,f):
     Assume optical axis is at xy=0 in z direction
     Surface is in xy plane
     """    
-    # Temp list so inputs are not modified
     x,y,z,l,m,n,ux,uy,uz = rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz
     
     l -= x/f
@@ -329,23 +327,25 @@ def conicplus(rays,r,k,p,Np,eliminate='nan',maxiter=12):
     return x, y, z, l, m, n, ux, uy, uz
 
 
-def focus(rays,fn,weights=None,nr=None):
+def focus(rays,fn,weights=None):
     dz1 = fn(rays,weights=weights)
-    rays = tran.transform(rays,0,0,dz1,0,0,0)
-    rays = flat(rays,nr=nr)
+    rays.transform(0,0,-dz1,0,0,0)
+    rays.flat()
     dz2 = fn(rays,weights=weights)
-    rays = tran.transform(rays,0,0,dz2,0,0,0)
-    rays = flat(rays,nr=nr)
+    rays.transform(0,0,-dz2,0,0,0)
+    rays.flat()
     
-    return (rays,dz1+dz2)
+    # I don't think we need to return the rays components:
+    #return ((rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz),dz1+dz2)
+    return dz1+dz2
 
-def focusY(rays,weights=None,nr=None,coords=None):
-    return focus(rays,analyticYPlane,weights=weights,nr=nr)
+def focusY(rays,weights=None,coords=None):
+    return focus(rays,analyticYPlane,weights=weights)
 
-def focusX(rays,weights=None,nr=None,coords=None):
-    return focus(rays,analyticXPlane,weights=weights,nr=nr)
+def focusX(rays,weights=None,coords=None):
+    return focus(rays,analyticXPlane,weights=weights)
 
-def focusI(rays,weights=None,nr=None,coords=None):
-    return focus(rays,analyticImagePlane,weights=weights,nr=nr)
+def focusI(rays,weights=None,coords=None):
+    return focus(rays,analyticImagePlane,weights=weights)
         
     

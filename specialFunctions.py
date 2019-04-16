@@ -287,50 +287,30 @@ def legendrep(x,n):
         raise TypeError("Input must be a numpy array, integer, or float")
 
 
-def eliminate(rays, delt, thresh = 1e-10, eliminate="nan"):
+def eliminate(rays, delt, thresh = 1e-10):
     '''
     Inputs:
-    rays - np.ndarray - The rays that have been through Newton's method to trace them to a surface
+    rays - np.ndarray - The rays that have been through Newton's method to trace them to a surface, takes in the old format ([x, y, z, l, m, n, ux, uy, uz]), not a Rays object
     delt - np.ndarray - The delta values from Newton's method
     thresh - float - The threshold on delta, values above this threshold or NaNs will be eliminated
-    eliminate - string - has values or 'nan' or 'remove', specifies the method of removing rays
-        If 'nan': Rays that are removed will be replaced with NaN values
-        If 'remove': Rays will be removed from the array (returns a shorter array)
-    
     Outputs:
-    rays - np.ndarray - The rays with some eliminated
+    rays - np.ndarray - The rays with some eliminated (in the old format)
     '''
-    opd,x,y,z,l,m,n,ux,uy,uz = rays
+    x,y,z,l,m,n,ux,uy,uz = rays
     
-    if (eliminate.lower() == "nan"):
-        with(np.errstate(invalid='ignore')):
-            unfinishedrays = (np.abs(delt) > thresh) | (np.isnan(delt[:]))
-        x[unfinishedrays] = np.nan
-        y[unfinishedrays] = np.nan
-        z[unfinishedrays] = np.nan
-        l[unfinishedrays] = np.nan
-        m[unfinishedrays] = np.nan
-        n[unfinishedrays] = np.nan
-        ux[unfinishedrays] = np.nan
-        uy[unfinishedrays] = np.nan
-        uz[unfinishedrays] = np.nan
-        opd[unfinishedrays] = np.nan
+    with(np.errstate(invalid='ignore')):
+        unfinishedrays = np.logical_or((np.abs(delt) > thresh),(np.isnan(delt)))
+    x[unfinishedrays] = np.nan
+    y[unfinishedrays] = np.nan
+    z[unfinishedrays] = np.nan
+    l[unfinishedrays] = np.nan
+    m[unfinishedrays] = np.nan
+    n[unfinishedrays] = np.nan
+    ux[unfinishedrays] = np.nan
+    uy[unfinishedrays] = np.nan
+    uz[unfinishedrays] = np.nan
 
-    elif (eliminate.lower() == "remove"):
-        with(np.errstate(invalid='ignore')):
-            removelist = (np.abs(delt) <= thresh) | (np.isnan(delt[:]))
-        x = x[removelist]
-        y = y[removelist]
-        z = z[removelist]
-        l = l[removelist]
-        m = m[removelist]
-        n = n[removelist]
-        ux = ux[removelist]
-        uy = uy[removelist]
-        uz = uz[removelist]
-        opd = opd[removelist]
-
-    return [opd, x, y, z, l, m, n, ux, uy, uz]
+    return [x, y, z, l, m, n, ux, uy, uz]
 
 
 

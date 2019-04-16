@@ -11,6 +11,9 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Rays:
     
+    #TODO List:
+    # Add trutharray functionality to more functions
+    
     ## Creation Functions:
     # These functions create Rays Objects
     
@@ -94,6 +97,82 @@ class Rays:
         opd,x,y,z,l,m,n,ux,uy,uz = sources.rectbeam(
                                            xhalfwidth,yhalfwidth,num)
         return cls(x,y,z,l,m,n,ux,uy,uz)
+    
+    def copy(self):
+        '''
+        Function copy:
+        Returns a copy of the Rays object
+        
+        Inputs:
+        Nothing
+        
+        Outputs:
+        An identical Rays object
+        
+        Notes:
+        -The returned Rays object is a deep copy of the original, modifying one
+        should have no effect on the other
+        '''
+        x = np.copy(self.x)
+        y = np.copy(self.y)
+        z = np.copy(self.z)
+        l = np.copy(self.l)
+        m = np.copy(self.m)
+        n = np.copy(self.n)
+        ux = np.copy(self.ux)
+        uy = np.copy(self.uy)
+        uz = np.copy(self.uz)
+        new_rays = Rays(x,y,z,l,m,n,ux,uy,uz)
+        new_rays.tags = self.tags.copy()
+        new_rays.params = self.params.copy()
+        return new_rays
+    
+    def split(self,trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function copy:
+        Returns a new Rays object containing the photons which satisy some
+        condition
+        
+        Inputs:
+        trutharray,tags,delim,orcombination - Arguments needed to develop a
+        trutharray which specifies the photons which should be copied. See
+        documentation for combineTags to see how it works
+        
+        Outputs:
+        A Rays object containing the photons which satisy trutharray
+        
+        Notes:
+        -The returned Rays object is a deep copy of the original, modifying one
+        should have no effect on the other
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        
+        # Copy main attributes
+        x = np.copy(self.x[tarray])
+        y = np.copy(self.y[tarray])
+        z = np.copy(self.z[tarray])
+        l = np.copy(self.l[tarray])
+        m = np.copy(self.m[tarray])
+        n = np.copy(self.n[tarray])
+        ux = np.copy(self.ux[tarray])
+        uy = np.copy(self.uy[tarray])
+        uz = np.copy(self.uz[tarray])
+        new_rays = Rays(x,y,z,l,m,n,ux,uy,uz)
+        
+        # Copy Tags and Parameters
+        for tag in self.tags:
+            new_rays.addTag(tag[0],tag[1][tarray])
+        for param in self.params:
+            new_rays.addParam(param[0],param[1][tarray])
+        
+        return new_rays
     
     ## Info Functions:
     # These functions give information about the Rays Object
@@ -242,9 +321,11 @@ class Rays:
             self.remove(np.logical_not(np.isnan(self.x)))
     
     def focus(self,fn,weights=None):
-        output = surfacesf.focus(self,fn,weights)
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = output[0]
-        return output[1]
+        # I dont think commented section is needed:
+        # output = surfacesf.focus(self,fn,weights)
+        # self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = output[0]
+        # return output[1]
+        return surfacesf.focus(self,fn,weights)
     
     def focusX(self,weights=None):
         return self.focus(analyticXPlane,weights)
@@ -255,7 +336,215 @@ class Rays:
     def focusI(self,weights=None):
         return self.focus(analyticImagePlane,weights)
     
+
+    ## Basic Motion Functions:
     
+    def translate(self,dx=0,dy=0,dz=0, trutharray=None,tags=None,delim=None,orcombination=True,coords=None):
+        '''
+        Function translate:
+        Moves the position of a Rays object by a specified amount
+        
+        Inputs:
+        dx - The amount to change in x
+        dy - The amount to change in y
+        dz - The amount to change in z
+        
+        Outputs:
+        Nothing
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        self.x[tarray] += dx
+        self.y[tarray] += dy
+        self.z[tarray] += dz
+        
+        if coords is not None:
+            #Define rotation and translation matrices
+            tranm = transformationsf.translationM(-dx,-dy,-dz)
+            tranmi = transformationsf.translationM(dx,dy,dz)
+            #Dot rotation into forward transform
+            coords[1] = np.dot(tranm,coords[1])
+            coords[3] = np.dot(coords[3],tranmi)
+    
+    
+    def rotate(self,dl=0,dm=0,dn=0, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function rotate:
+        Moves the direction of a Rays object by a specified amount
+        
+        Inputs:
+        dl - The amount to change in l
+        dm - The amount to change in m
+        dn - The amount to change in n
+        
+        Outputs:
+        Nothing
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        self.l[tarray] += dl
+        self.m[tarray] += dm
+        self.n[tarray] += dn
+    
+    
+    def rotatenormal(self,dux=0,duy=0,duz=0, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function rotatenormal:
+        Moves the normal vector of a Rays object by a specified amount
+        
+        Inputs:
+        dux - The amount to change in ux
+        duy - The amount to change in uy
+        duz - The amount to change in uz
+        
+        Outputs:
+        Nothing
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        self.ux += dux
+        self.uy += duy
+        self.uz += duz
+    
+    def set(self,x=None,y=None,z=None,
+                  l=None,m=None,n=None,
+                  ux=None,uy=None,uz=None, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function set:
+        Changes the components of a Rays object to be a new array
+        This function "sets the position of each photon"
+        
+        Inputs:
+        x,y,z,l,m,n,ux,uy,uz - New arrays to take the place of the current x,y,z,l,m,n,ux,uy, or uz
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        - This function differs from move. This function takes in new arrays while Move takes in constants and makes uniform arrays
+        - This function allows the user to set specific values for each photon without accessing the class variables
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        size = len(tarray)
+        if x is not None:
+            if (len(x) == size):
+                self.x[tarray] = x
+            else:
+                raise ValueError('x input not of the correct size')
+        if y is not None:
+            if (len(y) == size):
+                self.y[tarray] = y
+            else:
+                raise ValueError('y input not of the correct size')
+        if z is not None:
+            if (len(z) == size):
+                self.z[tarray] = z
+            else:
+                raise ValueError('z input not of the correct size')
+        if l is not None:
+            if (len(l) == size):
+                self.l[tarray] = l
+            else:
+                raise ValueError('l input not of the correct size')
+        if m is not None:
+            if (len(m) == size):
+                self.m[tarray] = m
+            else:
+                raise ValueError('m input not of the correct size')
+        if n is not None:
+            if (len(n) == size):
+                self.n[tarray] = n
+            else:
+                raise ValueError('n input not of the correct size')
+        if ux is not None:
+            if (len(ux) == size):
+                self.ux[tarray] = ux
+            else:
+                raise ValueError('ux input not of the correct size')
+        if uy is not None:
+            if (len(uy) == size):
+                self.uy[tarray] = uy
+            else:
+                raise ValueError('uy input not of the correct size')
+        if uz is not None:
+            if (len(uz) == size):
+                self.uz[tarray] = uz
+            else:
+                raise ValueError('uz input not of the correct size')
+    
+    
+    def move(self,x=None,y=None,z=None,
+                  l=None,m=None,n=None,
+                  ux=None,uy=None,uz=None, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function move:
+        Changes the components of a Rays object to be a new array
+        This function "Moves all Rays to a new position"
+        
+        Inputs:
+        x,y,z,l,m,n,ux,uy,uz - Constants that will specify the new values of each parameter
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        - This function differs from set. This function takes in constants while Set takes in new arrays
+        - For example, if the x argument is set to 3., every photon in the Rays object will be given an x-position of 3.
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        size = len(tarray)
+        if x is not None:
+            self.x[tarray] = np.ones(size) * x
+        if y is not None:
+            self.y[tarray] = np.ones(size) * y
+        if z is not None:
+            self.z[tarray] = np.ones(size) * z
+        if l is not None:
+            self.l[tarray] = np.ones(size) * l
+        if m is not None:
+            self.m[tarray] = np.ones(size) * m
+        if n is not None:
+            self.n[tarray] = np.ones(size) * n
+        if ux is not None:
+            self.ux[tarray] = np.ones(size) * ux
+        if uy is not None:
+            self.uy[tarray] = np.ones(size) * uy
+        if uz is not None:
+            self.uz[tarray] = np.ones(size) * uz
+    
+
     ## Transformation Functions:
     # These functions call to prtp.transformationsf
     
@@ -265,43 +554,250 @@ class Rays:
     def rotateaxis(self,theta):
         self.x,self.y,self.z,self.ux,self.uy,self.uz = transformationsf.rotateaxis(self.x,self.y,self.z,self.ux,self.uy,self.uz,theta)
     
-    def reflect(self):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.reflect(self)
+    def reflect(self,trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function reflect:
+        Reflects the rays off of their current surface
+        
+        Inputs:
+        Used if only some photons are to be reflected, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        l,m,n = transformationsf.reflect(     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray])
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        
     
-    def refract(self,n1,n2):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.refract(self,n1,n2)
+    def refract(self,n1,n2, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function reflect:
+        Reflects the rays off of their current surface
+        
+        Inputs:
+        n1 - The index refraction of the current medium
+        n2 - The index of refraction of the medium the rays are going into
+        Other inputs - Used if only some photons are to be reflected, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        l,m,n,ux,uy,uz = transformationsf.refract(     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray],n1,n2)
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        self.ux[tarray] = ux
+        self.uy[tarray] = uy
+        self.uz[tarray] = uz
+
     
-    def transform(self,tx,ty,tz,rx,ry,rz):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.transform(self,tx,ty,tz,rx,ry,rz)
+    def transform(self,tx,ty,tz,rx,ry,rz,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function transform:
+        Performs a Coordinate Transformation on the Rays
+        
+        Inputs:
+        tx,ty,tz - The translations of x, y, and z
+        rx,ry,rz - The rotations around l, m, and n
+        coords - If specified, updates a rotation matrix
+        other inputs - Used if only some photons are to be transformed, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Translations are performed first
+        -If the user only desires to move the the rays' positions, 
+        rays.translate is much faster
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        x,y,z,l,m,n,ux,uy,uz = transformationsf.transform(self.x[tarray],self.y[tarray],self.z[tarray],     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray], tx,ty,tz,rx,ry,rz,coords)
+        self.x[tarray] = x
+        self.y[tarray] = y
+        self.z[tarray] = z
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        self.ux[tarray] = ux
+        self.uy[tarray] = uy
+        self.uz[tarray] = uz
     
-    def itransform(self,tx,ty,tz,rx,ry,rz):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.itransform(self,tx,ty,tz,rx,ry,rz)
-    
-    def radgrat(self,wave,dpermm,order,eliminate='nan'):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.radgrat(self,wave,dpermm,order)
+    def itransform(self,tx,ty,tz,rx,ry,rz,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function itransform:
+        Performs an Inverse Coordinate Transformation on the Rays
+        
+        Inputs:
+        tx,ty,tz - The translations of x, y, and z
+        rx,ry,rz - The rotations around l, m, and n
+        coords - If specified, updates a rotation matrix
+        other inputs - Used if only some photons are to be transformed, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Behaves as the opposite of transformation, that is:
+        >>rays.transform(tx,ty,tz,rx,ry,rz)
+        >>rays.itransform(tx,ty,tz,rx,ry,rz)
+        will have no net effect on the rays (itransform undoes transform)
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        x,y,z,l,m,n,ux,uy,uz = transformationsf.itransform(self.x[tarray],self.y[tarray],self.z[tarray],     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray], tx,ty,tz,rx,ry,rz,coords)
+        self.x[tarray] = x
+        self.y[tarray] = y
+        self.z[tarray] = z
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        self.ux[tarray] = ux
+        self.uy[tarray] = uy
+        self.uz[tarray] = uz
+        
+
+    def radgrat(self,dpermm,order,wave,eliminate='nan', trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function radgrat:
+        Sends the rays through a radial grating
+        
+        Inputs:
+        dpermm - The groove density of the grating
+        order - The order of the reflected photon
+        wave - The wavelength of the incoming photons
+        other inputs - Used if only some photons are to be transformed, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Any of the inputs (dpermm,order, or wave) can be arrays, if an array
+        is passed into the function, it must be the same length as the array
+        of photons going onto the grating. Each element in the wave array gives
+        the wavelength of an individual photon (same for dpermm and order).
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        
+        # Check which optional arguments are numpy arrays:
+        if (type(dpermm) == np.ndarray):
+            dpermm = dpermm[tarray]
+        if (type(order) == np.ndarray):
+            order = order[tarray]
+        if (type(wave) == np.ndarray):
+            wave = wave[tarray]
+            
+        x,y,l,m,n = transformationsf.radgrat(self.x[tarray],self.y[tarray],self.l[tarray],self.m[tarray],self.n[tarray],dpermm,order,wave)
+        self.x[tarray] = x
+        self.y[tarray] = y
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
     
-    def radgratW(self,wave,dpermm,order,eliminate='nan'):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.radgratW(self,wave,dpermm,order)
+    def grat(self,d,order,wave,eliminate='nan', trutharray=None,tags=None,delim=None,orcombination=True):
+        '''
+        Function grat:
+        Sends the rays through a parallel grating
+        
+        Inputs:
+        d - The groove density of the grating
+        order - The order of the reflected photon
+        wave - The wavelength of the incoming photons
+        other inputs - Used if only some photons are to be transformed, see 
+        documentation for combinetags
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        -Any of the inputs (d,order, or wave) can be arrays, if an array
+        is passed into the function, it must be the same length as the array
+        of photons going onto the grating. Each element in the wave array gives
+        the wavelength of an individual photon (same for d and order).
+        '''
+        if tags is not None:
+            # Combine Tags
+            tarray = self.combineTags(tags,delim,orcombination)
+        elif trutharray is not None:
+            # Convert trutharray from a numerical to a boolean array
+            tarray = (trutharray != 0)
+        else:
+            tarray = np.full((len(self)), True, dtype=bool)
+        
+        # Check which optional arguments are numpy arrays:
+        if (type(d) == np.ndarray):
+            d = d[tarray]
+        if (type(order) == np.ndarray):
+            order = order[tarray]
+        if (type(wave) == np.ndarray):
+            wave = wave[tarray]
+        
+        l,m,n = transformationsf.grat(self.l[tarray],self.m[tarray],self.n[tarray],d,order,wave)
+        self.l[tarray] = l
+        self.m[tarray] = m
+        self.n[tarray] = n
+        
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
     
-    def grat(self,d,order,wave,eliminate='nan'):
-        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.grat(self,d,order,wave,eliminate)
-        if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+    def applyT(self,coords,inverse=False):
+        self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.applyT(self,coords,inverse)
     
     
     ## Wolter Surfaces Functions:
     # These functions call to prtp.woltsurf
     
-    def wolterprimary(self,r0,z0,psi,maxiter=10,eliminate='nan'):
+    def wolterprimary(self,r0,z0,psi=1.,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wolterprimary(self,r0,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
     
-    def woltersecondary(self,r0,z0,psi,maxiter=10,eliminate='nan'):
+    def woltersecondary(self,r0,z0,psi=1.,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersecondary(self,r0,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
@@ -911,49 +1407,7 @@ class Rays:
         return endeff / starteff
     
     
-    ## Basic Motion Functions:
-    
-    def translate(self,dx=0,dy=0,dz=0):
-        self.x += dx
-        self.y += dy
-        self.z += dz
-    
-    
-    def rotate(self,dl=0,dm=0,dn=0):
-        self.l += dl
-        self.m += dm
-        self.n += dn
-    
-    
-    def rotatenormal(self,dux=0,duy=0,duz=0):
-        self.ux += dux
-        self.uy += duy
-        self.uz += duz
-    
-    
-    def move(self,x=None,y=None,z=None,
-                  l=None,m=None,n=None,
-                  ux=None,uy=None,uz=None):
-        size = len(self.x)
-        if x is not None:
-            self.x = np.ones(size) * x
-        if y is not None:
-            self.y = np.ones(size) * y
-        if z is not None:
-            self.z = np.ones(size) * z
-        if l is not None:
-            self.l = np.ones(size) * l
-        if m is not None:
-            self.m = np.ones(size) * m
-        if n is not None:
-            self.n = np.ones(size) * n
-        if ux is not None:
-            self.ux = np.ones(size) * ux
-        if uy is not None:
-            self.uy = np.ones(size) * uy
-        if uz is not None:
-            self.uz = np.ones(size) * uz
-    
+
     
     ## Graphing Functions:
     
@@ -1156,6 +1610,8 @@ z = x+y
 z.rotatenormal(duz=1.)
 z.translate(dz=-3)
 z.flat()
+
+a = z.copy()
     
     
     

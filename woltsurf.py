@@ -24,7 +24,7 @@ def wolterprimary(rays,r0,z0,psi,maxiter=10):
     Fz = 2*p
     i = 0
     while (i < maxiter):
-        F = 2*p*z + p**2 + 4*e**2*p*d/(e**2-1) - x[:]**2 - y[:]**2
+        F = 2*p*z + p**2 + 4*e**2*p*d/(e**2-1) - x**2 - y**2
         Fx = -2.*x
         Fy = -2.*y
         Fp = Fx*l + Fy*m + Fz*n
@@ -34,8 +34,9 @@ def wolterprimary(rays,r0,z0,psi,maxiter=10):
             x += l*delt
             y += m*delt
             z += n*delt
-            if (not (np.abs(delt) > 1.0e-10).any()):
+            if (not (np.abs(delt) > 1.0e-8).any()):
                 break
+            #print((np.abs(delt) > 1.0e-8).sum())
         i += 1
     
     with(np.errstate(invalid='ignore')):
@@ -44,7 +45,7 @@ def wolterprimary(rays,r0,z0,psi,maxiter=10):
         uy = Fy/Fp
         uz = Fz/Fp
 
-    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
     
     
 def woltersecondary(rays,r0,z0,psi,maxiter=10):
@@ -76,11 +77,11 @@ def woltersecondary(rays,r0,z0,psi,maxiter=10):
         Fp = Fx*l + Fy*m + Fz*n 
         
         with(np.errstate(invalid='ignore',divide='ignore')):
-            delt[:] = (-1)*F/Fp
+            delt = (-1)*F/Fp
             x += l*delt
             y += m*delt
             z += n*delt
-            if (not (np.abs(delt) > 1.0e-10).any()):
+            if (not (np.abs(delt) > 1.0e-8).any()):
                 break
         i += 1
     with(np.errstate(invalid='ignore')):
@@ -88,7 +89,7 @@ def woltersecondary(rays,r0,z0,psi,maxiter=10):
         ux = Fx/Fp
         uy = Fy/Fp
         uz = Fz/Fp
-    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-9)
+    return funcs.eliminate([x,y,z,l,m,n,ux,uy,uz],delt,thresh = 1e-8)
     
     
 def woltersine(rays,r0,z0,amp,freq,maxiter=12):
