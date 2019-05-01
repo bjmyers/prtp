@@ -1,5 +1,5 @@
 import numpy as np
-import specialFunctions as funcs
+import prtp.specialFunctions as funcs
 
 def wolterprimary(rays,r0,z0,psi,maxiter=10):
     """

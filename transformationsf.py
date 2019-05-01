@@ -1,6 +1,6 @@
 import numpy as np
 from numba import jit
-import transformMod as tr
+import prtp.transformMod as tr
 #'UniTuple(float64[:], 2)(float64[:],float64[:],float64[:],int32,int32)'
 #@jit(cache=True,nopython=True)
 def rotatevector(x,y,z,theta,axis):
