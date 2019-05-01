@@ -1,6 +1,6 @@
 import numpy as np
-import transformationsf as tran
-from analyses import analyticYPlane,analyticXPlane,analyticImagePlane
+import prtp.transformationsf as tran
+from prtp.analyses import analyticYPlane,analyticXPlane,analyticImagePlane
 
 def flat(rays):
     """

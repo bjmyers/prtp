@@ -1,12 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import sources as sources
+import prtp.sources as sources
 import warnings
-import analyses as analyses
-import surfacesf as surfacesf
-import transformationsf as transformationsf
-import woltsurf as wolt
-from analyses import analyticYPlane,analyticXPlane,analyticImagePlane
+import prtp.analyses as analyses
+import prtp.surfacesf as surfacesf
+import prtp.transformationsf as transformationsf
+import prtp.woltsurf as wolt
+from prtp.analyses import analyticYPlane,analyticXPlane,analyticImagePlane
 warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Rays:
