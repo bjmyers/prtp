@@ -207,7 +207,8 @@ class Rays:
     
     ## Analysis Functions:
     # These functions are calls to prtp.analyses
-    
+
+
     def centroid(self,weights=None):
         return analyses.centroid(self,weights)
     
@@ -222,6 +223,10 @@ class Rays:
     
     def rmsY(self,weights=None):
         return analyses.rmsX(self,weights)
+
+
+    def fwhmX(self):
+        return np.std(self.x) * 2.355
     
     
     def rho(self,weights=None,cent=False):
@@ -611,7 +616,7 @@ class Rays:
         self.uz[tarray] = uz
 
     
-    def transform(self,tx,ty,tz,rx,ry,rz,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
+    def transform(self,tx=0,ty=0,tz=0,rx=0,ry=0,rz=0,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function transform:
         Performs a Coordinate Transformation on the Rays
@@ -639,7 +644,7 @@ class Rays:
             tarray = (trutharray != 0)
         else:
             tarray = np.full((len(self)), True, dtype=bool)
-        x,y,z,l,m,n,ux,uy,uz = transformationsf.transform(self.x[tarray],self.y[tarray],self.z[tarray],     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray], tx,ty,tz,rx,ry,rz,coords)
+        x,y,z,l,m,n,ux,uy,uz = transformationsf.transform(self.x[tarray],self.y[tarray],self.z[tarray], self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray], tx,ty,tz,rx,ry,rz,coords)
         self.x[tarray] = x
         self.y[tarray] = y
         self.z[tarray] = z
@@ -650,7 +655,7 @@ class Rays:
         self.uy[tarray] = uy
         self.uz[tarray] = uz
     
-    def itransform(self,tx,ty,tz,rx,ry,rz,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
+    def itransform(self,tx=0,ty=0,tz=0,rx=0,ry=0,rz=0,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function itransform:
         Performs an Inverse Coordinate Transformation on the Rays
