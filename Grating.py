@@ -27,10 +27,10 @@ class Grating(FlatComponent):
     def hit(self,rays):
         '''
         Function hit:
-        Given Rays that have been traced to the Component, returns a trutharray detailing which photons have fallen within the rectangular region of this grating.
+        Given Rays that have been traced to the Grating, returns a trutharray detailing which photons have fallen within the rectangular region of this grating.
         
         Inputs:
-        rays - A Rays object that has been traced to the Component Plane
+        rays - A Rays object that has been traced to the Grating Plane
         
         Outputs:
         tarray - A trutharray, containing True if the photon has fallen within the grating's dimensions or False if the photon missed the grating
@@ -45,68 +45,141 @@ class Grating(FlatComponent):
     def removemissed(self,rays):
         '''
         Function removemissed:
-        Given Rays that have been traced to the Component, returns the photons which have hit the Grating.
+        Given Rays that have been traced to the Grating, returns the photons which have hit the Grating.
         
         Inputs:
-        rays - A Rays object that has been traced to the Component Plane
+        rays - A Rays object that has been traced to the Grating Plane
         
         Outputs:
-        rays - The updated Rays object, containing only those that have hit the Grating
+        A tuple containing the original number of rays and the final number of rays
         
         Notes:
         - The function cannot tell if the Rays have been traced, so this is up to the user.
         - Make sure the length and the width have been defined when the Grating was defined
         '''
+        l = len(rays)
         tarray = self.hit(rays)
         rays.remove(tarray)
+        return (l,l-len(rays))
     
     ## Grating Functions:
     # Handle reflecting off of the gratings
     
-    def grat(self, rays, d=160, order=0, wave=100):
+    def grat(self, rays, d=160, order=0, wave=100, autoreflect=True):
+        '''
+        Function grat:
+        Given Rays that have been traced to the Grating, reflects the Rays off of a parallel grating
+        
+        Inputs:
+        rays - A Rays object that has been traced to the Grating Plane
+        d - The period of the grooves, can be a float or array
+        order - The order of the photon, can be a float or array
+        wave - the wavelength of the photon, can be a float or array
+        autoreflect - Boolean. If true, the photons will automatically be reflected off of the surface
+        
+        Outputs:
+        rays - The updated Rays object that has been reflected off of the Grating
+        
+        Notes:
+        - The function cannot tell if the Rays have been traced, so this is up to the user.
+        - Photons must be reflected after this function is called or they will not behave properly
+        '''
         vel = [rays.l,rays.m,rays.n]
         # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
-        norm = np.tile([self.nx,self.ny,self.nz],(len(rays),1)).transpose()
-        focus = np.tile([self.sx,self.sy,self.sz],(len(rays),1)).transpose()
-        sxn = np.cross([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz])
-        sxn = np.tile(sxn,(len(rays),1)).transpose()
+        nor = self.Normal()
+        s = self.Surface()
+        sxn = np.cross(s,n)
+        norm = np.tile(n,(len(rays),1)).transpose()
+        surf = np.tile(s,(len(rays),1)).transpose()
+        crossproduct = np.tile(np.cross(s,n),(len(rays),1)).transpose()
         
         # Define velocity components aligned with Grating (if it were in the xy-plane) using dot products
-        gratl = (vel * sxn).sum(0)
-        gratm = (vel * focus).sum(0)
+        gratl = (vel * crossproduct).sum(0)
+        gratm = (vel * surf).sum(0)
         gratn = (vel * norm).sum(0)
         
-        l,m,n = trans.grat(gratl,gratm,gratn,d,order,wave)
+        # This gives us the new velocity in grating components, we need to convert it to xyz components
+        gratl,gratn,gratm = trans.grat(gratl,gratm,gratn,d,order,wave)
+        
+        # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
+        l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
+        m = gratl*sxn[1] + gratm*s[1] + gratn*nor[1]
+        n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
+        
         rays.set(l=l,m=m,n=n)
+        
+        if (autoreflect):
+            self.reflect(rays)
     
+    def radgrat(self,rays,dpermm=160,order=0,wave=100,autoreflect=False):
+        '''
+        Function radgrat:
+        Given Rays that have been traced to the Grating, reflects the Rays off of a radial grating
+        
+        Inputs:
+        rays - A Rays object that has been traced to the Grating Plane
+        dpermm - The period of the grooves, can be a float or array
+        order - The order of the photon, can be a float or array
+        wave - the wavelength of the photon, can be a float or array
+        autoreflect - Boolean. If true, the photons will automatically be reflected off of the surface
+        
+        Outputs:
+        rays - The updated Rays object that has been reflected off of the Grating
+        
+        Notes:
+        - The function cannot tell if the Rays have been traced, so this is up to the user.
+        - Photons must be reflected after this function is called or they will not behave properly
+        '''
+        vel = [rays.l,rays.m,rays.n]
+        # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
+        nor = self.Normal()
+        s = self.Surface()
+        sxn = np.cross(s,nor)
+        norm = np.tile(nor,(len(rays),1)).transpose()
+        surf = np.tile(s,(len(rays),1)).transpose()
+        crossproduct = np.tile(np.cross(s,nor),(len(rays),1)).transpose()
+        
+        # Define velocity components aligned with Grating (if it were in the xy-plane) using dot products
+        gratl = (vel * crossproduct).sum(0) # Vel aligned with sxn vector
+        gratm = (vel * surf).sum(0)         # Vel aligned with surf vector
+        gratn = (vel * norm).sum(0)         # Vel aligned with norm vector
+        
+        # This gives us the new velocity in grating components, we need to convert it to xyz components
+        x,y,l,m,n = trans.radgrat(rays.x,rays.y,gratl,gratm,gratn,dpermm,order,wave)
+        
+        # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
+        l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
+        m = gratl*sxn[1] + gratm*s[1] + gratn*nor[1]
+        n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
+        
+        rays.set(l=l,m=m,n=n)
+        
+        if (autoreflect):
+            self.reflect(rays)
     
-    
-    
-    
-    
-    #TODO: Make groove density defining functions, figure out how to get rays to reflect off gratings
-
-## Testing Code:
-# r = Rays.pointsource(5,1000)
-# g = Grating(0,0,5,0,0,1,0,1,0,5,5)
-# g.rotate(.01,1,1,1)
-# g.translate(0,0,1)
-# r = g.trace_to_surf(r)
-# x,y = g.getPosns(r)
-# 
-# # r.scatter3d()
-# # plt.figure()
-# # plt.scatter(x,y)
-# # plt.show()
-# 
-# # a = g.hit(r)
-# # g.removemissed(r)
-# # r.scatter3d()
-# 
-# g.grat(r)
-
-
-
+    def reflect(self,rays):
+        '''
+        Function reflect:
+        Given Rays that have been traced to the Grating, reflectes the Rays off of the surface. This function is different than grat or radgrat, and needs to be called if you want the photons to be accurately reflected off the Grating
+        
+        Inputs:
+        rays - A Rays object that has been traced to the Grating Plane
+        dpermm - The period of the grooves, can be a float or array
+        order - The order of the photon, can be a float or array
+        wave - the wavelength of the photon, can be a float or array
+        
+        Outputs:
+        rays - The updated Rays object that has been reflected off of the Grating
+        
+        Notes:
+        - The function cannot tell if the Rays have been traced, so this is up to the user.
+        - Photons must be reflected after this function is called or they will not behave properly
+        '''
+        length = len(rays)
+        rays.ux = np.ones(length) * self.nx
+        rays.uy = np.ones(length) * self.ny
+        rays.uz = np.ones(length) * self.nz
+        rays.reflect()
 
 
 

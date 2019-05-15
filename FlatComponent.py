@@ -22,6 +22,7 @@ class FlatComponent:
         self.x = x
         self.y = y
         self.z = z
+        
         self.nx = nx
         self.ny = ny
         self.nz = nz
@@ -38,8 +39,39 @@ class FlatComponent:
         self.sy /= surflen
         self.sz /= surflen
         
-        if np.dot([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz]) != 0:
+        # Vectors can be orthogonal within some tolerance (here 1e-8)
+        if np.abs(np.dot([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz])) > 1e-8:
             raise ValueError('Normal and Surface Vectors are not Orthogonal')
+    
+    
+    ## Access Functions:
+    # Used to get vectors in easy to use forms
+    
+    def Normal(self):
+        '''
+        Function Normal:
+        Returns the normal Vector in a 3-element Numpy Array
+        
+        Inputs:
+        None
+        
+        Outputs:
+        - The normal vector of this Component in x, y, and z parts
+        '''
+        return np.array([self.nx,self.ny,self.nz])
+    
+    def Surface(self):
+        '''
+        Function Surface:
+        Returns the surface Vector in a 3-element Numpy Array
+        
+        Inputs:
+        None
+        
+        Outputs:
+        - The surface vector of this Component in x, y, and z parts
+        '''
+        return np.array([self.sx,self.sy,self.sz])
 
 
     
@@ -55,6 +87,9 @@ class FlatComponent:
         dx,dy,dz - The amount to move in x, y, and z, respectively
         
         Outputs:
+        None
+        
+        Notes:
         - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
         '''
         self.x += dx
@@ -96,20 +131,25 @@ class FlatComponent:
     
     ## Ray Tracing Functions:
     
-    def trace_to_surf(self, rays):
+    def trace_to_surf(self, rays, modify=True):
         '''
         Function trace_to_surf:
         Given a Rays object, traces the rays to the surface of the component
         
         Inputs:
         rays - The Rays object you want to trace
+        modify - Boolean. If True, the original Rays object will be modified into one on the Component's surface. If False, a copy of the Rays object will be made and returned in its modified form, leaving the original unchanged.
         
         Outputs:
-        A Rays object containing the traced rays
+        Rays - The Rays object with photons traced to the Component's Surface
         
         Notes:
         - Rays object will have NaNs in its x,y, and z positions if it is parallel to the plane
+        - A Rays object will always be returned, but if modify=False, it will not be the same Rays object as the one input
         '''
+        if (not modify):
+            rays = rays.copy()
+        
         gratx = np.ones(len(rays))*self.x
         graty = np.ones(len(rays))*self.y
         gratz = np.ones(len(rays))*self.z
@@ -120,11 +160,13 @@ class FlatComponent:
         diff = np.array([gratx - rays.x,graty - rays.y, gratz - rays.z])
         # Calculate the distance each ray needs to travel to reach the plane
         #Note: (x*y).sum(0) finds the dot product of two arrays of vectors
+        #TODO: Problem, Grating is oriented in such a way that the photons cannot reach the grating, how did this break???
         dist = (diff*np.array([gratnx,gratny,gratnz])).sum(0) / (np.array([rays.l,rays.m,rays.n])*np.array([gratnx,gratny,gratnz])).sum(0)
         
         # Move the rays that distance
         vel = np.sqrt(rays.l**2 + rays.m**2 + rays.n**2)
         rays.set(x = rays.x + dist*rays.l/vel,y = rays.y + dist*rays.m/vel,z = rays.z + dist*rays.n/vel)
+        
         return rays
     
     def getPosns(self,rays):
