@@ -313,6 +313,37 @@ def eliminate(rays, delt, thresh = 1e-10):
     return [x, y, z, l, m, n, ux, uy, uz]
 
 
+def findorth(dir):
+    '''
+    Function findorth:
+    Given the three components of a vector, finds the components of an orthogonal vector
+    
+    Inputs:
+    dir - A three-element list or numpy array containing the components of a vector
+    
+    Outputs:
+    A three-element Numpy Array containing the components of a vector orthogonal to dir
+    
+    Notes:
+    - dir must be nonzero, for obvious reasons
+    '''
+    if (dir[2] != 0):
+        x = 1
+        y = 1
+        z = (-dir[0] - dir[1]) / dir[2]
+    elif (dir[1] != 0):
+        x = 1
+        z = 1
+        y = (-dir[0] - dir[2]) / dir[1]
+    elif (dir[0] != 0):
+        y = 1
+        z = 1
+        x = (-dir[1] - dir[2]) / dir[0]
+    else:
+        raise Exception('Input Vector is a Zero Vector')
+    return np.array([x,y,z])
+
+
 
 
 
