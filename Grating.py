@@ -5,22 +5,44 @@ from prtp.FlatComponent import FlatComponent
 import prtp.transformationsf as trans
 
 class Grating(FlatComponent):
+
     
-    ## Initialization Function
+    ## Initialization Functions
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,fx=0,fy=1,fz=0,l=1,w=1):
+    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0, l=1,w=1,pfunc=None,collfunc=None):
         '''
         Initializes a Grating Object, requires the following arguments:
         
         x,y,z - The position of a point along the grating
         nx,ny,nz - The components of a vector normal to the grating surface
-        fx,fy,fz - The components of a vector pointing towards the grating focus
-        l - The length of the grating, that is, its extent in the f direction
-        w - The width of the grating, that is, its extent in the fxn direction
+        sx,sy,sz - The surface vector of this grating, the mean groove direction
+        l - The length of the grating, that is, its extent in the s direction
+        w - The width of the grating, that is, its extent in the sxn direction
+        pfunc - A user-defined function to determine the groove period experienced by each photon
+        collfunc - A user-defined function to determine if Rays have missed the Component
         '''
-        FlatComponent.__init__(self,x,y,z,nx,ny,nz,fx,fy,fz)
+        FlatComponent.__init__(self,x,y,z,nx,ny,nz,fx,fy,fz, collfunc=collfunc)
         self.l = l
         self.w = w
+        self.periodfunction = pfunc
+    
+    
+    def copy(self):
+        '''
+        Function copy:
+        Returns a copy of this Grating Object
+        
+        Inputs:
+        None
+        
+        Outputs:
+        An identical Grating Object with the same attributes
+        '''
+        return Grating(self.x,self.y,self.z,
+        self.nx,self.ny,self.nz,
+        self.fx,self.fy,self.fz,
+        self.l,self.w,self.periodfunction,self.collisionfunction)
+
     
     ## Analyzing Traced Rays
     
@@ -37,10 +59,15 @@ class Grating(FlatComponent):
         
         Notes:
         - The function cannot tell if the Rays have been traced, so this is up to the user.
-        - Make sure the length and the width have been defined when the Grating was defined
+        - The function use a rectangle defined by length and width (self.l and self.w) or a user-defined collision function (self.collfunc). The user-defined function will be performed preferentially.
         '''
-        x,y = self.getPosns(rays)
-        return np.logical_and(np.abs(x) < self.w/2, np.abs(y) < self.l/2)
+        if self.periodfunction is not None:
+            return self.periodfunction(rays)
+        elif (self.l is not None) and (self.w is not None):
+            x,y = self.getPosns(rays)
+            return np.logical_and(np.abs(x) < self.w/2, np.abs(y) < self.l/2)
+        else:
+            raise NotImplementedError('This Grating needs a collision function to be implemented or a length and width if you wish to use a simple rectangular model')
     
     def removemissed(self,rays):
         '''
@@ -62,10 +89,55 @@ class Grating(FlatComponent):
         rays.remove(tarray)
         return (l,l-len(rays))
     
+    
+    ## Sample Period Functions
+    # Some already defined functions in case you don't want to define your own
+    def linear(self, rays, period, y=0, focus=100):
+        '''
+        Function linear:
+        A sample period function that simulates linearly converging grooves.
+        
+        Inputs:
+        rays - The rays that have been traced to the grating.
+        period - The period known at one position
+        y - The position at which the period is period. By default it is the center of the grating
+        focus - The position of the focus, at this point the period is 0
+        
+        Outputs:
+        An array of periods for each input photon
+        
+        Notes:
+        The period assigned by this function only depends on a photon's y-position.
+        '''
+        raysx,raysy = self.getPosns(rays)
+        return period - (period)/(focus-y) * (raysy - y)
+
+        
+    
     ## Grating Functions:
     # Handle reflecting off of the gratings
     
-    def grat(self, rays, d=160, order=0, wave=100, autoreflect=True):
+    def getPeriod(self, rays, **kwargs):
+        '''
+        Function getPeriod:
+        Calls the user-defined periodfunction. This is just an easy place to store and call your function to obtain the period for each photon
+        
+        Inputs:
+        rays - A Rays object that has been traced to the Grating Plane
+        **kwargs - Handles any other arguments a user-defined function might require. For example, a function might require a grating period at a single point, this argument would be named in the periodfunction and passed as an argument here. 
+        
+        Outputs:
+        An array of periods, with each grating period corresponding to a photon
+        
+        Notes:
+        - User-Defined period functions must take in Rays objects and return arrays of grating periods experienced by each photon. Be sure to 
+        - The output can be passed into self.grat or self.radgrat as the dor dpermm argument, respectively
+        - If no period function has been defined, this function will return None
+        '''
+        if self.periodfunction is not None:
+            return self.periodfunction(rays,**kwargs)
+    
+    def grat(self, rays, d=160, order=0, wave=100, autoreflect=False):
         '''
         Function grat:
         Given Rays that have been traced to the Grating, reflects the Rays off of a parallel grating

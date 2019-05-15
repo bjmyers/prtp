@@ -7,13 +7,14 @@ class FlatComponent:
     
     ## Initialization Function
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0):
+    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0, collfunc=None):
         '''
         Initializes a FlatComponent Object, requires the following arguments:
         
         x,y,z - The position of a point along the component
         nx,ny,nz - The components of a vector normal to the component surface
         fx,fy,fz - The components of a direction vector along the component's surface
+        collfunc - A user-defined function to determine if Rays have missed the Component
         
         Notes:
         - Raises an error if the normal and surface vectors are not orthogonal
@@ -38,6 +39,8 @@ class FlatComponent:
         self.sx /= surflen
         self.sy /= surflen
         self.sz /= surflen
+        
+        self.collisionfunction = collfunc
         
         # Vectors can be orthogonal within some tolerance (here 1e-8)
         if np.abs(np.dot([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz])) > 1e-8:
@@ -160,7 +163,6 @@ class FlatComponent:
         diff = np.array([gratx - rays.x,graty - rays.y, gratz - rays.z])
         # Calculate the distance each ray needs to travel to reach the plane
         #Note: (x*y).sum(0) finds the dot product of two arrays of vectors
-        #TODO: Problem, Grating is oriented in such a way that the photons cannot reach the grating, how did this break???
         dist = (diff*np.array([gratnx,gratny,gratnz])).sum(0) / (np.array([rays.l,rays.m,rays.n])*np.array([gratnx,gratny,gratnz])).sum(0)
         
         # Move the rays that distance
