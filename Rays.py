@@ -1,18 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import prtp.sources as sources
 import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+import prtp.sources as sources
 import prtp.analyses as analyses
 import prtp.surfacesf as surfacesf
 import prtp.transformationsf as transformationsf
 import prtp.woltsurf as wolt
 from prtp.analyses import analyticYPlane,analyticXPlane,analyticImagePlane
-warnings.simplefilter(action='ignore', category=FutureWarning)
 
 class Rays:
     
-    #TODO List:
-    # Add trutharray functionality to more functions
     
     ## Creation Functions:
     # These functions create Rays Objects
@@ -144,6 +142,7 @@ class Rays:
         Notes:
         -The returned Rays object is a deep copy of the original, modifying one
         should have no effect on the other
+        -The original Rays object is unaffected by a call to split()
         '''
         if tags is not None:
             # Combine Tags
@@ -321,10 +320,6 @@ class Rays:
             self.remove(np.logical_not(np.isnan(self.x)))
     
     def focus(self,fn,weights=None):
-        # I dont think commented section is needed:
-        # output = surfacesf.focus(self,fn,weights)
-        # self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = output[0]
-        # return output[1]
         return surfacesf.focus(self,fn,weights)
     
     def focusX(self,weights=None):
@@ -548,11 +543,92 @@ class Rays:
     ## Transformation Functions:
     # These functions call to prtp.transformationsf
     
-    def rotatevector(self,theta,axis):
-        self.x,self.y,self.z = transformationsf.rotatevector(self.x,self.y,self.z,theta,axis)
+    def rotatevector(self,type,theta,axis):
+        '''
+        Function rotatevector:
+        Rotates a part of the Rays object about a unit-axis
+        
+        Inputs:
+        type - A string describing which part of the Rays object you want to rotate. Options are listed below (case-insensitive):
+            pos - The x,y,z positions are rotated
+            posn - The x,y,z positions are rotated
+            position - The x,y,z positions are rotated
+            dir - The l,m,n directions are rotated
+            direction - The l,m,n directions are rotated
+            norm - The ux,uy,uz directions are rotated
+            normal - The ux,uy,uz directions are rotated
+            all - x,y,z,l,m,n,ux,uy,uz are all rotated
+        theta - The angle through which you want to rotate (in radians)
+        axis - The integer 1,2 or 3 corresponding to the axis about which you want to rotate. 1,2,3 correspond to x,y,z, respectively
+        
+        Outputs:
+        None
+        
+        Notes:
+        - theta can be an array with the same length as the Rays object. If it is, each photon will be rotated a unique amount defined by the theta array
+        '''
+        type = type.lower()
+        if (type == 'pos' or type == 'posn' or type == 'position'):
+            self.x,self.y,self.z = trans.rotatevector(self.x,self.y,self.z,theta,axis)
+        
+        elif (type == 'dir' or type == 'direction'):
+            self.l,self.m,self.n,ax,ay,az = trans.rotatevector(self.l,self.m,self.n,theta,axis)
+        
+        elif (type == 'norm' or type == 'normal'):
+            self.ux,self.uy,self.uz,ax,ay,az = trans.rotatevector(self.ux,self.uy,self.uz,theta,axis)
+        
+        elif (type == 'all'):
+            self.x,self.y,self.z,ax,ay,az = trans.rotatevector(self.x,self.y,self.z,theta,axis)
+            self.l,self.m,self.n,ax,ay,az = trans.rotatevector(self.l,self.m,self.n,theta,axis)
+            self.ux,self.uy,self.uz,ax,ay,az = trans.rotatevector(self.ux,self.uy,self.uz,theta,axis)
+        
+        else:
+            raise ValueError('type argument is not a valid value. Accepted values include pos,posn,position,dir,direction,norm,normal, and all')
+
     
-    def rotateaxis(self,theta):
-        self.x,self.y,self.z,self.ux,self.uy,self.uz = transformationsf.rotateaxis(self.x,self.y,self.z,self.ux,self.uy,self.uz,theta)
+    def rotatecustomaxis(self,type,theta,ax,ay,az):
+        '''
+        Function rotatecustomaxis:
+        Rotates a part of the Rays object about a user-defined axis
+        
+        Inputs:
+        type - A string describing which part of the Rays object you want to rotate. Options are listed below (case-insensitive):
+            pos - The x,y,z positions are rotated
+            posn - The x,y,z positions are rotated
+            position - The x,y,z positions are rotated
+            dir - The l,m,n directions are rotated
+            direction - The l,m,n directions are rotated
+            norm - The ux,uy,uz directions are rotated
+            normal - The ux,uy,uz directions are rotated
+            all - x,y,z,l,m,n,ux,uy,uz are all rotated
+        theta - The angle through which you want to rotate (in radians)
+        ax,ay,az - The x,y,z components of the axis about which you want to rotate
+        
+        Outputs:
+        None
+        
+        Notes:
+        - ax, ay, and az can be floats or arrays with the same length as the Rays object. If they are arrays, each photon will be rotated about a unique axis
+        - theta can also be an array with the same length as the Rays object to rotate each photon a unique amount
+        '''
+        type = type.lower()
+        if (type == 'pos' or type == 'posn' or type == 'position'):
+            self.x,self.y,self.z,ax,ay,az = trans.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
+        
+        elif (type == 'dir' or type == 'direction'):
+            self.l,self.m,self.n,ax,ay,az = trans.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
+        
+        elif (type == 'norm' or type == 'normal'):
+            self.ux,self.uy,self.uz,ax,ay,az = trans.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
+        
+        elif (type == 'all'):
+            self.x,self.y,self.z,ax,ay,az = trans.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
+            self.l,self.m,self.n,ax,ay,az = trans.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
+            self.ux,self.uy,self.uz,ax,ay,az = trans.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
+        
+        else:
+            raise ValueError('type argument is not a valid value. Accepted values include pos,posn,position,dir,direction,norm,normal, and all')
+
     
     def reflect(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''
@@ -578,7 +654,7 @@ class Rays:
         self.l[tarray] = l
         self.m[tarray] = m
         self.n[tarray] = n
-        
+
     
     def refract(self,n1,n2, trutharray=None,tags=None,delim=None,orcombination=True):
         '''
@@ -649,7 +725,8 @@ class Rays:
         self.ux[tarray] = ux
         self.uy[tarray] = uy
         self.uz[tarray] = uz
-    
+
+
     def itransform(self,tx,ty,tz,rx,ry,rz,coords=None, trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function itransform:
@@ -689,7 +766,7 @@ class Rays:
         self.ux[tarray] = ux
         self.uy[tarray] = uy
         self.uz[tarray] = uz
-        
+
 
     def radgrat(self,dpermm,order,wave,eliminate='nan', trutharray=None,tags=None,delim=None,orcombination=True):
         '''
@@ -738,7 +815,8 @@ class Rays:
         
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
-    
+
+
     def grat(self,d,order,wave,eliminate='nan', trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function grat:
@@ -784,7 +862,8 @@ class Rays:
         
         if eliminate.lower() == 'remove':
             self.remove(np.logical_not(np.isnan(self.x)))
-    
+
+
     def applyT(self,coords,inverse=False):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.applyT(self,coords,inverse)
     
@@ -1602,25 +1681,4 @@ class Rays:
         ax.set_ylabel(ylabel)
         ax.set_zlabel(zlabel)
         plt.show()
-    
-## Testing Code:
-x = Rays.pointsource(.2,20)
-y = Rays.pointsource(.2,25)
-z = x+y
-z.rotatenormal(duz=1.)
-z.translate(dz=-3)
-z.flat()
-
-a = z.copy()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
