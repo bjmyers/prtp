@@ -105,8 +105,12 @@ class WolterOptic:
         
         # Check if optic is already aligned, if it is our angle-finding code will produce an error, so we need to skip it
         if norm[0] == 0 and norm[1] == 0:
+            # If normal is antiparallel with the z-axis, we need to rotate 180 degrees about x
+            if np.sign(norm[2]) < 0:
+                thetax = np.pi
+            else:
+                thetax = 0
             thetaz = 0
-            thetax = 0
         else:
         
             # Find the angle between the normal vector projected to the xy-plane and the y-axis, this is how far we will need to rotate our velocities about the z-axis
@@ -157,7 +161,7 @@ class WolterOptic:
         
         # Remove missed photons is the user wants to
         if (remove):
-            rays.remove(np.logical_not(np.isnan(rays.x)))
+            rays.remove(np.isnan(rays.x))
         
         # Return the efficiency of the optic
         return (inputlength,inputlength-nummissed)

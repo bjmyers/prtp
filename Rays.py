@@ -282,22 +282,22 @@ class Rays:
     def sphere(self,rad,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.sphere(self,rad)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def cyl(self,rad,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.cyl(self,rad)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
 
     def cylconic(self,rad,k,eliminate='nan',maxiter=12):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.cylconic(self,rad,k,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def conic(self,rad,k,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.conic(self,rad,k)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def paraxial(self,f):
         if (f==0):
@@ -312,12 +312,12 @@ class Rays:
     def torus(self,rin,rout,eliminate='nan',maxiter=12):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.torus(self,rin,rout,eliminate,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def conicplus(self,r,k,n,p,Np,eliminate='nan',maxiter=12):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = surfacesf.conicplus(self,r,k,n,p,Np,eliminate,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def focus(self,fn,weights=None):
         return surfacesf.focus(self,fn,weights)
@@ -569,18 +569,18 @@ class Rays:
         '''
         type = type.lower()
         if (type == 'pos' or type == 'posn' or type == 'position'):
-            self.x,self.y,self.z = trans.rotatevector(self.x,self.y,self.z,theta,axis)
+            self.x,self.y,self.z = transformationsf.rotatevector(self.x,self.y,self.z,theta,axis)
         
         elif (type == 'dir' or type == 'direction'):
-            self.l,self.m,self.n,ax,ay,az = trans.rotatevector(self.l,self.m,self.n,theta,axis)
+            self.l,self.m,self.n = transformationsf.rotatevector(self.l,self.m,self.n,theta,axis)
         
         elif (type == 'norm' or type == 'normal'):
-            self.ux,self.uy,self.uz,ax,ay,az = trans.rotatevector(self.ux,self.uy,self.uz,theta,axis)
+            self.ux,self.uy,self.uz = transformationsf.rotatevector(self.ux,self.uy,self.uz,theta,axis)
         
         elif (type == 'all'):
-            self.x,self.y,self.z,ax,ay,az = trans.rotatevector(self.x,self.y,self.z,theta,axis)
-            self.l,self.m,self.n,ax,ay,az = trans.rotatevector(self.l,self.m,self.n,theta,axis)
-            self.ux,self.uy,self.uz,ax,ay,az = trans.rotatevector(self.ux,self.uy,self.uz,theta,axis)
+            self.x,self.y,self.z = transformationsf.rotatevector(self.x,self.y,self.z,theta,axis)
+            self.l,self.m,self.n = transformationsf.rotatevector(self.l,self.m,self.n,theta,axis)
+            self.ux,self.uy,self.uz = transformationsf.rotatevector(self.ux,self.uy,self.uz,theta,axis)
         
         else:
             raise ValueError('type argument is not a valid value. Accepted values include pos,posn,position,dir,direction,norm,normal, and all')
@@ -613,18 +613,18 @@ class Rays:
         '''
         type = type.lower()
         if (type == 'pos' or type == 'posn' or type == 'position'):
-            self.x,self.y,self.z,ax,ay,az = trans.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
+            self.x,self.y,self.z,ax,ay,az = transformationsf.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
         
         elif (type == 'dir' or type == 'direction'):
-            self.l,self.m,self.n,ax,ay,az = trans.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
+            self.l,self.m,self.n,ax,ay,az = transformationsf.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
         
         elif (type == 'norm' or type == 'normal'):
-            self.ux,self.uy,self.uz,ax,ay,az = trans.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
+            self.ux,self.uy,self.uz,ax,ay,az = transformationsf.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
         
         elif (type == 'all'):
-            self.x,self.y,self.z,ax,ay,az = trans.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
-            self.l,self.m,self.n,ax,ay,az = trans.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
-            self.ux,self.uy,self.uz,ax,ay,az = trans.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
+            self.x,self.y,self.z,ax,ay,az = transformationsf.rotateaxis(self.x,self.y,self.z,ax,ay,az,theta)
+            self.l,self.m,self.n,ax,ay,az = transformationsf.rotateaxis(self.l,self.m,self.n,ax,ay,az,theta)
+            self.ux,self.uy,self.uz,ax,ay,az = transformationsf.rotateaxis(self.ux,self.uy,self.uz,ax,ay,az,theta)
         
         else:
             raise ValueError('type argument is not a valid value. Accepted values include pos,posn,position,dir,direction,norm,normal, and all')
@@ -814,7 +814,7 @@ class Rays:
         self.n[tarray] = n
         
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
 
 
     def grat(self,d,order,wave,eliminate='nan', trutharray=None,tags=None,delim=None,orcombination=True):
@@ -861,7 +861,7 @@ class Rays:
         self.n[tarray] = n
         
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
 
 
     def applyT(self,coords,inverse=False):
@@ -874,57 +874,57 @@ class Rays:
     def wolterprimary(self,r0,z0,psi=1.,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wolterprimary(self,r0,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def woltersecondary(self,r0,z0,psi=1.,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersecondary(self,r0,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def woltersine(self,r0,z0,amp,freq,maxiter=12,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersine(self,r0,z0,amp,freq,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def wolterprimLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wolterprimLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def woltersecLL(self,r0,z0,psi,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.woltersecLL(self,r0,z0,zmax,zmin,dphi,coeff,axial,az,cnum,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def wsprimary(self,alpha,z0,psi,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wsprimary(self,alpha,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def wssecondary(self,alpha,z0,psi,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wssecondary(self,alpha,z0,psi,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def spoCone(self,R0,tg,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.spoCone(self,R0,tg)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def ellipsoidWoltLL(self,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.ellipsoidWoltLL(self,r0,z0,psi,S,zmax,zmin,dphi,coeff,axial,ax,cnum,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def wsprimaryBack(self,alpha,z0,psi,thick,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wsprimaryBack(self,alpha,z0,psi,thick,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     def wssecondaryBack(self,alpha,z0,psi,thick,maxiter=10,eliminate='nan'):
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = wolt.wssecondaryBack(self,alpha,z0,psi,thick,maxiter)
         if eliminate.lower() == 'remove':
-            self.remove(np.logical_not(np.isnan(self.x)))
+            self.remove(np.isnan(self.x))
     
     
     ## Update Functions:
@@ -937,8 +937,7 @@ class Rays:
         Removes photons from a Rays object given a condition
         
         Inputs:
-        trutharray - The array that specifies which photons will be removed, a
-        0 (False) will be removed while a 1 (True) will be saved
+        trutharray - The array that specifies which photons will be removed, a 1 (True) will be removed while a 0 (False) will be saved
         tags, delim - If these arguments are specified, a trutharray will be
         generated using the self.combinetags(tags,delim) method, this trutharray
         will be used in the same way the previous argument would be
@@ -959,6 +958,9 @@ class Rays:
             trutharray = (trutharray != 0)
         else:
             return
+        
+        # Switch so that a true will be removed while a false will be saved
+        trutharray = np.logical_not(trutharray)
             
         self.x = self.x[trutharray]
         self.y = self.y[trutharray]
@@ -1011,8 +1013,8 @@ class Rays:
             raise ValueError('Input Array must be the same length as Rays Object')
             
         choice = np.random.rand(len(self))
-        needToSave = choice < probability
-        self.remove(needToSave)
+        needToRemove = choice > probability
+        self.remove(needToRemove)
     
     
     ## Tag Functions:

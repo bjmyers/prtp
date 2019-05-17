@@ -85,7 +85,8 @@ class Grating(FlatComponent):
         - Make sure the length and the width have been defined when the Grating was defined
         '''
         l = len(rays)
-        tarray = self.hit(rays)
+        # Find rays which have not hit
+        tarray = np.logical_not(self.hit(rays))
         rays.remove(tarray)
         return (l,l-len(rays))
     
