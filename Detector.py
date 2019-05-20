@@ -92,13 +92,13 @@ class Detector(FlatComponent):
         tarray = np.logical_not(self.hit(rays))
         rays.remove(tarray)
         
-        t1 = (l,len(rays))
+        t1 = ("Missed Detector",l,len(rays))
         l = len(rays)
         
         rays.probRemove(self.q)
-        t2 = (l,len(rays))
+        t2 = ("Eliminated by QE of Detector",l,len(rays))
         
-        return t1,t2
+        return [t1,t2]
     
     
     ## Reset:
@@ -177,34 +177,29 @@ class Detector(FlatComponent):
             temppixels[xposns[i]][yposns[i]] += 1
         
         return temppixels
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
-
-
-
-
-
+    ## Trace Function:
+    
+    def trace(self,rays):
+        '''
+        Function trace:
+        Traces rays to this Detector and removes photons as necessary. 
+        This is a function that requires no input from the user and thus will be 
+        called by the Instrument Object.
+        
+        Inputs:
+        rays - The rays you want to trace to this detector
+        
+        Outputs:
+        The efficiency, which tracks how many photons were removed by this
+        detector
+        '''
+        self.trace_to_surf(rays)
+        return self.removemissed(rays)
+    
+    
+    
+  
 
 
 

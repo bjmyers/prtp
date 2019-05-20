@@ -30,8 +30,13 @@ class GratingStack(Combination):
         defineRotationPoint for more info
         
         Notes:
-        - Currently, GratingStack does not support gratings of different types
-        or different periods being grouped together
+        - All parameters except rx,ry,rz are used in the most basic form of
+        GratingStack, one where all Gratings have the same properties. If this
+        is the type of GratingStack you want, make sure all Gratings have these
+        parameters by calling self.setDefaultParams()
+        - If you want more complicated Gratings, you can modify their parameters
+        using self.modifyParam(name,value), or access the Gratings themselves
+        in the self.componentlist parameter
         '''
         Combination.__init__(self)
         self.radial = radial
@@ -43,6 +48,47 @@ class GratingStack(Combination):
         self.ry = ry
         self.rz = rz
     
+    
+    ## Parameter Functions
+    # The parameters of a Grating are very important for its behavior, these
+    # functions allow the user to modify the parameters of every Grating in the
+    # stack
+    
+    def setDefaultParams():
+        '''
+        Function setDefaultParams:
+        Sets the parameters of every Grating in this stack to the ones defined
+        when the GratingStack was initialized
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        '''
+        for g in self.componentlist:
+            g.d = self.d
+            g.order = self.order
+            g.wave = self.order
+    
+    
+    def modifyParam(name,value):
+        '''
+        Function modifyParam:
+        Changes a parameter of each Grating in the Stack
+        
+        Inputs:
+        name - String, the name of the parameter you want to add or change
+        value - The value you want to assign to that parameter
+        
+        Notes:
+        - This function will assign the same value to each Grating in the Stack
+        '''
+        for g in self.componentlist:
+            setattr(g,name,value)
+    
+    
+    ## Movement Functions
     
     def defineRotationPoint(self,x=0,y=0,z=0):
         '''
@@ -124,6 +170,7 @@ class GratingStack(Combination):
             # Translate the origin back down
             g.translate(self.rx,self.ry,self.rz)
     
+    
     def translate(self,dx=0,dy=0,dz=0):
         '''
         Function translate
@@ -141,7 +188,23 @@ class GratingStack(Combination):
         self.applyToAll(Grating.translate,dx=dx,dy=dy,dz=dz)
     
     
+    ## Ray-Tracing Functions
+    
     def trace(self, rays):
+        '''
+        Function trace:
+        Traces the rays through all of the Gratings in the Stack
+        
+        Inputs:
+        rays - The rays you want to trace
+        
+        Outputs:
+        finalrays - The rays that have been traced through the Stack
+        
+        Notes:
+        - Assumes that each Grating has been given the necessary parameters, 
+        this function works with no user input.
+        '''
         
         # Make a blank Rays object to store the Rays that make it
         finalrays = Rays()
@@ -149,8 +212,8 @@ class GratingStack(Combination):
         # Keep track of the input rays for when we're finished with one Grating
         inputrays = rays
         
-        # Keep track of how many photons go onto each grating
-        effs = []
+        # Keep track of the length of the input rays
+        l = len(rays)
         
         # Iterate through each Grating Object
         for g in self.componentlist:
@@ -164,16 +227,10 @@ class GratingStack(Combination):
             
             hitrays = rays.split(tarray)
             
-            if self.radial:
-                g.radgrat(hitrays,self.d,self.order,self.wave,self.autoreflect)
-            else:
-                g.grat(hitrays,self.d,self.order,self.wave,self.autoreflect)
+            g.trace(hitrays)
             
             # Add the hitrays to our final tally
             finalrays += hitrays
-            
-            # Record how many photons hit this Grating Object
-            effs.append(len(hitrays))
             
             # Take the rays that hit this grating out of the original Rays object
             inputrays.remove(tarray)
@@ -184,11 +241,10 @@ class GratingStack(Combination):
             if len(rays) == 0:
                 break
         
-        self.effs = effs
+        # Make it so that the original rays now contain the output
+        rays.makecopy(finalrays)
         
-        return finalrays
-        
-        
+        return ("Missed Grating Stack", l, len(rays))
         
         
         

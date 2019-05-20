@@ -14,10 +14,19 @@ class CollimatorPlate(FlatComponent):
         
         x,y,z - The position of a point along the plate
         nx,ny,nz - The components of a vector normal to the plate's surface
-        sx,sy,sz - The surface vector of this plate, should be defined in a direction that makes sense for the system (straight up, for example)
+        sx,sy,sz - The surface vector of this plate, should be defined in a 
+            direction that makes sense for the system (straight up, for example)
         l - The length of the plate, that is, its extent in the s direction
         w - The width of the plate, that is, its extent in the sxn direction
-        collfunc - A user-defined function to determine if Rays have missed the Component
+        collfunc - A user-defined function to determine if Rays have missed the 
+            Component
+        
+        Notes:
+        - collfunc must take in only a Rays object. Any other argument needed
+            must be given the the CollimatorPlate Object as a parameter, see
+            self.wires() for an example. This restriction is done because
+            an Instrument Object cannot pass any necessary arguments to 
+            collfunc once it is running
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz, collfunc=collfunc)
         self.l = l
@@ -37,13 +46,13 @@ class CollimatorPlate(FlatComponent):
         '''
         return CollimatorPlate(self.x,self.y,self.z,
         self.nx,self.ny,self.nz,
-        self.fx,self.fy,self.fz,
+        self.sx,self.sy,self.sz,
         self.l,self.w,self.collisionfunction)
     
     
     ## Sample Collision Functions:
     
-    def wires(self,rays,thickness=.1,sep=1):
+    def wires(self,rays):
         '''
         Function wires:
         A collision function, meant to be assigned to self.collfunc
@@ -53,6 +62,8 @@ class CollimatorPlate(FlatComponent):
         
         Inputs:
         rays - The rays, traced to the plate's surface, that you want to analyze
+        
+        Grating objects need the following Parameters:
         thickness - The thickness of the wires
         sep - The distance between the centers of adjacent wires
         
@@ -62,20 +73,27 @@ class CollimatorPlate(FlatComponent):
         Notes:
         - Since the wires run in the self.surface() direction, only the x-position of the photons is considered
         - The "middle" wire is centered at x=0. Thus, a photon with x=0 will always be removed.
+        
+        Example:
+        >> c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0)
+        >> c.collfunc = CollimatorPlate.wires
+        >> c.thickness = .1
+        >> c.sep = 1
+        >> c.trace()
         '''
         x,y = self.getPosns(rays)
         
         # Condense the x-positions so they all exist on 0 < x < sep
-        x = np.abs(x) % sep
+        x = np.abs(x) % self.sep
         
         # Return True if the photon hits the wire to its left or right
-        return np.logical_or((x < thickness/2),(x > sep - (thickness/2)))
+        return np.logical_or((x < self.thickness/2),(x > self.sep - (self.thickness/2)))
         
     
     ## Removing Rays
     # Removing Rays is what a collimator does best
     
-    def hit(self, rays, **kwargs):
+    def hit(self, rays):
         '''
         Function hit:
         This function simply return those rays that would be removed by this collimator plate without actually removing them
@@ -94,7 +112,7 @@ class CollimatorPlate(FlatComponent):
         rectarray = np.zeros(len(rays))
         # Call the collision function (if it exists)
         if self.collfunc is not None:
-            collfuncarray = self.collfunc(rays,**kwargs)
+            collfuncarray = self.collfunc(self,rays)
         # Check if rays miss the plate (if length and width are defined)
         if (self.l is not None) and (self.w is not None):
             x,y = self.getPosns(rays)
@@ -102,7 +120,7 @@ class CollimatorPlate(FlatComponent):
         # Return an array showing if photons should be removed by collfunc or missed the plate altogether
         return np.logical_or(collfuncarray,rectarray)
     
-    def removemissed(self,rays, **kwargs):
+    def removemissed(self,rays):
         '''
         Function removemissed:
         Removes the rays which have missed the collimator.
@@ -114,7 +132,7 @@ class CollimatorPlate(FlatComponent):
         
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
-        **kwargs - Any additional arguments that need to be passed to self.collfunc
+        
         
         Output:
         Up to two tuples containing how many rays were passed in and how many survived.
@@ -142,18 +160,38 @@ class CollimatorPlate(FlatComponent):
             rays.remove(tarray)
             
             # Store the tuple we will eventually return
-            t1 = (l,len(rays))
+            t1 = ("Missed Collimator",l,len(rays))
         
         # Get the new length of the rays
         l = len(rays)
         
         # apply the collision function if it exists
         if (self.collfunc is not None):
-            tarray = self.collfunc(rays,**kwargs)
+            tarray = self.collfunc(self,rays)
             
             rays.remove(tarray)
             
             # Store the tuple we will eventually return
-            t2 = (l,len(rays))
+            t2 = ("Eliminated by Collimator",l,len(rays))
         
-        return t1,t2
+        return [t1,t2]
+    
+    
+    ## Trace Function:
+    
+    def trace(self,rays):
+        '''
+        Function trace:
+        Traces rays to this Collimator Plate and removes photons as necessary. 
+        This is a function that requires no input from the user and thus will be 
+        called by the Instrument Object.
+        
+        Inputs:
+        rays - The rays you want to trace to this plate
+        
+        Outputs:
+        The efficiency, which tracks how many photons were removed by this
+        plate
+        '''
+        self.trace_to_surf(rays)
+        return self.removemissed(rays)

@@ -6,15 +6,19 @@ import prtp.transformationsf as trans
 
 class WolterOptic:
     
+    #TODO: Rays are potentially being traced to the wrong side. This should be a focus of future testing
+    
     def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,r0=1,z0=1,psi=1):
         '''
         WolterOptic Object:
         
         Parameters:
         x,y,z - The Cartesian Coordinates of the focus of the optic
-        nx,ny,nz - The components of the vector pointing outwards from the focus of the optic
+        nx,ny,nz - The components of the vector pointing outwards from the focus 
+            of the optic
         r0 - The when the optics converge
-        z0 - The position along the n-direction at which the optics converge (the focus is at position 0)
+        z0 - The position along the n-direction at which the optics converge 
+            (the focus is at position 0)
         psi - Some ratio of angles, I don't know, I think its always 1
         '''
         self.x = x
@@ -33,6 +37,21 @@ class WolterOptic:
         self.z0 = z0
         self.psi = psi
     
+    def copy(self):
+        '''
+        Function copy:
+        Returns a copy of this Wolter Optic
+        
+        Inputs:
+        None
+        
+        Outputs:
+        An identical WolterOptic Object with the same attributes
+        '''
+        return WolterOptic(self.x,self.y,self.z,
+        self.nx,self.ny,self.nz,
+        self.r0,self.z0,self.psi)
+    
     
     ## Spatial Manipulation Functions:
     
@@ -48,7 +67,8 @@ class WolterOptic:
         None
         
         Notes:
-        - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
+        - This move is relative, not absolute. That is, you will move BY dx, dy,
+            and z, you will not move TO dx, dy, and dz
         '''
         self.x += dx
         self.y += dy
@@ -57,11 +77,13 @@ class WolterOptic:
     def unitrotate(self,theta,axis):
         '''
         Function unitrotate:
-        Rotates the Optic about one of the three unit vectors (x, y, or z) by an amount theta
+        Rotates the Optic about one of the three unit vectors (x, y, or z) by an 
+            amount theta
         
         Inputs:
         theta - The angle by which you want to rotate, in radians
-        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, respectively.
+        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
+            respectively.
         
         Outputs:
         None
@@ -75,7 +97,8 @@ class WolterOptic:
         
         Inputs:
         theta - The angle by which you want to rotate, in radians
-        ux,uy,uz - The x, y, and z components of the vector about which you want to rotate the Optic
+        ux,uy,uz - The x, y, and z components of the vector about which you want 
+            to rotate the Optic
         
         Outputs:
         None
@@ -85,19 +108,24 @@ class WolterOptic:
 
     ## Tracing Rays to the Optic:
     
-    def tracehelper(self,rays,func,autoreflect=True,remove=False):
+    def tracehelper(self,rays,func,autoreflect=True,remove=True):
         '''
         Function tracehelper:
         Allows Wolter Optics to trace their rays to their surface
         
         Inputs:
         rays - The Rays object you want to trace to the optic
-        func - A The function used to trace the photons to a surface, this is handled by each subclass
-        autoreflect - If True, photons will be reflected off of the optic's surface automatically
-        remove - If True, photons that missed the optic will be automatically removed. If False, photons that missed will be given nans in every quantity
+        func - A The function used to trace the photons to a surface, this is 
+            handled by each subclass
+        autoreflect - If True, photons will be reflected off of the optic's 
+            surface automatically
+        remove - If True, photons that missed the optic will be automatically 
+            removed. If False, photons that missed will be given nans in every 
+            quantity
         
         Outputs:
-        A tuple containing the original number of rays and the final number of rays (that hit the optic)
+        A tuple containing the original number of rays and the final number of 
+            rays (that hit the optic)
         '''
         
         # First find the angles through which we need to rotate the rays
@@ -164,4 +192,4 @@ class WolterOptic:
             rays.remove(np.isnan(rays.x))
         
         # Return the efficiency of the optic
-        return (inputlength,inputlength-nummissed)
+        return ("Missed Optic",inputlength,inputlength-nummissed)

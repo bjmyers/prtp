@@ -125,6 +125,31 @@ class Rays:
         new_rays.params = self.params.copy()
         return new_rays
     
+    def makecopy(self,rays):
+        '''
+        Function makecopy:
+        Makes this Rays object a copy of another Rays object. This is a very
+        niche function that is needed when tracing through Combination
+        objects.
+        
+        Inputs:
+        rays - The rays object that you want to make self a copy of
+        
+        Outputs:
+        None
+        '''
+        self.x = np.copy(rays.x)
+        self.y = np.copy(rays.y)
+        self.z = np.copy(rays.z)
+        self.l = np.copy(rays.l)
+        self.m = np.copy(rays.m)
+        self.n = np.copy(rays.n)
+        self.ux = np.copy(rays.ux)
+        self.uy = np.copy(rays.uy)
+        self.uz = np.copy(rays.uz)
+        self.tags = rays.tags.copy()
+        self.params = rays.params.copy()
+    
     def split(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function copy:
@@ -132,9 +157,8 @@ class Rays:
         condition
         
         Inputs:
-        trutharray,tags,delim,orcombination - Arguments needed to develop a
-        trutharray which specifies the photons which should be copied. See
-        documentation for combineTags to see how it works
+        trutharray,tags,delim,orcombination - Arguments needed to develop a trutharray which specifies the photons which should be copied.
+        See documentation for combineTags to see how it works
         
         Outputs:
         A Rays object containing the photons which satisy trutharray
