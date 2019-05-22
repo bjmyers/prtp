@@ -176,7 +176,7 @@ class Grating(FlatComponent):
         if self.periodfunction is None:
             d = self.d
         else:
-            d = self.pfunc(rays)
+            d = self.periodfunction(rays)
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
         gratl,gratn,gratm = trans.grat(gratl,gratm,gratn,d,order,wave)
@@ -228,7 +228,7 @@ class Grating(FlatComponent):
         if self.periodfunction is None:
             d = self.d
         else:
-            d = self.pfunc(rays)
+            d = self.periodfunction(rays)
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
         x,y,l,m,n = trans.radgrat(rays.x,rays.y,gratl,gratm,gratn,d,order,wave)
@@ -284,12 +284,16 @@ class Grating(FlatComponent):
         grating. In the future will consider absorption from the material too.
         '''
         self.trace_to_surf(rays)
-        eff = self.removemissed(rays,considerweights=considerweights)
+        eff1 = self.removemissed(rays,considerweights=considerweights)
         if self.radgrat:
             self.radgrat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
+            rays.remove(np.isnan(rays.x))
         else:
             self.grat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
-        return eff
+            rays.remove(np.isnan(rays.x))
+            
+        eff2 = ('Failed to Reflect off Grating', eff1[2],rays.length(considerweights))
+        return [eff1,eff2]
 
 
 
