@@ -138,7 +138,7 @@ class Grating(FlatComponent):
     ## Grating Functions:
     # Handle reflecting off of the gratings
     
-    def grat(self, rays, order=0, wave=100, autoreflect=False):
+    def grat(self, rays, order=0, wave=1., autoreflect=False):
         '''
         Function grat:
         Given Rays that have been traced to the Grating, reflects the Rays off of a parallel grating
@@ -190,7 +190,7 @@ class Grating(FlatComponent):
         if (autoreflect):
             self.reflect(rays)
     
-    def radgrat(self,rays,order=0,wave=100,autoreflect=False):
+    def radgrat(self,rays,order=0,wave=1.,autoreflect=False):
         '''
         Function radgrat:
         Given Rays that have been traced to the Grating, reflects the Rays off of a radial grating
@@ -285,9 +285,9 @@ class Grating(FlatComponent):
         self.trace_to_surf(rays)
         eff = self.removemissed(rays)
         if self.radgrat:
-            self.radgrat(rays,autoreflect=True)
+            self.radgrat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
         else:
-            self.grat(rays,autoreflect=True)
+            self.grat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
         return eff
 
 

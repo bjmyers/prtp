@@ -5,7 +5,7 @@ class Instrument:
     # The main class for simulating optical systems, each Instrument object
     # will contain a list of components you want to trace the rays to in order
     
-    def __init__(self,source = None):
+    def __init__(self,source = None, waves = 1., orders = 0):
         '''
         Initialization Function:
         Creates the Instrument Objest
@@ -13,6 +13,14 @@ class Instrument:
         Inputs:
         source - A Rays Object, these are the photons which will be sent through
             the Instrument
+        waves - The wavelength of the photons. Can be an int/float if you wish
+            for every photon to have the same wavelength. Can also be an array
+            the same length as the Rays object if you wish to specify the 
+            wavelength of each photon
+        orders - The order of the photons. Can be an int/float if you wish
+            for every photon to have the same order. Can also be an array
+            the same length as the Rays object if you wish to specify the 
+            order of each photon
         
         Notes: 
         - componentlist is the list of all the components you will trace 
@@ -21,6 +29,18 @@ class Instrument:
             when photons are traced to each component
         '''
         self.source = source
+        
+        # Make sure that waves and sources are arrays with the same length 
+        # as source
+        if not (type(waves) == list or type(waves) == np.ndarray):
+            waves = np.array([waves] * len(source))
+        if not (type(orders) == list or type(orders) == np.ndarray):
+            orders = np.array([orders] * len(source))
+            
+        # Add waves and orders to the Rays object as parameters
+        self.source.addParam('Wavelength',waves)
+        self.source.addParam('Order',orders)
+        
         self.componentlist = []
         self.effs = []
     
