@@ -16,7 +16,28 @@ class Rays:
     # These functions create Rays Objects
     
     
-    def __init__(self,x=[],y=[],z=[],l=[],m=[],n=[],ux=[],uy=[],uz=[]):
+    def __init__(self,x=[],y=[],z=[],l=[],m=[],n=[],ux=[],uy=[],uz=[],weighting=False):
+        '''
+        Function __init__:
+        Initializes a Rays Object
+        
+        Inputs:
+        x,y,z - The spatial location of the photons
+        l,m,n - The direction components of the photons
+        ux,uy,uz - The components of the normal vector of the most recent 
+            surface these photons were traced to
+        weighting - Used by Instrument Objects, see notes
+        
+        Notes:
+        - If weighting is True, each photon will immediately be given a weight
+            of 1. Objects like Gratings and Detectors have reflectivities and
+            quantum efficiencies (respectively) that will remove photons based
+            on a probability. With weighted photons, no photons will be removed
+            by these objects but their weights will be adjusted. A photon's 
+            weight is simply the chance that this specific photon made it this
+            far through an instrument. This allows us to get accurate instrument
+            efficiency values using relatively fewer photons.
+        '''
         self.x = np.array(x)
         self.y = np.array(y)
         self.z = np.array(z)
@@ -26,6 +47,13 @@ class Rays:
         self.ux = np.array(ux)
         self.uy = np.array(uy)
         self.uz = np.array(uz)
+        
+        self.weighting = weighting
+        if weighting:
+            self.weights = np.ones(len(self.x))
+        else:
+            self.weights = None
+        
         # This call to the __len__ method makes sure the inputs were all of the
         # same length
         self.__len__()
@@ -226,6 +254,68 @@ class Rays:
             return len(self.x)
         else:
             raise Exception('The x,y,x,l,m,n,ux,uy,uz Parameters must be of the same length!')
+    
+    def length(self,considerweights=False):
+        '''
+        Function length:
+        Gets the length of this Rays Object. Differs from __len__ in that this
+        can consider the weighting of the Rays Object
+        
+        Inputs:
+        considerweights - If True, this function will return the sum of the 
+            photons' weights. Otherwise, behaves identically to __len__
+        
+        Outputs:
+        None
+        '''
+        if (considerweights):
+            if self.weights is None:
+                raise Exception('This Rays Object has no weighting')
+            else:
+                return np.sum(self.weights)
+        else:
+            return len(self)
+    
+    
+    ## Weighting Functions
+    # Functions that deal with photons' weights
+    
+    def addWeighting(self):
+        '''
+        Function addWeighting:
+        Adds weights to a Rays object even if it was not initialized with weights
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Notes:
+        If this function is called on a Rays Object that already has weighting,
+            the existing weights will be reset (back to 1. for each photon).
+        '''
+        self.weighting = True
+        self.weights = np.ones(len(self.x))
+    
+    
+    def removeWeighting(self):
+        '''
+        Function removeWeighting:
+        Removes weights from a Rays object
+        
+        Inputs:
+        None
+        
+        Outputs:
+        None
+        
+        Notes:
+        This function will not do anything if the Rays object did not have 
+            weights to begin with.
+        '''
+        self.weighting = False
+        self.weights = None
     
     
     ## Analysis Functions:
@@ -1002,9 +1092,12 @@ class Rays:
             self.tags[i] = tag
         # Do the same for params
         for i in range(len(self.params)):
-            param = self.param[i]
+            param = self.params[i]
             param = (param[0],param[1][trutharray])
-            self.param[i] = param
+            self.params[i] = param
+        # Remove from weighting, if necessary
+        if (self.weighting):
+            self.weights = self.weights[trutharray]
     
     
     def probRemove(self,probability=1.):
@@ -1035,6 +1128,12 @@ class Rays:
             probability = np.array([probability] * len(self))
         if len(probability) != len(self):
             raise ValueError('Input Array must be the same length as Rays Object')
+        
+        # With weighting, probability remove is considered differently, no
+        # photons are actually removed
+        if self.weighting:
+            self.weights *= probability
+            return
             
         choice = np.random.rand(len(self))
         needToRemove = choice > probability

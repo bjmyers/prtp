@@ -108,7 +108,7 @@ class WolterOptic:
 
     ## Tracing Rays to the Optic:
     
-    def tracehelper(self,rays,func,autoreflect=True,remove=True):
+    def tracehelper(self,rays,func,autoreflect=True,considerweights=False):
         '''
         Function tracehelper:
         Allows Wolter Optics to trace their rays to their surface
@@ -119,9 +119,7 @@ class WolterOptic:
             handled by each subclass
         autoreflect - If True, photons will be reflected off of the optic's 
             surface automatically
-        remove - If True, photons that missed the optic will be automatically 
-            removed. If False, photons that missed will be given nans in every 
-            quantity
+        considerweights - Should be True if the photons are weighted
         
         Outputs:
         A tuple containing the original number of rays and the final number of 
@@ -184,12 +182,10 @@ class WolterOptic:
         rays.translate(self.x,self.y,self.z)
         
         # Find how many rays missed the optic
-        nummissed = np.count_nonzero(np.isnan(rays.x))
-        inputlength = len(rays)
+        inputlength = rays.length(considerweights)
         
-        # Remove missed photons is the user wants to
-        if (remove):
-            rays.remove(np.isnan(rays.x))
+        # Remove missed photons
+        rays.remove(np.isnan(rays.x))
         
         # Return the efficiency of the optic
-        return ("Missed Optic",inputlength,inputlength-nummissed)
+        return ("Missed Optic",inputlength,rays.length(considerweights))

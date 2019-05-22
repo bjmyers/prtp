@@ -190,7 +190,7 @@ class GratingStack(Combination):
     
     ## Ray-Tracing Functions
     
-    def trace(self, rays):
+    def trace(self, rays, considerweights=False):
         '''
         Function trace:
         Traces the rays through all of the Gratings in the Stack
@@ -227,7 +227,11 @@ class GratingStack(Combination):
             
             hitrays = rays.split(tarray)
             
-            g.trace(hitrays)
+            # Make sure at least some rays have hit the grating
+            if (len(hitrays) == 0):
+                continue
+            
+            g.trace(hitrays,considerweights)
             
             # Add the hitrays to our final tally
             finalrays += hitrays

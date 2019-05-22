@@ -5,7 +5,7 @@ class Instrument:
     # The main class for simulating optical systems, each Instrument object
     # will contain a list of components you want to trace the rays to in order
     
-    def __init__(self,source = None, waves = 1., orders = 0):
+    def __init__(self,source = None, waves = 1., orders = 0, weighting = False):
         '''
         Initialization Function:
         Creates the Instrument Objest
@@ -40,6 +40,10 @@ class Instrument:
         # Add waves and orders to the Rays object as parameters
         self.source.addParam('Wavelength',waves)
         self.source.addParam('Order',orders)
+        
+        self.weighting = weighting
+        if weighting:
+            self.source.addWeighting()
         
         self.componentlist = []
         self.effs = []
@@ -103,7 +107,7 @@ class Instrument:
         for c in self.componentlist:
             
             # Trace the Rays through the component
-            e = c.trace(rays)
+            e = c.trace(rays,considerweights=self.weighting)
             
             # Some components return a list of efficiencies, check if this is the case
             if type(e) == list:
@@ -149,7 +153,7 @@ class Instrument:
         
         for e in self.effs:
             method = e[0].ljust(30)
-            localeff = (e[2])*100/e[1]
+            localeff = (e[1]-e[2])*100/e[1]
             globaleff = (e[1]-e[2])*100/l
             print("{0} {1:08.5f}%       {2:08.5f}%".format(method,localeff,globaleff))
         

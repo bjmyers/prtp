@@ -56,7 +56,7 @@ class WolterTypeOne(WolterOptic):
         if autoreflect:
             rays.reflect()
     
-    def trace(self,rays,autoreflect=True,remove=False):
+    def trace(self,rays,autoreflect=True,considerweights=False):
         '''
         Function trace:
         Traces rays to the wolter optic
@@ -65,13 +65,11 @@ class WolterTypeOne(WolterOptic):
         rays - The Rays object you want to trace to the optic
         autoreflect - If True, photons will be reflected off of the optic's 
             surface automatically
-        remove - If True, photons that missed the optic will be automatically 
-            removed. If False, photons that missed will be given nans in every 
-            quantity
+        considerweights - Should be True if the photons are weighted
         
         Outputs:
         eff - A tuple containing information about how many photons hit the
             optic
         '''
-        eff = self.tracehelper(rays,self.tracefunction,autoreflect,remove)
+        eff = self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
         return ("Missed Wolter Optic",eff[1],eff[2])

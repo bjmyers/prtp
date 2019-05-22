@@ -73,13 +73,14 @@ class Detector(FlatComponent):
         return np.logical_and(np.abs(x) < self.w/2, np.abs(y) < self.l/2)
         
     
-    def removemissed(self,rays):
+    def removemissed(self,rays,considerweights=False):
         '''
         Function removemissed:
         Removes the rays which have missed the Detector. Also removes some photons according to the quantum efficiency (e.g: if self.q = .1, 10% of the photons that hit will be removed)
         
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
+        considerweights - should True if the photons are weighted
         
         Output:
         Two tuples describing the efficiency of the detector:
@@ -87,16 +88,16 @@ class Detector(FlatComponent):
             The second one contains (num_hit_rays,num_detected_rays)
         '''
         
-        l = len(rays)
+        l = rays.length(considerweights)
         # Find rays which have not hit
         tarray = np.logical_not(self.hit(rays))
         rays.remove(tarray)
         
-        t1 = ("Missed Detector",l,len(rays))
-        l = len(rays)
+        t1 = ("Missed Detector",l,rays.length(considerweights))
+        l = rays.length(considerweights)
         
         rays.probRemove(self.q)
-        t2 = ("Eliminated by QE of Detector",l,len(rays))
+        t2 = ("Eliminated by QE of Detector",l,rays.length(considerweights=True))
         
         return [t1,t2]
     
@@ -180,7 +181,7 @@ class Detector(FlatComponent):
 
     ## Trace Function:
     
-    def trace(self,rays):
+    def trace(self,rays,considerweights=False):
         '''
         Function trace:
         Traces rays to this Detector and removes photons as necessary. 
@@ -195,7 +196,7 @@ class Detector(FlatComponent):
         detector
         '''
         self.trace_to_surf(rays)
-        return self.removemissed(rays)
+        return self.removemissed(rays,considerweights)
     
     
     

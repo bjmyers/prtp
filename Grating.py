@@ -81,13 +81,14 @@ class Grating(FlatComponent):
         else:
             raise NotImplementedError('This Grating needs a collision function to be implemented or a length and width if you wish to use a simple rectangular model')
     
-    def removemissed(self,rays):
+    def removemissed(self,rays,considerweights=False):
         '''
         Function removemissed:
         Given Rays that have been traced to the Grating, returns the photons which have hit the Grating.
         
         Inputs:
         rays - A Rays object that has been traced to the Grating Plane
+        considerweights - Should be used if the photons are weighted
         
         Outputs:
         A tuple containing the original number of rays and the final number of rays
@@ -100,7 +101,7 @@ class Grating(FlatComponent):
         # Find rays which have not hit
         tarray = np.logical_not(self.hit(rays))
         rays.remove(tarray)
-        return ("Missed Grating",l,len(rays))
+        return ("Missed Grating",l,rays.length(considerweights=considerweights))
     
     
     ## Sample Period Functions
@@ -268,7 +269,7 @@ class Grating(FlatComponent):
         rays.reflect()
     
     
-    def trace(self,rays):
+    def trace(self,rays,considerweights=False):
         '''
         Function trace:
         Traces rays to and reflects them off of this Grating. This is a function
@@ -283,7 +284,7 @@ class Grating(FlatComponent):
         grating. In the future will consider absorption from the material too.
         '''
         self.trace_to_surf(rays)
-        eff = self.removemissed(rays)
+        eff = self.removemissed(rays,considerweights=considerweights)
         if self.radgrat:
             self.radgrat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
         else:

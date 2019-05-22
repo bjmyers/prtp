@@ -43,8 +43,9 @@ class FlatComponent:
         self.collisionfunction = collfunc
         
         # Vectors can be orthogonal within some tolerance (here 1e-8)
+        dot = np.abs(np.dot([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz]))
         if np.abs(np.dot([self.sx,self.sy,self.sz],[self.nx,self.ny,self.nz])) > 1e-8:
-            raise ValueError('Normal and Surface Vectors are not Orthogonal')
+            raise ValueError('Normal and Surface Vectors are not Orthogonal, dot product is ' + str(dot))
     
     
     ## Access Functions:
