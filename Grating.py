@@ -10,7 +10,7 @@ class Grating(FlatComponent):
     ## Initialization Functions
     
     def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
-    l=None,w=None,pfunc=None,collfunc=None,radial=True,d=160):
+    l=None,w=None,pfunc=None,collfunc=None,radial=True,d=160,fdist=None):
         '''
         Initializes a Grating Object, requires the following arguments:
         
@@ -28,7 +28,12 @@ class Grating(FlatComponent):
         radial - If True, this grating will behave as a radial grating.
             If False, this grating will behave as a paralle grating
         d - The period of the Grating, a pfunc can be used for more sophisticated
-            periods
+            periods. For a radial grating, it is the period at the center of the
+            Grating
+        fdist - The distance to the focus of the grooves. It should be measured
+            from the center of the grating to the focus along the s-direction
+            This value is important for radial Gratings where we need the 
+            distance of every photon from the groove focus.
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz, collfunc=collfunc)
         self.l = l
@@ -37,6 +42,7 @@ class Grating(FlatComponent):
         self.collfunc = collfunc
         self.radial = radial
         self.d = d
+        self.fdist = fdist
     
     
     def copy(self):
@@ -230,8 +236,13 @@ class Grating(FlatComponent):
         else:
             d = self.periodfunction(rays)
         
+        
+        x,y = self.getPosns(rays)
+        y -= self.fdist
+        d /= self.fdist
+        
         # This gives us the new velocity in grating components, we need to convert it to xyz components
-        x,y,l,m,n = trans.radgrat(rays.x,rays.y,gratl,gratm,gratn,d,order,wave)
+        x,y,l,m,n = trans.radgrat(x,y,gratl,gratm,gratn,d,order,wave)
         
         # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
         l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
@@ -287,10 +298,11 @@ class Grating(FlatComponent):
         eff1 = self.removemissed(rays,considerweights=considerweights)
         if self.radgrat:
             self.radgrat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
-            rays.remove(np.isnan(rays.x))
+            # Need to check l for nans b/c rays.x is not modified
+            rays.remove(np.isnan(rays.l))
         else:
             self.grat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
-            rays.remove(np.isnan(rays.x))
+            rays.remove(np.isnan(rays.l))
             
         eff2 = ('Failed to Reflect off Grating', eff1[2],rays.length(considerweights))
         return [eff1,eff2]
