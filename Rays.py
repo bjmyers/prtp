@@ -982,6 +982,86 @@ class Rays:
         self.x,self.y,self.z,self.l,self.m,self.n,self.ux,self.uy,self.uz = transformationsf.applyT(self,coords,inverse)
     
     
+    def beckmann_scatter(self, h, rho, ripple, nind=1., lam=None):
+        '''
+        Add Beckmann scatter to a set of rays a la the SCATTER function
+        in Webster Cash's IRT.
+        '''
+    
+        # Define surface normal components.
+        nx = self.ux
+        ny = self.uy
+        nz = self.uz
+        n = np.array([nx, ny, nz]).transpose()
+    
+        # Define direction cosines.
+        qx = self.l
+        qy = self.m
+        qz = self.n
+        q = np.array([qx, qy, qz]).transpose()
+    
+        # Compute some cross products.
+        op = np.cross(n, q)
+        op = np.array([(op[i] / np.linalg.norm(op[i])) for i in range(len(op))])
+    
+        ip = np.cross(q, op)
+        ip = np.array([(ip[i] / np.linalg.norm(ip[i])) for i in range(len(ip))])
+    
+        dot = np.array([np.dot(a, b) for a, b in zip(q, n)])
+    
+        nel = len(self)
+    
+        dq = np.zeros(np.shape(q))
+    
+        # Create *h* array.
+        if type(h) is int or float:
+            h = [h]
+            nh = 1
+        else:
+            nh = len(list(h))
+    
+        h = np.array(h)
+    
+        # Create *rho* array.
+        if type(rho) is int or float:
+            rho = [rho]
+    
+        rho = np.array(rho)
+    
+        for ih in range(nh):
+            if h[ih] <= 0.:
+                continue
+            hran = np.random.rand(nel)
+            lamn = lam / nind
+            gsc = 4. * np.pi * h[ih] * dot / lamn
+            gsc = np.exp(-gsc * gsc)
+            scat = [hran < gsc]
+    
+            grad = ((1. / np.random.rand(nel)) - 1.) * lamn/rho[ih]
+    
+            gthet = np.random.rand(nel) * 2 * np.pi
+            dthet = grad * np.sin(gthet) / dot
+            dphi = grad * np.cos(gthet)
+    
+            dq = dq + (dthet*ip + dphi*op) * scat
+    
+        ripr = np.random.randn(nel) * ripple
+        rth = np.random.rand(nel) * 2 * np.pi
+        dth = ripr * np.sin(rth)
+        dph = ripr * np.cos(rth) * dot
+    
+        dq = dq + np.array([(dth[i]*ip[i] + dph[i]*op[i]) for i in range(nel)])
+        q = q + dq
+        q = np.array([(q[i] / np.linalg.norm(q[i])) for i in range(len(q))])
+        q = q.transpose()
+    
+        self.l = np.array(q[0], order='F')
+        self.m = np.array(q[1], order='F')
+        self.n = np.array(q[2], order='F')
+    
+        return
+    
+    
     ## Wolter Surfaces Functions:
     # These functions call to prtp.woltsurf
     

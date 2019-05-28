@@ -170,6 +170,9 @@ class FlatComponent:
         vel = np.sqrt(rays.l**2 + rays.m**2 + rays.n**2)
         rays.set(x = rays.x + dist*rays.l/vel,y = rays.y + dist*rays.m/vel,z = rays.z + dist*rays.n/vel)
         
+        # Update surface normal vectors
+        rays.move(ux = self.nx, uy = self.ny, uz = self.nz)
+        
         return rays
     
     def getPosns(self,rays):

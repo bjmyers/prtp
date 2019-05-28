@@ -38,8 +38,17 @@ class Instrument:
             orders = np.array([orders] * len(source))
             
         # Add waves and orders to the Rays object as parameters
-        self.source.addParam('Wavelength',waves)
-        self.source.addParam('Order',orders)
+        # If the parameters already exist, replace the values
+        if self.source.getParam('Wavelength') is None:
+            self.source.addParam('Wavelength',waves)
+        else:
+            self.source.removeParam('Wavelength')
+            self.source.addParam('Wavelength',waves)
+        if self.source.getParam('Order') is None:
+            self.source.addParam('Order',orders)
+        else:
+            self.source.removeParam('Order')
+            self.source.addParam('Order',orders)
         
         self.weighting = weighting
         if weighting:
@@ -114,6 +123,10 @@ class Instrument:
                 self.effs.extend(e)
             else:
                 self.effs.append(e)
+            
+            # Stop if there are no rays to continue going
+            if (len(rays) == 0):
+                break
         
         # Return the final Rays
         return rays
