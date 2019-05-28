@@ -56,7 +56,8 @@ class CollimatorPlate(FlatComponent):
         '''
         Function wires:
         A collision function, meant to be assigned to self.collfunc
-        Simulates wires of a given thickness running infinitely in the self.surface() direction.
+        Simulates wires of a given thickness running infinitely in the 
+            self.surface() direction.
         The wires are separated by a distance sep
         If a photon collides with a wire, it is removed
         
@@ -71,8 +72,10 @@ class CollimatorPlate(FlatComponent):
         A trutharray, a photon's value is True if it collides with a wire
         
         Notes:
-        - Since the wires run in the self.surface() direction, only the x-position of the photons is considered
-        - The "middle" wire is centered at x=0. Thus, a photon with x=0 will always be removed.
+        - Since the wires run in the self.surface() direction, only the 
+            x-position of the photons is considered
+        - The "middle" wire is centered at x=0. Thus, a photon with x=0 will 
+            always be removed.
         
         Example:
         >> c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0)
@@ -96,28 +99,34 @@ class CollimatorPlate(FlatComponent):
     def hit(self, rays):
         '''
         Function hit:
-        This function simply return those rays that would be removed by this collimator plate without actually removing them
+        This function simply return those rays that would be removed by this 
+            collimator plate without actually removing them
         
         Inputs:
         rays - A Rays object that has been traced to the Grating Plane
         
         Outputs:
-        tarray - A trutharray, containing True if the photon has hit the plate (and should be removed), contains False if the photon passes through the plate (and should not be removed)
+        tarray - A trutharray, containing True if the photon has hit the plate 
+            (and should be removed), contains False if the photon passes through 
+            the plate (and should not be removed)
         
         Notes:
-        - The function cannot tell if the Rays have been traced, so this is up to the user.
-        - The function can use both a rectangle (from self.l and self.w) and a collision function
+        - The function cannot tell if the Rays have been traced, so this is up 
+            to the user.
+        - The function can use both a rectangle (from self.l and self.w) and a 
+            collision function
         '''
         collfuncarray = np.zeros(len(rays))
         rectarray = np.zeros(len(rays))
         # Call the collision function (if it exists)
-        if self.collfunc is not None:
-            collfuncarray = self.collfunc(self,rays)
+        if self.collisionfunction is not None:
+            collfuncarray = self.collisionfunction(self,rays)
         # Check if rays miss the plate (if length and width are defined)
         if (self.l is not None) and (self.w is not None):
             x,y = self.getPosns(rays)
             rectarray = np.logical_or(np.abs(x) > self.w/2, np.abs(y) > self.l/2)
-        # Return an array showing if photons should be removed by collfunc or missed the plate altogether
+        # Return an array showing if photons should be removed by 
+        # collisionfunction or missed the plate altogether
         return np.logical_or(collfuncarray,rectarray)
     
     def removemissed(self,rays,considerweights):
@@ -125,10 +134,13 @@ class CollimatorPlate(FlatComponent):
         Function removemissed:
         Removes the rays which have missed the collimator.
         This function is slightly different than Grating.removemissed.
-        The Grating version will handle either the Grating's collision function or the length and width, but not both.
-        CollimatorPlate.removemissed can handle both a collision function and a length/width.
-        This is done to make the collision function simpler.
-        Collimators will already have complicated collision functions, so having removemissed automatically handle length and width makes it much easier.
+        The Grating version will handle either the Grating's collision function 
+            or the length and width, but not both.
+        CollimatorPlate.removemissed can handle both a collision function and a 
+            length/width.
+        This is done to make the collision function simpler. Collimators will 
+        already have complicated collision functions, so having removemissed 
+        automatically handle length and width makes it much easier.
         
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
@@ -136,21 +148,23 @@ class CollimatorPlate(FlatComponent):
         
         
         Output:
-        Up to two tuples containing how many rays were passed in and how many survived.
-        One tuple will show how many actually fell onto the rectangle of the plate (if length and width are not None)
-        The other tuple will show how many photons survived the collisionfunction (if it is not None)
+        Up to two tuples containing how many rays were passed in and how many 
+            survived. One tuple will show how many actually fell onto the 
+            rectangle of the plate (if length and width are not None) The other 
+            tuple will show how many photons survived the collisionfunction (if 
+            it is not None)
         
         Notes:
-        -self.collfunc should return True if the photon collides with the collimator plate and needs to be removed
+        -self.collisionfunction should return True if the photon collides with 
+            the collimator plate and needs to be removed
         '''
         # Store the length of the incoming rays
         l = rays.length(considerweights)
         
-        # Initialize the tuples we will eventually return
-        # t1 holds the info about rays that missed the collimator plate
-        # t2 holds info about rays that failed the collision function
-        t1 = None
-        t2 = None
+        # Initialize the efficiencies that we will eventually return
+        # Any time we need to remove photons we will append to this list, so the
+        # user can see specifically how rays were removed
+        effs = []
         
         # get the positions of the rays:
         x,y = self.getPosns(rays)
@@ -161,21 +175,21 @@ class CollimatorPlate(FlatComponent):
             rays.remove(tarray)
             
             # Store the tuple we will eventually return
-            t1 = ("Missed Collimator",l,rays.length(considerweights))
+            effs.append(("Missed Collimator",l,rays.length(considerweights)))
         
         # Get the new length of the rays
         l = rays.length(considerweights)
         
         # apply the collision function if it exists
-        if (self.collfunc is not None):
-            tarray = self.collfunc(self,rays)
+        if (self.collisionfunction is not None):
+            tarray = self.collisionfunction(self,rays)
             
             rays.remove(tarray)
             
             # Store the tuple we will eventually return
-            t2 = ("Eliminated by Collimator",l,rays.length(considerweights))
+            effs.append(("Eliminated by Collimator",l,rays.length(considerweights)))
         
-        return [t1,t2]
+        return effs
     
     
     ## Trace Function:
