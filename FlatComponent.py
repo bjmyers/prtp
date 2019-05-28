@@ -195,7 +195,7 @@ class FlatComponent:
         ydir = np.vstack([ydir] * len(rays))
         
         # Define the vector going from the rays to the center of the plane
-        deltap = np.array([self.x - rays.x, self.y - rays.y, self.z - rays.z]).transpose()
+        deltap = np.array([rays.x - self.x, rays.y - self.y, rays.z - self.z]).transpose()
         
         # X-components are {deltap (dot) (s x n)}
         xs = (deltap * xdir).sum(1)
@@ -203,27 +203,26 @@ class FlatComponent:
         ys = (deltap * ydir).sum(1)
         
         return xs,ys
-
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+    def reflect(self,rays):
+        '''
+        Function reflect:
+        Given Rays that have been traced to the Component, reflectes the Rays 
+            off of the surface.
+        
+        Inputs:
+        rays - A Rays object that has been traced to the Component Plane
+        
+        Outputs:
+        Nothing
+        
+        Notes:
+        - The function cannot tell if the Rays have been traced, so this is up 
+            to the user.
+        '''
+        length = len(rays)
+        rays.ux = np.ones(length) * self.nx
+        rays.uy = np.ones(length) * self.ny
+        rays.uz = np.ones(length) * self.nz
+        rays.reflect()

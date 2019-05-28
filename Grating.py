@@ -216,6 +216,10 @@ class Grating(FlatComponent):
         - The function cannot tell if the Rays have been traced, so this is up to the user.
         - Photons must be reflected after this function is called or they will not behave properly
         '''
+        
+        if (autoreflect):
+            self.reflect(rays)
+        
         vel = [rays.l,rays.m,rays.n]
         # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
         nor = self.Normal()
@@ -238,46 +242,18 @@ class Grating(FlatComponent):
         
         
         x,y = self.getPosns(rays)
-        y -= self.fdist
+        y += self.fdist
         d /= self.fdist
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
-        x,y,l,m,n = trans.radgrat(x,y,gratl,gratm,gratn,d,order,wave)
+        x,y,gratl,gratm,gratn = trans.radgrat(x,y,gratl,gratm,gratn,d,order,wave)
         
-        # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
+        # # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
         l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
         m = gratl*sxn[1] + gratm*s[1] + gratn*nor[1]
         n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
         
         rays.set(l=l,m=m,n=n)
-        
-        if (autoreflect):
-            self.reflect(rays)
-    
-    
-    def reflect(self,rays):
-        '''
-        Function reflect:
-        Given Rays that have been traced to the Grating, reflectes the Rays off of the surface. This function is different than grat or radgrat, and needs to be called if you want the photons to be accurately reflected off the Grating
-        
-        Inputs:
-        rays - A Rays object that has been traced to the Grating Plane
-        dpermm - The period of the grooves, can be a float or array
-        order - The order of the photon, can be a float or array
-        wave - the wavelength of the photon, can be a float or array
-        
-        Outputs:
-        rays - The updated Rays object that has been reflected off of the Grating
-        
-        Notes:
-        - The function cannot tell if the Rays have been traced, so this is up to the user.
-        - Photons must be reflected after this function is called or they will not behave properly
-        '''
-        length = len(rays)
-        rays.ux = np.ones(length) * self.nx
-        rays.uy = np.ones(length) * self.ny
-        rays.uz = np.ones(length) * self.nz
-        rays.reflect()
     
     
     def trace(self,rays,considerweights=False):
