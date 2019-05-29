@@ -13,12 +13,15 @@ class FlatComponent:
         
         x,y,z - The position of a point along the component
         nx,ny,nz - The components of a vector normal to the component surface
-        fx,fy,fz - The components of a direction vector along the component's surface
-        collfunc - A user-defined function to determine if Rays have missed the Component
+        fx,fy,fz - The components of a direction vector along the component's 
+            surface
+        collfunc - A user-defined function to determine if Rays have missed the 
+            Component
         
         Notes:
         - Raises an error if the normal and surface vectors are not orthogonal
-        - Surface and Normal vectors can have magnitudes other than one, but this function will automatically normalize them
+        - Surface and Normal vectors can have magnitudes other than one, but 
+            this function will automatically normalize them
         '''
         self.x = x
         self.y = y
@@ -94,7 +97,8 @@ class FlatComponent:
         None
         
         Notes:
-        - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
+        - This move is relative, not absolute. That is, you will move BY dx, dy, 
+            and z, you will not move TO dx, dy, and dz
         '''
         self.x += dx
         self.y += dy
@@ -103,11 +107,13 @@ class FlatComponent:
     def unitrotate(self,theta,axis):
         '''
         Function unitrotate:
-        Rotates the Component about one of the three unit vectors (x, y, or z) by an amount theta
+        Rotates the Component about one of the three unit vectors (x, y, or z) 
+            by an amount theta
         
         Inputs:
         theta - The angle by which you want to rotate, in radians
-        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, respectively.
+        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
+            respectively.
         
         Outputs:
         None
@@ -122,7 +128,8 @@ class FlatComponent:
         
         Inputs:
         theta - The angle by which you want to rotate, in radians
-        ux,uy,uz - The x, y, and z components of the vector about which you want to rotate the Component
+        ux,uy,uz - The x, y, and z components of the vector about which you want
+            to rotate the Component
         
         Outputs:
         None
@@ -142,14 +149,19 @@ class FlatComponent:
         
         Inputs:
         rays - The Rays object you want to trace
-        modify - Boolean. If True, the original Rays object will be modified into one on the Component's surface. If False, a copy of the Rays object will be made and returned in its modified form, leaving the original unchanged.
+        modify - Boolean. If True, the original Rays object will be modified 
+            into one on the Component's surface. If False, a copy of the Rays 
+            object will be made and returned in its modified form, leaving the 
+            original unchanged.
         
         Outputs:
         Rays - The Rays object with photons traced to the Component's Surface
         
         Notes:
-        - Rays object will have NaNs in its x,y, and z positions if it is parallel to the plane
-        - A Rays object will always be returned, but if modify=False, it will not be the same Rays object as the one input
+        - Rays object will have NaNs in its x,y, and z positions if it is 
+            parallel to the plane
+        - A Rays object will always be returned, but if modify=False, it will 
+            not be the same Rays object as the one input
         '''
         if (not modify):
             rays = rays.copy()
@@ -178,7 +190,11 @@ class FlatComponent:
     def getPosns(self,rays):
         '''
         Function getPosns:
-        Given Rays that have been traced to the Component, finds their x and y positions on the Plane. The X position is its distance from the center in the sxn direction. The Y position is its distance from the center in the s direction. Therefore, the n axis is the z-direction basis vector.
+        Given Rays that have been traced to the Component, finds their x and y 
+            positions on the Plane. The X position is its distance from the 
+            center in the sxn direction. The Y position is its distance from the 
+            center in the s direction. Therefore, the n axis is the z-direction 
+            basis vector.
         
         Inputs:
         rays - A Rays object that has been traced to the Component Plane
@@ -187,7 +203,8 @@ class FlatComponent:
         x,y - Arrays holding the X and Y position of each photon
         
         Notes:
-        - The function cannot tell if the Rays have been traced, so this is up to the user. It will still create output, but it will be wonky
+        - The function cannot tell if the Rays have been traced, so this is up 
+            to the user. It will still create output, but it will be wonky
         '''
         # Define the x-direction basis vector, the cross product of s and n
         xdir = np.cross((self.sx,self.sy,self.sz),(self.nx,self.ny,self.nz))
@@ -206,6 +223,31 @@ class FlatComponent:
         ys = (deltap * ydir).sum(1)
         
         return xs,ys
+    
+    def getDist(self,rays):
+        '''
+        Function getDist:
+        Given a Rays object, this function finds the distance from each Ray to
+            the plane of this component
+        
+        Inputs:
+        rays - A rays object
+        
+        Outputs:
+        An array of length len(rays) containing the distance of each photon to
+            the plane
+        '''
+        gratx = np.ones(len(rays))*self.x
+        graty = np.ones(len(rays))*self.y
+        gratz = np.ones(len(rays))*self.z
+        gratnx = np.ones(len(rays))*self.nx
+        gratny = np.ones(len(rays))*self.ny
+        gratnz = np.ones(len(rays))*self.nz
+        
+        diff = np.array([gratx - rays.x,graty - rays.y, gratz - rays.z])
+        # Calculate the distance each ray needs to travel to reach the plane
+        #Note: (x*y).sum(0) finds the dot product of two arrays of vectors
+        return (diff*np.array([gratnx,gratny,gratnz])).sum(0) / (np.array([rays.l,rays.m,rays.n])*np.array([gratnx,gratny,gratnz])).sum(0)
     
     
     def reflect(self,rays):
