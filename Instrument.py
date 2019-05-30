@@ -5,57 +5,32 @@ class Instrument:
     # The main class for simulating optical systems, each Instrument object
     # will contain a list of components you want to trace the rays to in order
     
-    def __init__(self,source = None, waves = 1., orders = 0, weighting = False):
+    def __init__(self,source = None,weighting = False):
         '''
         Initialization Function:
         Creates the Instrument Objest
         
         Inputs:
-        source - A Rays Object, these are the photons which will be sent through
-            the Instrument
-        waves - The wavelength of the photons. Can be an int/float if you wish
-            for every photon to have the same wavelength. Can also be an array
-            the same length as the Rays object if you wish to specify the 
-            wavelength of each photon
-        orders - The order of the photons. Can be an int/float if you wish
-            for every photon to have the same order. Can also be an array
-            the same length as the Rays object if you wish to specify the 
-            order of each photon
+        source - A Source Object, this will generate the Rays that you want to 
+            send through the instrument
+        weighting - If False, the instrument will not weight photons
         
         Notes: 
         - componentlist is the list of all the components you will trace 
             photons to, in order.
         - effs is the list of efficiencies for each component, it will be filled
             when photons are traced to each component
+        - self.rays will contain the result after calling simulate()
         '''
         self.source = source
-        
-        # Make sure that waves and sources are arrays with the same length 
-        # as source
-        if not (type(waves) == list or type(waves) == np.ndarray):
-            waves = np.array([waves] * len(source))
-        if not (type(orders) == list or type(orders) == np.ndarray):
-            orders = np.array([orders] * len(source))
             
-        # Add waves and orders to the Rays object as parameters
-        # If the parameters already exist, replace the values
-        if self.source.getParam('Wavelength') is None:
-            self.source.addParam('Wavelength',waves)
-        else:
-            self.source.removeParam('Wavelength')
-            self.source.addParam('Wavelength',waves)
-        if self.source.getParam('Order') is None:
-            self.source.addParam('Order',orders)
-        else:
-            self.source.removeParam('Order')
-            self.source.addParam('Order',orders)
-        
         self.weighting = weighting
         if weighting:
             self.source.addWeighting()
         
         self.componentlist = []
         self.effs = []
+        self.rays = None
     
     
     ## Changing Components
@@ -108,7 +83,8 @@ class Instrument:
             effiencies for each component
         '''
         # Get the source rays
-        rays = self.source
+        rays = self.source.generateRays()
+
         # Refresh the efficiency list
         self.effs = []
         
@@ -117,6 +93,11 @@ class Instrument:
             
             # Trace the Rays through the component
             e = c.trace(rays,considerweights=self.weighting)
+            
+            # Allow for some tracing to return None if Rays are never removed
+            # by the component
+            if e is None:
+                continue
             
             # Some components return a list of efficiencies, check if this is the case
             if type(e) == list:
@@ -128,8 +109,27 @@ class Instrument:
             if (len(rays) == 0):
                 break
         
-        # Return the final Rays
+        # Store and return the final Rays
+        self.rays = rays
         return rays
+    
+    
+    def getRays(self):
+        '''
+        Function getRays:
+        Returns the rays after calling simulate.
+        
+        Inputs:
+        None
+        
+        Outputs:
+        Simulated Rays
+        
+        Notes:
+        - Instrument.simulate() returns the rays, but self.rays also stores the
+            rays in case the user wants to access them later
+        '''
+        return self.rays
     
     
     ## Display Functions

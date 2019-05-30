@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
-import prtp.sources as sources
+import prtp.sources_helper as sources
 import prtp.analyses as analyses
 import prtp.surfacesf as surfacesf
 import prtp.transformationsf as transformationsf
