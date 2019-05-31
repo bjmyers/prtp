@@ -3,27 +3,35 @@ import matplotlib.pyplot as plt
 from prtp.Rays import Rays
 import prtp.specialFunctions as func
 import prtp.transformationsf as trans
+import astropy.units as u
 
 class WolterOptic:
     
     #TODO: Rays are potentially being traced to the wrong side. This should be a focus of future testing
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,r0=1,z0=1,psi=1):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+                r0=1*u.mm,z0=1*u.mm,psi=1):
         '''
         WolterOptic Object:
         
         Parameters:
-        x,y,z - The Cartesian Coordinates of the focus of the optic
+        x,y,z - The Cartesian Coordinates of the focus of the optic, must be 
+            astropy units of length
         nx,ny,nz - The components of the vector pointing outwards from the focus 
             of the optic
-        r0 - The when the optics converge
+        r0 - The radius of the optics when they converge, must be an astropy 
+            unit of length
         z0 - The position along the n-direction at which the optics converge 
-            (the focus is at position 0)
+            (the focus is at position 0) Must be an astropy unit of length
         psi - Some ratio of angles, I don't know, I think its always 1
         '''
-        self.x = x
-        self.y = y
-        self.z = z
+        if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity 
+        or type(z) != u.quantity.Quantity or type(r0) != u.quantity.Quantity
+        or type(z0) != u.quantity.Quantity):
+            raise ValueError('x, y, z, r0, and z0 must all be astropy units of length')
+        self.x = x.to(u.mm)
+        self.y = y.to(u.mm)
+        self.z = z.to(u.mm)
         self.nx = nx
         self.ny = ny
         self.nz = nz
@@ -33,8 +41,8 @@ class WolterOptic:
         self.ny /= normlen
         self.nz /= normlen
         
-        self.r0 = r0
-        self.z0 = z0
+        self.r0 = r0.to(u.mm)
+        self.z0 = z0.to(u.mm)
         self.psi = psi
     
     def copy(self):
@@ -61,7 +69,8 @@ class WolterOptic:
         Moves the Optic in x,y and z
         
         Inputs:
-        dx,dy,dz - The amount to move in x, y, and z, respectively
+        dx,dy,dz - The amount to move in x, y, and z, respectively. Must be 
+            astropy units of length
         
         Outputs:
         None
@@ -70,9 +79,12 @@ class WolterOptic:
         - This move is relative, not absolute. That is, you will move BY dx, dy,
             and z, you will not move TO dx, dy, and dz
         '''
-        self.x += dx
-        self.y += dy
-        self.z += dz
+        if (type(dx) != u.quantity.Quantity or type(dy) != u.quantity.Quantity
+        or type(dz) != u.quantity.Quantity):
+            raise ValueError('dx, dy, and dz must be astropy units of length')
+        self.x += dx.to(u.mm).value
+        self.y += dy.to(u.mm).value
+        self.z += dz.to(u.mm).value
     
     def unitrotate(self,theta,axis):
         '''
@@ -81,14 +93,17 @@ class WolterOptic:
             amount theta
         
         Inputs:
-        theta - The angle by which you want to rotate, in radians
+        theta - The angle by which you want to rotate, in radians. Must be an
+            astropy unit of angle
         axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
             respectively.
         
         Outputs:
         None
         '''
-        self.nx,self.ny,self.nz = trans.rotatevector(self.nx,self.ny,self.nz,theta,axis)
+        if (type(theta) != u.quantity.Quantity):
+            raise ValueError('theta must be an astropy unit of angle')
+        self.nx,self.ny,self.nz = trans.rotatevector(self.nx,self.ny,self.nz,theta.to(u.rad).value,axis)
     
     def rotate(self,theta,ux,uy,uz):
         '''
@@ -96,14 +111,17 @@ class WolterOptic:
         Rotates the Optic about an arbitrary axis, defined by ux, uy, and uz
         
         Inputs:
-        theta - The angle by which you want to rotate, in radians
+        theta - The angle by which you want to rotate, in radians. Must be and
+            astropy unit of angle
         ux,uy,uz - The x, y, and z components of the vector about which you want 
             to rotate the Optic
         
         Outputs:
         None
         '''
-        self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,ux,uy,uz,theta)
+        if (type(theta) != u.quantity.Quantity):
+            raise ValueError('theta must be an astropy unit of angle')
+        self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,ux,uy,uz,theta.to(u.rad).value)
 
 
     ## Tracing Rays to the Optic:
@@ -159,7 +177,7 @@ class WolterOptic:
                 thetax *= -1
         
         # Translates the rays so that the focus of the optic is at the origin
-        rays.translate(-self.x,-self.y,-self.z)
+        rays.translate(-self.x.value,-self.y.value,-self.z.value)
         
         # Rotates the rays so they're aligned with the optic
         rays.rotatevector('pos',thetaz,3)
@@ -179,7 +197,7 @@ class WolterOptic:
         rays.rotatevector('dir',-thetaz,3)
         rays.rotatevector('norm',-thetax,1)
         rays.rotatevector('norm',-thetaz,3)
-        rays.translate(self.x,self.y,self.z)
+        rays.translate(self.x.value,self.y.value,self.z.value)
         
         # Find how many rays missed the optic
         inputlength = rays.length(considerweights)

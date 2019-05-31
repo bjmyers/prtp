@@ -1,5 +1,6 @@
 import numpy as np
 from prtp.Rays import Rays
+import astropy.units as u
 
 class Source:
     '''
@@ -16,34 +17,43 @@ class Source:
         Inputs:
         num - The number of photons you want to generate
         wave - The wavelength of the photons. Can be a float or an array that
-            has length num
+            has length num. Must be an astropy Quantity
         order - The order of the photons. Can be an integer or an array that
             has length num
         '''
-        self.type = type
+        if (wave is None):
+            self.wave = wave
+        else:
+            if (type(wave) != u.quantity.Quantity):
+                raise ValueError('Wave must be an astropy Quantity')
+            self.wave = wave.to(u.nm,equivalencies=u.spectral())
         self.num = num
-        self.wave = wave
         self.order = order
         self.rays = None
     
-    def addMisalignment(self, dx = 0,dy = 0, dz = 0, dl = 0, dm = 0, dn = 0):
+    def addMisalignment(self, dx = 0*u.mm, dy = 0*u.mm, dz = 0*u.mm, 
+                              dl = 0*u.mm, dm = 0*u.mm, dn = 0*u.mm):
         '''
         Function addMisalignment:
         Initializes misalingments of the Rays
         
         Inputs:
         dx,dy,... - Give the amount that the rays should be transformed in each
-            direction
+            direction. They must all be astropy units
         
         Outputs:
         None
         '''
-        self.dx = dx
-        self.dy = dy
-        self.dz = dz
-        self.dl = dl
-        self.dm = dm
-        self.dn = dn
+        if ((type(dx) != u.quantity.Quantity) or (type(dy) != u.quantity.Quantity)
+        or (type(dz) != u.quantity.Quantity) or (type(dl) != u.quantity.Quantity)
+        or (type(dm) != u.quantity.Quantity) or (type(dn) != u.quantity.Quantity)):
+            raise ValueError('Any arguments of addMisalignment must be astropy units!')
+        self.dx = dx.to(u.mm)
+        self.dy = dy.to(u.mm)
+        self.dz = dz.to(u.mm)
+        self.dl = dl.to(u.mm)
+        self.dm = dm.to(u.mm)
+        self.dn = dn.to(u.mm)
     
     def misalign(self,rays):
         '''
@@ -66,7 +76,8 @@ class Source:
         '''
         try:
             # Add misalignments if they've been defined
-            rays.transform(self.dx,self.dy,self.dz,self.dl,self.dm,self.dn)
+            rays.transform(self.dx.value,self.dy.value,self.dz.value,
+                           self.dl.value,self.dm.value,self.dn.value)
         except:
             # This executes if misalignments have not been defined
             pass
@@ -90,12 +101,12 @@ class Source:
             added
         '''
         if (self.wave is not None):
-            if type(self.wave) == np.ndarray:
-                rays.addParam('Wavelength',self.wave)
+            if type(self.wave.value) == np.ndarray:
+                rays.addParam('Wavelength',self.wave.value)
             else:
-                rays.addParam('Wavelength',np.array([self.wave]*len(rays)))
+                rays.addParam('Wavelength',np.array([self.wave.value]*len(rays)))
         if (self.order is not None):
-            if type(self.wave) == np.ndarray:
+            if type(self.order) == np.ndarray:
                 rays.addParam('Order',self.order)
             else:
                 rays.addParam('Order',np.array([self.order]*len(rays)))

@@ -3,6 +3,7 @@ from prtp.Grating import Grating
 from prtp.Combination import Combination
 from prtp.Rays import Rays
 import prtp.transformationsf as trans
+import astropy.units as u
 
 class GratingStack(Combination):
     '''
@@ -10,46 +11,30 @@ class GratingStack(Combination):
     A special kind of combination that specifically handles a group of gratings
     '''
     
-    def __init__(self,radial=True,d=160,order=0,wave=100,autoreflect=False,
-    rx=0, ry=0, rz=0, keeporder=True):
+    def __init__(self,autoreflect=True,
+    rx=0*u.mm, ry=0*u.mm, rz=0*u.mm, keeporder=True):
         '''
         Initializes the GratingStack:
         
         Inputs:
-        radial, if True, all Gratings in this stack will call their radgrat 
-        function if False, all Gratings in this stack will call their grat function
-        d - Grating period, can be an integer of an array the same length as the 
-        incoming Rays
-        order - The order of the incoming photons, can be an integer of an array 
-        the same length as the incoming Rays
-        wave - The wavelength of the incoming photons, can be an integer of an 
-        array the same length as the incoming Rays
-        autoreflect - If True, Rays will automatically be reflected off of the
-        Grating they hit
         rx,ry,rz - The point about which the whole stack will rotate, see
-        defineRotationPoint for more info
+        defineRotationPoint for more info. Must be astropy units of length
         keeporder - If True, photons will be traced to the Gratings in the order
             they were added to the stack. If False, the stack will use 
             smartTrace, where photons are sent to the nearest Grating first
         
         Notes:
-        - All parameters except rx,ry,rz are used in the most basic form of
-        GratingStack, one where all Gratings have the same properties. If this
-        is the type of GratingStack you want, make sure all Gratings have these
-        parameters by calling self.setDefaultParams()
         - If you want more complicated Gratings, you can modify their parameters
         using self.modifyParam(name,value), or access the Gratings themselves
         in the self.componentlist parameter
         '''
+        if type(rx) != u.quantity.Quantity or type(ry) != u.quantity.Quantity 
+        or type(rz) != u.quantity.Quantity):
+            raise ValueError('rx, ry,and rz must all be astropy units of lengh')
         Combination.__init__(self)
-        self.radial = radial
-        self.d = d
-        self.order = order
-        self.wave = wave
-        self.autoreflect = True
-        self.rx = rx
-        self.ry = ry
-        self.rz = rz
+        self.rx = rx.to(u.mm)
+        self.ry = ry.to(u.mm)
+        self.rz = rz.to(u.mm)
         self.keeporder = keeporder
     
     
@@ -57,24 +42,6 @@ class GratingStack(Combination):
     # The parameters of a Grating are very important for its behavior, these
     # functions allow the user to modify the parameters of every Grating in the
     # stack
-    
-    def setDefaultParams():
-        '''
-        Function setDefaultParams:
-        Sets the parameters of every Grating in this stack to the ones defined
-        when the GratingStack was initialized
-        
-        Inputs:
-        None
-        
-        Outputs:
-        None
-        '''
-        for g in self.componentlist:
-            g.d = self.d
-            g.order = self.order
-            g.wave = self.order
-    
     
     def modifyParam(name,value):
         '''
@@ -94,13 +61,14 @@ class GratingStack(Combination):
     
     ## Movement Functions
     
-    def defineRotationPoint(self,x=0,y=0,z=0):
+    def defineRotationPoint(self,x=0*u.mm,y=0*u.mm,z=0*u.mm):
         '''
         Function defineRotationPoint:
         Defines the point about which the entire Stack can rotate
         
         Inputs:
-        x,y,z - The Coordinates of the Rotation Point
+        x,y,z - The Coordinates of the Rotation Point, must be astropy units of
+            length
         
         Outputs:
         None
@@ -111,38 +79,45 @@ class GratingStack(Combination):
         Grating about their centers, rather than rotating the whole stack about
         this point
         '''
-        self.rx = x
-        self.ry = y
-        self.rz = z
+        if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity
+        or type(z) != u.quantity.Quantity):
+            raise ValueError('x, y, and z must be astropy units of length')
+        self.rx = x.to(u.mm)
+        self.ry = y.to(u.mm)
+        self.rz = z.to(u.mm)
     
     
-    def unitrotate(self,theta=0,axis=1):
+    def unitrotate(self,theta=0*u.rad,axis=1):
         '''
         Function unitrotate:
         Rotates the entire Graint Stack about the rotationpoint and about a
         unit axis
         
         Inputs:
-        theta - The amount by which you want to rotate
+        theta - The amount by which you want to rotate, must be an astropy unit
+            of angle
         axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, respectively.
         
         Outputs:
         None
         '''
+        if type(theta) != u.quantity.Quantity:
+            raise ValueError('Theta must be an astropy unit of angle')
+        theta = theta.to(u.rad)
         
         for g in self.componentlist:
             
             # Rotates the Grating's two vectors
-            g.unitrotate(theta,axis)
+            g.unitrotate(theta.value,axis)
             
             # Move the Grating's so the rotation point is about the origin 
-            g.translate(-self.rx,-self.ry,-self.rz)
+            g.translate(-self.rx.value,-self.ry.value,-self.rz.value)
             
             # Rotate the Grating's position
-            g.x,g.y,g.z = trans.rotatevector(g.x,g.y,g.z,theta,axis)
+            g.x,g.y,g.z = trans.rotatevector(g.x,g.y,g.z,theta.value,axis)
             
             # Translate the origin back down
-            g.translate(self.rx,self.ry,self.rz)
+            g.translate(self.rx.value,self.ry.value,self.rz.value)
     
     
     def rotate(self,theta,ux,uy,uz):
@@ -152,36 +127,45 @@ class GratingStack(Combination):
         user-defined axis
         
         Inputs:
-        theta - The amount by which you want to rotate
+        theta - The amount by which you want to rotate, must be an astropy unit
+            of angle
         ux,uy,uz - The x, y, and z components of the vector about which you want 
         to rotate
         
         Outputs:
         None
         '''
+        if type(theta) != u.quantity.Quantity:
+            raise ValueError('Theta must be an astropy unit of angle')
+        theta = theta.to(u.rad)
         
         for g in self.componentlist:
             
             # Rotates the Grating's two vectors
-            g.rotate(theta,ux,uy,uz)
+            g.rotate(theta.value,ux,uy,uz)
             
             # Move the Grating's so the rotation point is about the origin 
-            g.translate(-self.rx,-self.ry,-self.rz)
+            g.translate(-self.rx.value,-self.ry.value,-self.rz.value)
             
             # Rotate the Grating's position
-            g.x,g.y,g.z,q1,q2,q3 = trans.rotateaxis(g.x,g.y,g.z,ux,uy,uz,theta)
+            g.x,g.y,g.z,q1,q2,q3 = trans.rotateaxis(g.x.value,g.y.value,g.z.value,ux,uy,uz,theta.value)
+            # Restore units
+            g.x *= u.mm
+            g.y *= u.mm
+            g.z *= u.mm
             
             # Translate the origin back down
-            g.translate(self.rx,self.ry,self.rz)
+            g.translate(self.rx.value,self.ry.value,self.rz.value)
     
     
-    def translate(self,dx=0,dy=0,dz=0):
+    def translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm):
         '''
         Function translate
         Translates the GratingStack in three-dimensions
         
         Inputs:
-        dx,dy,dz - The amount to move in x, y, and z, respectively
+        dx,dy,dz - The amount to move in x, y, and z, respectively, must be
+            astropy units of length
         
         Outputs:
         None
@@ -189,7 +173,11 @@ class GratingStack(Combination):
         Notes:
         - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
         '''
-        self.applyToAll(Grating.translate,dx=dx,dy=dy,dz=dz)
+        if (type(dx) != u.quantity.Quantity or type(dy) != u.quantity.Quantity
+        or type(dz) != u.quantity.Quantity):
+            raise ValueError('dx, dy, and dz must be astropy units of length')
+        self.applyToAll(Grating.translate,
+        dx=dx.to(u.mm),dy=dy.to(u.mm),dz=dz.to(u.mm))
     
     
     ## Ray-Tracing Functions
