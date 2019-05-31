@@ -28,7 +28,7 @@ class GratingStack(Combination):
         using self.modifyParam(name,value), or access the Gratings themselves
         in the self.componentlist parameter
         '''
-        if type(rx) != u.quantity.Quantity or type(ry) != u.quantity.Quantity 
+        if (type(rx) != u.quantity.Quantity or type(ry) != u.quantity.Quantity 
         or type(rz) != u.quantity.Quantity):
             raise ValueError('rx, ry,and rz must all be astropy units of lengh')
         Combination.__init__(self)
