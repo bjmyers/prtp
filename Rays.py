@@ -1540,6 +1540,11 @@ class Rays:
         respectively
         -defaulttag and defaultparam arguments must be numeric (0 will be False
         for the tag arrays)
+        -If one of the two Rays objects has weighting, it will be added to the
+            other Rays object
+        -If both Rays objects have weighting, their weights will be concatenated
+        -If neither Rays objects have weighting, the resultant Rays object will
+            also not have weighting
         '''
         tagstr = str(defaulttag)
         paramstr = str(defaultparam)
@@ -1605,6 +1610,21 @@ class Rays:
             if selfparam is None:
                 selfparam = np.ones(selflen) * defaultparam
             newrays.addParam(param[0],np.concatenate((selfparam,other.getParam(param[0]))))
+        
+        # Check to see if either rays objects has weighting
+        if self.weighting and not other.weighting:
+            otherweights = np.ones(len(other))
+            newweights = np.concatenate((self.weights,other.weights))
+        elif not self.weighting and other.weighting:
+            selfweights = np.ones(len(self))
+            newweights = np.concatenate((selfweights,other.weights))
+        elif self.weighting and other.weighting:
+            newweights = np.concatenate((self.weights,other.weights))
+        else:
+            newweights = None
+        if newweights is not None:
+            newrays.weighting = True
+            newrays.weights = newweights
         
         return newrays
     
