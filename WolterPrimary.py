@@ -4,6 +4,7 @@ from prtp.Rays import Rays
 import prtp.specialFunctions as func
 import prtp.transformationsf as trans
 from prtp.WolterOptic import WolterOptic
+import astropy.units as u
 
 class WolterPrimary(WolterOptic):
     

@@ -50,7 +50,7 @@ class Grating(FlatComponent):
         self.radial = radial
         if type(d) != u.quantity.Quantity:
             raise ValueError('d must be an astropy unit of length')
-        self.d = d.to(u.um)
+        self.d = d.to(u.nm)
         if fdist is not None:
             if (type(fdist) != u.quantity.Quantity):
                 raise ValueError('fdist must be an astropy unit of length')
@@ -260,8 +260,8 @@ class Grating(FlatComponent):
         
         
         x,y = self.getPosns(rays)
-        y += self.fdist
-        d /= self.fdist
+        y += self.fdist.value
+        d /= self.fdist.value
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
         x,y,gratl,gratm,gratn = trans.radgrat(x,y,gratl,gratm,gratn,d,order,wave)
