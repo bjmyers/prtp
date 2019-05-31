@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from prtp.Rays import Rays
 from prtp.FlatComponent import FlatComponent
 import prtp.transformationsf as trans
+import astropy.units as u
 
 class CollimatorPlate(FlatComponent):
     
@@ -12,12 +13,15 @@ class CollimatorPlate(FlatComponent):
         '''
         Initializes a CollimatorPlate Object, requires the following arguments:
         
-        x,y,z - The position of a point along the plate
+        x,y,z - The position of a point along the plate. Must be astropy units
+            of length
         nx,ny,nz - The components of a vector normal to the plate's surface
         sx,sy,sz - The surface vector of this plate, should be defined in a 
             direction that makes sense for the system (straight up, for example)
-        l - The length of the plate, that is, its extent in the s direction
-        w - The width of the plate, that is, its extent in the sxn direction
+        l - The length of the plate, that is, its extent in the s direction, 
+            must be an astropy unit of length
+        w - The width of the plate, that is, its extent in the sxn direction,
+            must be an astropy unit of length
         collfunc - A user-defined function to determine if Rays have missed the 
             Component
         
@@ -29,8 +33,11 @@ class CollimatorPlate(FlatComponent):
             collfunc once it is running
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz, collfunc=collfunc)
-        self.l = l
-        self.w = w
+        if l is not None or w is not None:
+            if (type(l) != u.quantity.Quantity or type(w) != u.quantity.Quantity):
+                raise ValueError('l and w must be astropy units of length')
+        self.l = l.to(u.mm)
+        self.w = w.to(u.mm)
     
     
     def copy(self):
@@ -84,13 +91,19 @@ class CollimatorPlate(FlatComponent):
         >> c.sep = 1
         >> c.trace()
         '''
+        if (type(self.thickness) != u.quantity.Quantity or 
+        type(self.sep) != u.quantity.Quantity):
+            raise ValueError('self.thickness and self.sep must be astropy units of length')
+        self.sep = self.sep.to(u.mm)
+        self.thickness = self.thickness.to(u.mm)
+        
         x,y = self.getPosns(rays)
         
         # Condense the x-positions so they all exist on 0 < x < sep
-        x = np.abs(x) % self.sep
+        x = np.abs(x) % self.sep.value
         
         # Return True if the photon hits the wire to its left or right
-        return np.logical_or((x < self.thickness/2),(x > self.sep - (self.thickness/2)))
+        return np.logical_or((x < self.thickness.value/2),(x > self.sep.value - (self.thickness.value/2)))
         
     
     ## Removing Rays
@@ -124,7 +137,7 @@ class CollimatorPlate(FlatComponent):
         # Check if rays miss the plate (if length and width are defined)
         if (self.l is not None) and (self.w is not None):
             x,y = self.getPosns(rays)
-            rectarray = np.logical_or(np.abs(x) > self.w/2, np.abs(y) > self.l/2)
+            rectarray = np.logical_or(np.abs(x) > self.w.value/2, np.abs(y) > self.l.value/2)
         # Return an array showing if photons should be removed by 
         # collisionfunction or missed the plate altogether
         return np.logical_or(collfuncarray,rectarray)
@@ -171,7 +184,7 @@ class CollimatorPlate(FlatComponent):
         
         # Check if the photons missed the plate (if length and width are defined)
         if (self.l is not None) and (self.w is not None):
-            tarray = np.logical_or(np.abs(x) > self.w/2, np.abs(y) > self.l/2)
+            tarray = np.logical_or(np.abs(x) > self.w.value/2, np.abs(y) > self.l.value/2)
             rays.remove(tarray)
             
             # Store the tuple we will eventually return

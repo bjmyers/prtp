@@ -7,16 +7,19 @@ from prtp.WolterOptic import WolterOptic
 
 class WolterPrimary(WolterOptic):
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,r0=1,z0=1,psi=1):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,r0=1*u.mm,z0=1*u.mm,psi=1):
         '''
         WolterPrimary Object:
         
         Parameters:
-        x,y,z - The Cartesian Coordinates of the focus of the optic
+        x,y,z - The Cartesian Coordinates of the focus of the optic. Must be 
+            astropy units of length
         nx,ny,nz - The components of the vector pointing outwards from the focus 
             of the optic
-        r0 - The radius of the optic when it converges with the WolterSecondary
-        z0 - The position along the n-direction at which this optic converges 
+        r0 - The radius of the optic when it converges with the WolterSecondary.
+            Must be an astropy unit of length
+        z0 - The position along the n-direction at which this optic converges,
+            must be an astropy unit of length
             with the WolterSecondary (the focus is at position 0)
         psi - Some ratio of angles, I don't know, I think its always 1
         '''
@@ -31,7 +34,7 @@ class WolterPrimary(WolterOptic):
         Determines what happens to the rays once they has been transformed, 
             should only be called by the WolterOptic superclass's trace function
         '''
-        rays.wolterprimary(self.r0,self.z0,self.psi)
+        rays.wolterprimary(self.r0.value,self.z0.value,self.psi)
         
         if autoreflect:
             rays.reflect()

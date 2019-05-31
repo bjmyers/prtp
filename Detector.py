@@ -3,31 +3,40 @@ import matplotlib.pyplot as plt
 from prtp.Rays import Rays
 from prtp.FlatComponent import FlatComponent
 import prtp.transformationsf as trans
+import astropy.units as u
 
 class Detector(FlatComponent):
     
     ## Initialization Functions:
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1., l=1,w=1,xpix=10,ypix=10):
+    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,l=1,w=1,xpix=10,ypix=10):
         '''
         Initializes a Detector Object, requires the following arguments:
         
-        x,y,z - The position of a point along the detector
+        x,y,z - The position of a point along the detector, must be astropy
+            units of length
         nx,ny,nz - The components of a vector normal to the detector's surface
-        sx,sy,sz - The surface vector of this plate, should be defined in a direction that makes sense for the system (straight up, for example)
-        q - The quantum efficiency of the detector, if q=.5, only 50% of the rays that reach the detector will be observed
-        l - The length of the detector, that is, its extent in the s direction
-        w - The width of the detector, that is, its extent in the sxn direction
+        sx,sy,sz - The surface vector of this plate, should be defined in a 
+            direction that makes sense for the system (straight up, for example)
+        q - The quantum efficiency of the detector, if q=.5, only 50% of the 
+            rays that reach the detector will be observed
+        l - The length of the detector, that is, its extent in the s direction,
+            must be an astropy unit of length
+        w - The width of the detector, that is, its extent in the sxn direction,
+            must be an astropy unit of length
         xpix - The number of pixels along the length of the detector
         ypix - The number of pixels along the width of the detector
         
         Notes:
-        -Unlike other FlatComponents, Detector needs a length and width, those two parameters cannot be None
+        -Unlike other FlatComponents, Detector needs a length and width, those 
+            two parameters cannot be None
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz)
         self.q = q
-        self.l = l
-        self.w = w
+        if (type(l) != u.quantity.Quantity or type(w) != u.quantity.Quantity):
+            raise ValueError('l and w must be astropy units of length')
+        self.l = l.to(u.mm)
+        self.w = w.to(u.mm)
         self.xpix = xpix
         self.ypix = ypix
         
@@ -70,7 +79,7 @@ class Detector(FlatComponent):
         - The function cannot tell if the Rays have been traced, so this is up to the user.
         '''
         x,y = self.getPosns(rays)
-        return np.logical_and(np.abs(x) < self.w/2, np.abs(y) < self.l/2)
+        return np.logical_and(np.abs(x) < self.w.value/2, np.abs(y) < self.l.value/2)
         
     
     def removemissed(self,rays,considerweights=False):
@@ -161,12 +170,12 @@ class Detector(FlatComponent):
         x,y = self.getPosns(rays)
         
         # Move axes so that the origin is in the bottom-left corner
-        x += self.l/2
-        y += self.w/2
+        x += self.l.value/2
+        y += self.w.value/2
         
         # Find out the length and width of each pixel
-        xperpix = self.l / self.xpix
-        yperpix = self.w / self.ypix
+        xperpix = self.l.value / self.xpix
+        yperpix = self.w.value / self.ypix
         
         xposns = (x // xperpix).astype(int)
         yposns = (y // yperpix).astype(int)

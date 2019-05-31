@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from prtp.Rays import Rays
 import prtp.transformationsf as trans
+import astropy.units as u
 
 class FlatComponent:
     
@@ -11,7 +12,8 @@ class FlatComponent:
         '''
         Initializes a FlatComponent Object, requires the following arguments:
         
-        x,y,z - The position of a point along the component
+        x,y,z - The position of a point along the component, must be astropy
+            units of length
         nx,ny,nz - The components of a vector normal to the component surface
         fx,fy,fz - The components of a direction vector along the component's 
             surface
@@ -23,9 +25,12 @@ class FlatComponent:
         - Surface and Normal vectors can have magnitudes other than one, but 
             this function will automatically normalize them
         '''
-        self.x = x
-        self.y = y
-        self.z = z
+        if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity 
+        or type(z) != u.quantity.Quantity):
+            raise ValueError('x, y, and z must all be astropy units of length')
+        self.x = x.to(u.mm)
+        self.y = y.to(u.mm)
+        self.z = z.to(u.mm)
         
         self.nx = nx
         self.ny = ny
@@ -85,13 +90,14 @@ class FlatComponent:
     ## Spatial Manipulation Functions:
     # Functions that move and rotate the component in space
     
-    def translate(self,dx,dy,dz):
+    def translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm):
         '''
         Function translate:
         Moves the Component in x,y and z
         
         Inputs:
-        dx,dy,dz - The amount to move in x, y, and z, respectively
+        dx,dy,dz - The amount to move in x, y, and z, respectively, must be 
+            astropy units of length
         
         Outputs:
         None
@@ -100,9 +106,12 @@ class FlatComponent:
         - This move is relative, not absolute. That is, you will move BY dx, dy, 
             and z, you will not move TO dx, dy, and dz
         '''
-        self.x += dx
-        self.y += dy
-        self.z += dz
+        if (type(dx) != u.quantity.Quantity or type(dy) != u.quantity.Quantity
+        or type(dz) != u.quantity.Quantity):
+            raise ValueError('dx, dy, and dz must be astropy units of length')
+        self.x += dx.to(u.mm)
+        self.y += dy.to(u.mm)
+        self.z += dz.to(u.mm)
     
     def unitrotate(self,theta,axis):
         '''
@@ -111,13 +120,17 @@ class FlatComponent:
             by an amount theta
         
         Inputs:
-        theta - The angle by which you want to rotate, in radians
+        theta - The angle by which you want to rotate, must be an astropy unit
+            of angle
         axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
             respectively.
         
         Outputs:
         None
         '''
+        if type(theta) != u.quantity.Quantity:
+            raise ValueError('Theta must be an astropy unit of angle')
+        theta = theta.to(u.rad).value
         self.nx,self.ny,self.nz = trans.rotatevector(self.nx,self.ny,self.nz,theta,axis)
         self.sx,self.sy,self.sz = trans.rotatevector(self.sx,self.sy,self.sz,theta,axis)
     
@@ -127,13 +140,17 @@ class FlatComponent:
         Rotates the Component about an arbitrary axis, defined by ux, uy, and uz
         
         Inputs:
-        theta - The angle by which you want to rotate, in radians
+        theta - The angle by which you want to rotate, in radians, must be an
+            astropy unit of angle
         ux,uy,uz - The x, y, and z components of the vector about which you want
             to rotate the Component
         
         Outputs:
         None
         '''
+        if type(theta) != u.quantity.Quantity:
+            raise ValueError('Theta must be an astropy unit of angle')
+        theta = theta.to(u.rad).value
         self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,ux,uy,uz,theta)
         self.sx,self.sy,self.sz,tx,ty,tz = trans.rotateaxis(self.sx,self.sy,self.sz,ux,uy,uz,theta)
 
@@ -166,9 +183,9 @@ class FlatComponent:
         if (not modify):
             rays = rays.copy()
         
-        gratx = np.ones(len(rays))*self.x
-        graty = np.ones(len(rays))*self.y
-        gratz = np.ones(len(rays))*self.z
+        gratx = np.ones(len(rays))*self.x.value
+        graty = np.ones(len(rays))*self.y.value
+        gratz = np.ones(len(rays))*self.z.value
         gratnx = np.ones(len(rays))*self.nx
         gratny = np.ones(len(rays))*self.ny
         gratnz = np.ones(len(rays))*self.nz
@@ -215,7 +232,7 @@ class FlatComponent:
         ydir = np.vstack([ydir] * len(rays))
         
         # Define the vector going from the rays to the center of the plane
-        deltap = np.array([rays.x - self.x, rays.y - self.y, rays.z - self.z]).transpose()
+        deltap = np.array([rays.x - self.x.value, rays.y - self.y.value, rays.z - self.z.value]).transpose()
         
         # X-components are {deltap (dot) (s x n)}
         xs = (deltap * xdir).sum(1)
@@ -237,9 +254,9 @@ class FlatComponent:
         An array of length len(rays) containing the distance of each photon to
             the plane
         '''
-        gratx = np.ones(len(rays))*self.x
-        graty = np.ones(len(rays))*self.y
-        gratz = np.ones(len(rays))*self.z
+        gratx = np.ones(len(rays))*self.x.value
+        graty = np.ones(len(rays))*self.y.value
+        gratz = np.ones(len(rays))*self.z.value
         gratnx = np.ones(len(rays))*self.nx
         gratny = np.ones(len(rays))*self.ny
         gratnz = np.ones(len(rays))*self.nz
