@@ -23,11 +23,7 @@ class Instrument:
         - self.rays will contain the result after calling simulate()
         '''
         self.source = source
-            
         self.weighting = weighting
-        if weighting:
-            self.source.addWeighting()
-        
         self.componentlist = []
         self.effs = []
         self.rays = None
@@ -84,6 +80,9 @@ class Instrument:
         '''
         # Get the source rays
         rays = self.source.generateRays()
+        
+        if self.weighting:
+            rays.addWeighting()
 
         # Refresh the efficiency list
         self.effs = []

@@ -7,8 +7,6 @@ import astropy.units as u
 
 class WolterOptic:
     
-    #TODO: Rays are potentially being traced to the wrong side. This should be a focus of future testing
-    
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
                 r0=1*u.mm,z0=1*u.mm,psi=1):
         '''
@@ -258,8 +256,9 @@ class WolterPrimary(WolterOptic):
         eff - A tuple containing information about how many photons hit the
             optic
         '''
-        eff = self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
-        return ("Missed Primary Optic",eff[1],eff[2])
+        l = rays.length(considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        return ("Missed Primary Optic",l,rays.length(considerweights))
 
 
 class WolterSecondary(WolterOptic):
@@ -311,8 +310,9 @@ class WolterSecondary(WolterOptic):
         eff - A tuple containing information about how many photons hit the
             optic
         '''
-        eff = self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
-        return ("Missed Secondary Optic",eff[1],eff[2])
+        l = rays.length(considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        return ("Missed Secondary Optic",l,rays.length(considerweights))
 
 
 class WolterTypeOne(WolterOptic):
@@ -384,5 +384,6 @@ class WolterTypeOne(WolterOptic):
         eff - A tuple containing information about how many photons hit the
             optic
         '''
-        eff = self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
-        return ("Missed Wolter Optic",eff[1],eff[2])
+        l = rays.length(considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        return ("Missed Wolter Optic",l,rays.length(considerweights))

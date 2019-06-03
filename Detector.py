@@ -106,7 +106,7 @@ class Detector(FlatComponent):
         l = rays.length(considerweights)
         
         rays.probRemove(self.q)
-        t2 = ("Eliminated by QE of Detector",l,rays.length(considerweights=True))
+        t2 = ("Eliminated by QE of Detector",l,rays.length(considerweights))
         
         return [t1,t2]
     

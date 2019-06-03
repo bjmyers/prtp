@@ -177,6 +177,11 @@ class Rays:
         self.uz = np.copy(rays.uz)
         self.tags = rays.tags.copy()
         self.params = rays.params.copy()
+        self.weighting = rays.weighting
+        if self.weighting:
+            self.weights = rays.weights
+        else:
+            self.weights = None
     
     def split(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''
@@ -222,6 +227,11 @@ class Rays:
             new_rays.addTag(tag[0],tag[1][tarray])
         for param in self.params:
             new_rays.addParam(param[0],param[1][tarray])
+        
+        # Consider Weighting
+        if self.weighting:
+            new_rays.weighting = True
+            new_rays.weights = np.copy(self.weights[tarray])
         
         return new_rays
     
@@ -1180,7 +1190,7 @@ class Rays:
             self.weights = self.weights[trutharray]
     
     
-    def probRemove(self,probability=1.):
+    def probRemove(self,probability=1.,considerweights=False):
         '''
         Function probRemove:
         Removes photons from a Rays object based on a probability. It is the
@@ -1211,9 +1221,10 @@ class Rays:
         
         # With weighting, probability remove is considered differently, no
         # photons are actually removed
-        if self.weighting:
-            self.weights *= probability
-            return
+        if considerweights:
+            if self.weighting:
+                self.weights *= probability
+                return
             
         choice = np.random.rand(len(self))
         needToRemove = choice > probability

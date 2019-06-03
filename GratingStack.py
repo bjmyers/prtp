@@ -226,7 +226,7 @@ class GratingStack(Combination):
         inputrays = rays
         
         # Keep track of the length of the input rays
-        l = len(rays)
+        l = rays.length(considerweights)
         
         # Iterate through each Grating Object
         for g in self.componentlist:
@@ -261,7 +261,7 @@ class GratingStack(Combination):
         # Make it so that the original rays now contain the output
         rays.makecopy(finalrays)
         
-        return ("Missed Grating Stack", l, len(rays))
+        return ("Missed Grating Stack", l, rays.length(considerweights))
     
     
     def smartTrace(self,rays,considerweights=False):
@@ -291,7 +291,7 @@ class GratingStack(Combination):
         inputrays = rays
         
         # Keep track of the length of the input rays
-        l = len(rays)
+        l = rays.length(considerweights)
         
         # Find the order that each photon will see the gratings
         orders = []
@@ -361,9 +361,8 @@ class GratingStack(Combination):
             
             if (i >= len(self.componentlist)):
                 i = 0
-
         
         # Make it so that the original rays now contain the output
         rays.makecopy(finalrays)
         
-        return ("Missed Grating Stack", l, len(rays))
+        return ("Missed Grating Stack", l, rays.length(considerweights))
