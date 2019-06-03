@@ -8,7 +8,7 @@ import astropy.units as u
 class WolterOptic:
     
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
-                r0=1*u.mm,z0=1*u.mm,psi=1):
+                r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
         WolterOptic Object:
         
@@ -22,11 +22,36 @@ class WolterOptic:
         z0 - The position along the n-direction at which the optics converge 
             (the focus is at position 0) Must be an astropy unit of length
         psi - Some ratio of angles, I don't know, I think its always 1
+        axial_length - The length along the n-axis of the mirror, must be an 
+            astropy unit of length
+        mirror_sep - The separation between two mirrors, must be an astropy unit
+            of length
+        
+        Notes:
+        - axial_length and mirror_sep are defined such that the primary mirror
+            will run from:
+            [z0 + (mirror_sep/2)] to [z0 + (mirror_sep/2) + axial_length]
+            and the secondary mirror will run from:
+            [z0 - (mirror_sep/2)] to [z0 - (mirror_sep/2) - axial_length]
+        - If axial_length and mirror_sep are defined, any photons which miss
+            the mirror in the n-direction will removed.
         '''
         if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity 
         or type(z) != u.quantity.Quantity or type(r0) != u.quantity.Quantity
         or type(z0) != u.quantity.Quantity):
             raise ValueError('x, y, z, r0, and z0 must all be astropy units of length')
+            
+        if (axial_length is not None or mirror_sep is not None):
+            if (type(axial_length) != u.quantity.Quantity or 
+                type(mirror_sep) != u.quantity.Quantity):
+                raise ValueError('axial_length and mirror_sep must both be defined and must be astropy units of length')
+            else:
+                self.axial_length = axial_length.to(u.mm)
+                self.mirror_sep = mirror_sep.to(u.mm)
+        else:
+            self.axial_length = None
+            self.mirror_sep = None
+            
         self.x = x.to(u.mm)
         self.y = y.to(u.mm)
         self.z = z.to(u.mm)
@@ -209,7 +234,8 @@ class WolterOptic:
 
 class WolterPrimary(WolterOptic):
     
-    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,r0=1*u.mm,z0=1*u.mm,psi=1):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+        r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
         WolterPrimary Object:
         
@@ -224,8 +250,12 @@ class WolterPrimary(WolterOptic):
             must be an astropy unit of length
             with the WolterSecondary (the focus is at position 0)
         psi - Some ratio of angles, I don't know, I think its always 1
+        axial_length - The length along the n-axis of the mirror, must be an 
+            astropy unit of length
+        mirror_sep - The separation between two mirrors, must be an astropy unit
+            of length
         '''
-        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi)
+        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi,axial_length,mirror_sep)
 
 
     ## Tracing Rays to the Optic:
@@ -237,6 +267,12 @@ class WolterPrimary(WolterOptic):
             should only be called by the WolterOptic superclass's trace function
         '''
         rays.wolterprimary(self.r0.value,self.z0.value,self.psi)
+        
+        # Consider which photons missed the primary mirror
+        if self.axial_length is not None and self.mirror_sep is not None:
+            tarray = np.logical_or((rays.z < (self.z0 + self.mirror_sep/2).value),
+                    rays.z > (self.z0 + self.mirror_sep/2 + self.axial_length).value)
+            rays.remove(tarray)
         
         if autoreflect:
             rays.reflect()
@@ -263,7 +299,8 @@ class WolterPrimary(WolterOptic):
 
 class WolterSecondary(WolterOptic):
     
-    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,r0=1*u.mm,z0=1*u.mm,psi=1):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+        r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
         WolterSecondary Object:
         
@@ -278,8 +315,12 @@ class WolterSecondary(WolterOptic):
             with the WolterPrimary (the focus is at position 0). Must be an 
             astropy unit of length
         psi - Some ratio of angles, I don't know, I think its always 1
+        axial_length - The length along the n-axis of the mirror, must be an 
+            astropy unit of length
+        mirror_sep - The separation between two mirrors, must be an astropy unit
+            of length
         '''
-        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi)
+        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi,axial_length,mirror_sep)
 
 
     ## Tracing Rays to the Optic:
@@ -291,6 +332,12 @@ class WolterSecondary(WolterOptic):
             should only be called by the WolterOptic superclass's trace function
         '''
         rays.woltersecondary(self.r0.value,self.z0.value,self.psi)
+        
+        # Consider which photons missed the mirror
+        if self.axial_length is not None and self.mirror_sep is not None:
+            tarray = np.logical_or((rays.z > (self.z0 - self.mirror_sep/2).value),
+                    rays.z < (self.z0 - self.mirror_sep/2 - self.axial_length).value)
+            rays.remove(tarray)
         
         if autoreflect:
             rays.reflect()
@@ -317,7 +364,8 @@ class WolterSecondary(WolterOptic):
 
 class WolterTypeOne(WolterOptic):
     
-    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,r0=1*u.mm,z0=1*u.mm,psi=1):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+    r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
         WolterTypeOne Object:
         - Combines a WolterPrimary and a WolterSecondary Object into one single 
@@ -350,8 +398,12 @@ class WolterTypeOne(WolterOptic):
             Must be an astropy unit of length
             with the WolterSecondary (the focus is at position 0)
         psi - Some ratio of angles, I don't know, I think its always 1
+        axial_length - The length along the n-axis of the mirror, must be an 
+            astropy unit of length
+        mirror_sep - The separation between two mirrors, must be an astropy unit
+            of length
         '''
-        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi)
+        WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi,axial_length,mirror_sep)
 
 
     ## Tracing Rays to the Optic:
@@ -363,8 +415,21 @@ class WolterTypeOne(WolterOptic):
             should only be called by the WolterOptic superclass's trace function
         '''
         rays.wolterprimary(self.r0.value,self.z0.value,self.psi)
+        
+        # Consider which photons missed the primary mirror
+        if self.axial_length is not None and self.mirror_sep is not None:
+            tarray = np.logical_or((rays.z < (self.z0 + self.mirror_sep/2).value),
+                    rays.z > (self.z0 + self.mirror_sep/2 + self.axial_length).value)
+            rays.remove(tarray)
+        
         rays.reflect()
         rays.woltersecondary(self.r0.value,self.z0.value,self.psi)
+        
+        # Consider which photons missed the secondary mirror
+        if self.axial_length is not None and self.mirror_sep is not None:
+            tarray = np.logical_or((rays.z > (self.z0 - self.mirror_sep/2).value),
+                    rays.z < (self.z0 - self.mirror_sep/2 - self.axial_length).value)
+            rays.remove(tarray)
         
         if autoreflect:
             rays.reflect()
