@@ -148,8 +148,8 @@ def subannulus(rin, rout, dphi, num, zhat=1.):
     '''
     rho = np.sqrt(rin**2+np.random.rand(num)*(rout**2-rin**2))
     theta = np.random.rand(num)*dphi - dphi/2.
-    x = rho*np.cos(theta)
-    y = rho*np.sin(theta)
+    x = rho*np.sin(theta)
+    y = rho*np.cos(theta)
     z = np.repeat(0., num)
     l = np.repeat(0., num)
     m = np.repeat(0., num)
