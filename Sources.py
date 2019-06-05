@@ -24,12 +24,11 @@ class Source:
         if (wave is None):
             self.wave = wave
         else:
-            if (type(wave) != u.quantity.Quantity):
-                raise ValueError('Wave must be an astropy Quantity')
             self.wave = wave.to(u.nm,equivalencies=u.spectral())
         self.num = num
         self.order = order
     
+    @u.quantity_input(dx=u.mm,dy=u.mm,dz=u.mm,dl=u.mm,dm=u.mm,dn=u.mm)
     def addMisalignment(self, dx = 0*u.mm, dy = 0*u.mm, dz = 0*u.mm, 
                               dl = 0*u.mm, dm = 0*u.mm, dn = 0*u.mm):
         '''
@@ -43,10 +42,6 @@ class Source:
         Outputs:
         None
         '''
-        if ((type(dx) != u.quantity.Quantity) or (type(dy) != u.quantity.Quantity)
-        or (type(dz) != u.quantity.Quantity) or (type(dl) != u.quantity.Quantity)
-        or (type(dm) != u.quantity.Quantity) or (type(dn) != u.quantity.Quantity)):
-            raise ValueError('Any arguments of addMisalignment must be astropy units!')
         self.dx = dx.to(u.mm)
         self.dy = dy.to(u.mm)
         self.dz = dz.to(u.mm)
@@ -119,17 +114,18 @@ class Source:
 
 class Annulus(Source):
     
-    def __init__(self,num,rin,rout,zhat=-1.,wave=None,order=None):
+    @u.quantity_input(rin=u.mm,rout=u.mm,z=u.mm)
+    def __init__(self,num=1000,rin=1*u.mm,rout=2*u.mm,zhat=-1.,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
         
-        if (type(rin) != u.quantity.Quantity or type(rout) != u.quantity.Quantity):
-            raise ValueError('rin and rout must be astropy Quantities')
         self.rin = rin.to(u.mm)
         self.rout = rout.to(u.mm)
         self.zhat = zhat
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.annulus(self.rin.value,self.rout.value,self.num,self.zhat)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -137,14 +133,15 @@ class Annulus(Source):
 
 class CircularBeam(Source):
     
-    def __init__(self,num,rad,wave=None,order=None):
+    @u.quantity_input(rad=u.mm,z=u.mm)
+    def __init__(self,num=1000,rad=1*u.mm,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(rad) != u.quantity.Quantity):
-            raise ValueError('rad must be an astropy Quantity')
         self.rad = rad.to(u.mm)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.circularbeam(self.rad.value,self.num)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -152,23 +149,24 @@ class CircularBeam(Source):
 
 class ConvergingBeam(Source):
     
-    def __init__(self,num,zset,rin,rout,tmin,tmax,lscat,wave=None,order=None):
+    @u.quantity_input(zset=u.mm,rin=u.mm,rout=u.mm,tmin=u.rad,tmax=u.rad,lscat=u.arcsec,z=u.mm)
+    def __init__(self,num=1000,zset=0*u.mm,rin=0*u.mm,rout=1*u.mm,
+    tmin=0*u.rad,tmax=1*u.rad,lscat=1*u.arcsec,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(zset) != u.quantity.Quantity or type(rin) != u.quantity.Quantity
-        or type(rout) != u.quantity.Quantity or type(tmin) != u.quantity.Quantity
-        or type(tmax) != u.quantity.Quantity or type(lscat) != u.quantity.Quantity):
-            raise ValueError('zset, rin, and rout must be astropy units of length. tmin, tmax, and lscat must be astropy units of angle')
+        
         self.zset = zset.to(u.mm)
         self.rin = rin.to(t.mm)
         self.rout = rout.to(u.mm)
         self.tmin = tmin.to(u.rad)
         self.tmax = tmax.to(u.rad)
         self.lscat = lscat.to(u.arcsec)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.convergingbeam(self.zset.value,self.rin.value,
         self.rout.value,self.tmin.value,self.tmax.value,self.num,
         self.lscat.value)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -176,23 +174,24 @@ class ConvergingBeam(Source):
 
 class ConvergingBeam2(Source):
     
-    def __init__(self,num,zset,xmin,xmax,ymin,ymax,lscat,wave=None,order=None):
+    @u.quantity_input(zset=u.mm,xmin=u.mm,xmax=u.mm,ymin=u.mm,ymax=u.mm,lscat=u.arcsec,z=u.mm)
+    def __init__(self,num=1000,zset=0*u.mm,xmin=0*u.mm,xmax=1*u.mm,
+    ymin=0*u.mm,ymax=1*u.mm,lscat=1*u.arcsec,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(zset) != u.quantity.Quantity or type(xmin) != u.quantity.Quantity
-        or type(xmax) != u.quantity.Quantity or type(ymin) != u.quantity.Quantity
-        or type(ymax) != u.quantity.Quantity or type(lscat) != u.quantity.Quantity):
-            raise ValueError('zset, xmin, xmax, ymin, and ymax must be astropy units of length. lscat must be an astropy unit of angle')
+        
         self.zset = zset.to(u.mm)
         self.xmin = xmin.to(u.mm)
         self.xmax = xmax.to(u.mm)
         self.ymin = ymin.to(u.mm)
         self.ymax = ymax.to(u.mm)
         self.lscat = lscat.to(u.arcsec)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.convergingbeam2(self.zset.value,self.xmin.value,
         self.xmax.value,self.ymin.value,self.ymax.value,self.num,
         self.lscat.value)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -200,14 +199,15 @@ class ConvergingBeam2(Source):
 
 class PointSource(Source):
     
-    def __init__(self,num,ang,wave=None,order=None):
+    @u.quantity_input(ang=u.rad,z=u.mm)
+    def __init__(self,num=1000,ang=.1*u.rad,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(ang) != u.quantity.Quantity):
-            raise ValueError('ang must be an astropy unit of angle')
         self.ang = ang.to(u.rad)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.pointsource(self.ang.value,self.num)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -215,15 +215,16 @@ class PointSource(Source):
 
 class RectArray(Source):
     
-    def __init__(self,num,xsize,ysize,wave=None,order=None):
+    @u.quantity_input(xsize=u.mm,ysize=u.mm,z=u.mm)
+    def __init__(self,num=1000,xsize=1*u.mm,ysize=1*u.mm,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(xsize) != u.quantity.Quantity or type(ysize) != u.quantity.Quantity):
-            raise ValueError('xsize and ysize must be astropy units of length')
         self.xsize = xsize.to(u.mm)
         self.ysize = ysize.to(u.mm)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.rectarray(self.xsize.value,self.ysize.value,self.num)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -231,16 +232,16 @@ class RectArray(Source):
 
 class RectBeam(Source):
     
-    def __init__(self,num,xhalfwidth,yhalfwidth,wave=None,order=None):
+    @u.quantity_input(xhalfwidth=u.mm,yhalfwidth=u.mm,z=u.mm)
+    def __init__(self,num=1000,xhalfwidth=1*u.mm,yhalfwidth=1*u.mm,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(xhalfwidth) != u.quantity.Quantity or 
-        type(yhalfwidth) != u.quantity.Quantity):
-            raise ValueError('xhalfwidth and yhalfwidth must be astropy units of length')
         self.xhalfwidth = xhalfwidth.to(u.mm)
         self.yhalfwidth = yhalfwidth.to(u.mm)
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.rectbeam(self.xhalfwidth.value,self.yhalfwidth.value,self.num)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -248,19 +249,19 @@ class RectBeam(Source):
 
 class Subannulus(Source):
     
-    def __init__(self,num,rin,rout,dphi,zhat=1.,wave=None,order=None):
+    @u.quantity_input(rin=u.mm,rout=u.mm,dphi=u.rad,z=u.mm)
+    def __init__(self,num=1000,rin=0*u.mm,rout=1*u.mm,dphi=1*u.rad,zhat=1.,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(rin) != u.quantity.Quantity or type(rout) != u.quantity.Quantity
-        or type(dphi) != u.quantity.Quantity):
-            raise ValueError('rin and rout must be astropy units of length, dphi must be an astropy unit of angle')
         self.rin = rin.to(u.mm)
         self.rout = rout.to(u.mm)
         self.dphi = dphi.to(u.rad)
         self.zhat = zhat
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.subannulus(self.rin.value,self.rout.value,self.dphi.value,
         self.num,self.zhat)
+        rays.translate(self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
@@ -268,16 +269,17 @@ class Subannulus(Source):
 
 class Xslit(Source):
     
-    def __init__(self,num,xin,xout,zhat=-1.,wave=None,order=None):
+    @u.quantity_input(xin=u.mm,xout=u.mm,z=u.mm)
+    def __init__(self,num=1000,xin=0*u.mm,xout=1*u.mm,zhat=-1.,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
-        if (type(min) != u.quantity.Quantity or type(xout) != u.quantity.Quantity):
-            raise ValueError('xin and xout must be astropy units of length')
         self.xin = xin.to(u.mm)
         self.xout = xout.to(u.mm)
         self.zhat = zhat
+        self.z = z.to(u.mm)
     
     def generateRays(self):
         rays = Rays.xslit(self.xin.value,self.xout.value,self.num,self.zhat)
+        rays.translate(dz=self.z.value)
         self.addParams(rays)
         self.misalign(rays)
         return rays
