@@ -168,6 +168,7 @@ class WolterOptic:
         A tuple containing the original number of rays and the final number of 
             rays (that hit the optic)
         '''
+        inputlength = rays.length(considerweights)
         
         # First find the angles through which we need to rotate the rays
         norm = np.array([self.nx,self.ny,self.nz])
@@ -224,14 +225,8 @@ class WolterOptic:
         rays.rotatevector('norm',-thetaz,3)
         rays.translate(self.x.value,self.y.value,self.z.value)
         
-        # Find how many rays missed the optic
-        inputlength = rays.length(considerweights)
-        
         # Remove missed photons
         rays.remove(np.isnan(rays.x))
-        
-        # Return the efficiency of the optic
-        return ("Missed Optic",inputlength,rays.length(considerweights))
 
 
 class WolterPrimary(WolterOptic):
@@ -552,34 +547,34 @@ class WolterModule(WolterOptic, Combination):
         
         # Keep track of the input rays for when we're finished with one Mirror
         inputrays = rays.copy()
+        temprays = rays.copy()
         
         # Iterate through each Mirror Object
         for r in self.componentlist:
             # Through each pass we need to ensure that the rays that make it are 
             # placed into a final rays object
             # All those that miss are passed to the next Mirror
-            r.tracefunction(rays,autoreflect,eliminate='nan')
-
+            r.tracefunction(temprays,autoreflect,eliminate='nan')
+            
             # Find the Rays which missed the 
-            tarray = np.logical_not(np.isnan(rays.x))
-            hitrays = rays.split(tarray)
-            
-            # Make sure at least some rays have hit the grating
-            if (len(hitrays) == 0):
-                rays = inputrays.copy()
-                continue
-            
-            # Add the hitrays to our final tally
-            finalrays += hitrays
+            tarray = np.logical_not(np.isnan(temprays.x))
+            hitrays = temprays.split(tarray)
             
             # Take the rays that hit this grating out of the original Rays object
             inputrays.remove(tarray)
             
             # Back remaining rays up to their original position
-            rays = inputrays.copy()
+            temprays = inputrays.copy()
+
+            # Make sure at least some rays have hit the mirror
+            if (len(hitrays) == 0):
+                continue
+            
+            # Add the hitrays to our final tally
+            finalrays += hitrays
             
             # If there are no rays left, we can stop
-            if len(rays) == 0:
+            if len(temprays) == 0:
                 break
         
         # Make it so that the original rays now contain the output
