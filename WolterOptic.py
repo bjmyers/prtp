@@ -9,6 +9,7 @@ import astropy.units as u
 
 class WolterOptic:
     
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
                 r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
@@ -38,21 +39,14 @@ class WolterOptic:
         - If axial_length and mirror_sep are defined, any photons which miss
             the mirror in the n-direction will removed.
         '''
-        if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity 
-        or type(z) != u.quantity.Quantity or type(r0) != u.quantity.Quantity
-        or type(z0) != u.quantity.Quantity):
-            raise ValueError('x, y, z, r0, and z0 must all be astropy units of length')
-            
-        if (axial_length is not None or mirror_sep is not None):
-            if (type(axial_length) != u.quantity.Quantity or 
-                type(mirror_sep) != u.quantity.Quantity):
-                raise ValueError('axial_length and mirror_sep must both be defined and must be astropy units of length')
-            else:
-                self.axial_length = axial_length.to(u.mm)
-                self.mirror_sep = mirror_sep.to(u.mm)
-        else:
+        if (axial_length is None):
             self.axial_length = None
+        else:
+            self.axial_length = axial_length.to(u.mm)
+        if (mirror_sep is None):
             self.mirror_sep = None
+        else:
+            self.mirror_sep = mirror_sep.to(u.mm)
             
         self.x = x.to(u.mm)
         self.y = y.to(u.mm)
@@ -88,7 +82,8 @@ class WolterOptic:
     
     ## Spatial Manipulation Functions:
     
-    def translate(self,dx,dy,dz):
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm)
+    def translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm):
         '''
         Function translate:
         Moves the Optic in x,y and z
@@ -104,14 +99,12 @@ class WolterOptic:
         - This move is relative, not absolute. That is, you will move BY dx, dy,
             and z, you will not move TO dx, dy, and dz
         '''
-        if (type(dx) != u.quantity.Quantity or type(dy) != u.quantity.Quantity
-        or type(dz) != u.quantity.Quantity):
-            raise ValueError('dx, dy, and dz must be astropy units of length')
         self.x += dx.to(u.mm).value
         self.y += dy.to(u.mm).value
         self.z += dz.to(u.mm).value
     
-    def unitrotate(self,theta,axis):
+    @u.quantity_input(theta=u.rad)
+    def unitrotate(self,theta=0*u.mm,axis=1):
         '''
         Function unitrotate:
         Rotates the Optic about one of the three unit vectors (x, y, or z) by an 
@@ -126,11 +119,10 @@ class WolterOptic:
         Outputs:
         None
         '''
-        if (type(theta) != u.quantity.Quantity):
-            raise ValueError('theta must be an astropy unit of angle')
         self.nx,self.ny,self.nz = trans.rotatevector(self.nx,self.ny,self.nz,theta.to(u.rad).value,axis)
     
-    def rotate(self,theta,ux,uy,uz):
+    @u.quantity_input(theta=u.rad)
+    def rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0):
         '''
         Function rotate:
         Rotates the Optic about an arbitrary axis, defined by ux, uy, and uz
@@ -144,8 +136,6 @@ class WolterOptic:
         Outputs:
         None
         '''
-        if (type(theta) != u.quantity.Quantity):
-            raise ValueError('theta must be an astropy unit of angle')
         self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,ux,uy,uz,theta.to(u.rad).value)
 
 
@@ -231,6 +221,7 @@ class WolterOptic:
 
 class WolterPrimary(WolterOptic):
     
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
         r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
@@ -296,6 +287,7 @@ class WolterPrimary(WolterOptic):
 
 class WolterSecondary(WolterOptic):
     
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
         r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''
@@ -361,6 +353,7 @@ class WolterSecondary(WolterOptic):
 
 class WolterTypeOne(WolterOptic):
     
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
     r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
         '''

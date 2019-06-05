@@ -47,6 +47,7 @@ class Combination:
     
     ## Movement Functions:
     
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm)
     def defineRotationPoint(self,x=0*u.mm,y=0*u.mm,z=0*u.mm):
         '''
         Function defineRotationPoint:
@@ -65,14 +66,11 @@ class Combination:
         Grating about their centers, rather than rotating the whole stack about
         this point
         '''
-        if (type(x) != u.quantity.Quantity or type(y) != u.quantity.Quantity
-        or type(z) != u.quantity.Quantity):
-            raise ValueError('x, y, and z must be astropy units of length')
         self.rx = x.to(u.mm)
         self.ry = y.to(u.mm)
         self.rz = z.to(u.mm)
     
-    
+    @u.quantity_input(theta=u.rad)
     def unitrotate(self,theta=0*u.rad,axis=1):
         '''
         Function unitrotate:
@@ -87,8 +85,6 @@ class Combination:
         Outputs:
         None
         '''
-        if type(theta) != u.quantity.Quantity:
-            raise ValueError('Theta must be an astropy unit of angle')
         theta = theta.to(u.rad)
         
         for g in self.componentlist:
@@ -105,8 +101,8 @@ class Combination:
             # Translate the origin back down
             g.translate(self.rx,self.ry,self.rz)
     
-    
-    def rotate(self,theta,ux,uy,uz):
+    @u.quantity_input(theta=u.rad)
+    def rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0):
         '''
         Function unitrotate:
         Rotates the entire Graint Stack about the rotationpoint and about a
@@ -121,8 +117,6 @@ class Combination:
         Outputs:
         None
         '''
-        if type(theta) != u.quantity.Quantity:
-            raise ValueError('Theta must be an astropy unit of angle')
         theta = theta.to(u.rad)
         
         for g in self.componentlist:
@@ -143,7 +137,7 @@ class Combination:
             # Translate the origin back down
             g.translate(self.rx,self.ry,self.rz)
     
-    
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm)
     def translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm):
         '''
         Function translate
@@ -159,8 +153,5 @@ class Combination:
         Notes:
         - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
         '''
-        if (type(dx) != u.quantity.Quantity or type(dy) != u.quantity.Quantity
-        or type(dz) != u.quantity.Quantity):
-            raise ValueError('dx, dy, and dz must be astropy units of length')
         for g in self.componentlist:
             g.translate(dx,dy,dz)

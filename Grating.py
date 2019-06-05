@@ -10,7 +10,8 @@ class Grating(FlatComponent):
     
     ## Initialization Functions
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,d=u.um,l=u.mm,w=u.mm)
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
     l=None,w=None,pfunc=None,collfunc=None,radial=True,d=160*u.um,fdist=None):
         '''
         Initializes a Grating Object, requires the following arguments:
@@ -40,21 +41,22 @@ class Grating(FlatComponent):
             distance of every photon from the groove focus.
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz, collfunc=collfunc)
-        if l is not None or w is not None:
-            if (type(l) != u.quantity.Quantity or type(w) != u.quantity.Quantity):
-                raise ValueError('l and w must be astropy units of length')
-        self.l = l.to(u.mm)
-        self.w = w.to(u.mm)
+        if l is not None:
+            self.l = l.to(u.mm)
+        else:
+            self.l = None
+        if w is not None:
+            self.w = w.to(u.mm)
+        else:
+            self.w = None
         self.periodfunction = pfunc
         self.collfunc = collfunc
         self.radial = radial
-        if type(d) != u.quantity.Quantity:
-            raise ValueError('d must be an astropy unit of length')
         self.d = d.to(u.nm)
         if fdist is not None:
-            if (type(fdist) != u.quantity.Quantity):
-                raise ValueError('fdist must be an astropy unit of length')
-        self.fdist = fdist.to(u.mm)
+            self.fdist = fdist.to(u.mm)
+        else:
+            self.fdist = None
     
     
     def copy(self):
@@ -97,7 +99,8 @@ class Grating(FlatComponent):
             x,y = self.getPosns(rays)
             return np.logical_and(np.abs(x) < self.w.value/2, np.abs(y) < self.l.value/2)
         else:
-            raise NotImplementedError('This Grating needs a collision function to be implemented or a length and width if you wish to use a simple rectangular model')
+            # If there is no collision function or dimensions, all photons hit
+            return np.ones(len(rays),dtype='bool')
     
     def removemissed(self,rays,considerweights=False):
         '''

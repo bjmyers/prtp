@@ -11,6 +11,7 @@ class GratingStack(Combination):
     A special kind of combination that specifically handles a group of gratings
     '''
     
+    @u.quantity_input(rx=u.mm,ry=u.mm,rz=u.mm)
     def __init__(self,autoreflect=True,
     rx=0*u.mm, ry=0*u.mm, rz=0*u.mm, keeporder=True):
         '''
@@ -28,9 +29,6 @@ class GratingStack(Combination):
         using self.modifyParam(name,value), or access the Gratings themselves
         in the self.componentlist parameter
         '''
-        if (type(rx) != u.quantity.Quantity or type(ry) != u.quantity.Quantity 
-        or type(rz) != u.quantity.Quantity):
-            raise ValueError('rx, ry,and rz must all be astropy units of lengh')
         Combination.__init__(self)
         self.rx = rx.to(u.mm)
         self.ry = ry.to(u.mm)
@@ -54,6 +52,8 @@ class GratingStack(Combination):
         
         Notes:
         - This function will assign the same value to each Grating in the Stack
+        - This function cannot check for correct units, an error will be 
+            generated later down the line
         '''
         for g in self.componentlist:
             setattr(g,name,value)

@@ -9,7 +9,8 @@ class Detector(FlatComponent):
     
     ## Initialization Functions:
     
-    def __init__(self,x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,l=1,w=1,xpix=10,ypix=10):
+    @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,l=u.mm,w=u.mm)
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,l=1*u.mm,w=1*u.mm,xpix=10,ypix=10):
         '''
         Initializes a Detector Object, requires the following arguments:
         
@@ -33,8 +34,6 @@ class Detector(FlatComponent):
         '''
         FlatComponent.__init__(self,x,y,z,nx,ny,nz,sx,sy,sz)
         self.q = q
-        if (type(l) != u.quantity.Quantity or type(w) != u.quantity.Quantity):
-            raise ValueError('l and w must be astropy units of length')
         self.l = l.to(u.mm)
         self.w = w.to(u.mm)
         self.xpix = xpix
