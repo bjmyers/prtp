@@ -355,7 +355,8 @@ class WolterTypeOne(WolterOptic):
     
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
-    r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None):
+    r0=1*u.mm,z0=1*u.mm,psi=1,axial_length = None,mirror_sep = None,
+    beckmann_scatter = False, h = 0, rho = 0, ripple = 0):
         '''
         WolterTypeOne Object:
         - Combines a WolterPrimary and a WolterSecondary Object into one single 
@@ -370,11 +371,8 @@ class WolterTypeOne(WolterOptic):
             - You need to perform a tracing more complicated than:
                 - Trace to Primary
                 - Reflect
+                - Scatter (if needed)
                 - Trace to Secondary
-            e.g: with WolterTypeOne Objects you cannot add scattering on the 
-                surface of the Primary (since the rays are automatically traced 
-                to the secondary, giving the user no time to perform further 
-                modifications)
         
         
         Parameters:
@@ -392,8 +390,15 @@ class WolterTypeOne(WolterOptic):
             astropy unit of length
         mirror_sep - The separation between two mirrors, must be an astropy unit
             of length
+        beckmann_scatter - If True, Beckmann scatter will be added to the rays
+            after reflecting off of the primary mirror
+        h, rho, ripple - The parameters for Beckmann scattering
         '''
         WolterOptic.__init__(self,x,y,z,nx,ny,nz,r0,z0,psi,axial_length,mirror_sep)
+        self.beckmann_scatter = beckmann_scatter
+        self.h = h
+        self.rho = rho
+        self.ripple = ripple
 
 
     ## Tracing Rays to the Optic:
@@ -422,6 +427,11 @@ class WolterTypeOne(WolterOptic):
                 rays.x[tarray] = np.nan
         
         rays.reflect()
+        
+        # Add Beckmann Scattering, if needed
+        if (self.beckmann_scatter):
+            rays.beckmann_scatter(self.h,self.rho,self.ripple)
+        
         rays.woltersecondary(self.r0.value,self.z0.value,self.psi)
         
         # When called with eliminate='nan', this block will cause runtime errors,
@@ -464,7 +474,8 @@ class WolterModule(WolterOptic, Combination):
     
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,r0=u.mm,z0=u.mm,axial_length=u.mm,mirror_sep=u.mm)
     def __init__(self, x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1, 
-                r0=None, z0 = None, psi = 1,axial_length = None,mirror_sep = None):
+                r0=None, z0 = None, psi = 1,axial_length = None,mirror_sep = None,
+                beckmann_scatter = False, h = 0, rho = 0, ripple = 0):
         '''
         Function __init__:
         Initializes a WolterModule Object. This object consists of a list of 
@@ -487,6 +498,9 @@ class WolterModule(WolterOptic, Combination):
             astropy unit of length
         mirror_sep - The separation between two mirrors, must be an astropy unit
             of length
+        beckmann_scatter - If True, Beckmann scatter will be added to the rays
+            after reflecting off of the primary mirror
+        h, rho, ripple - The parameters for Beckmann scattering
         
         
         Notes:
@@ -515,10 +529,12 @@ class WolterModule(WolterOptic, Combination):
                 # Iterate through each list and add the Wolter Optic to 
                 # the component list
                 for i in range(lr):
-                    self.componentlist.append(WolterTypeOne(x,y,z,nx,ny,nz,r0[i],z0[i],psi,axial_length[i],mirror_sep[i]))
+                    self.componentlist.append(WolterTypeOne(x,y,z,nx,ny,nz,r0[i],z0[i],
+                    psi,axial_length[i],mirror_sep[i],beckmann_scatter,h,rho,ripple))
             except:
                 # This will execute if r0 and z0 are single values
-                self.componentlist.append(WolterTypeOne(x,y,z,nx,ny,nz,r0,z0,psi,axial_length,mirror_sep))
+                self.componentlist.append(WolterTypeOne(x,y,z,nx,ny,nz,r0,z0,
+                psi,axial_length,mirror_sep, beckmann_scatter, h, rho, ripple))
     
     ## Tracing Rays to the Optic:
     def tracefunction(self,rays,autoreflect=True):
