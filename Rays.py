@@ -997,6 +997,8 @@ class Rays:
         Add Beckmann scatter to a set of rays a la the SCATTER function
         in Webster Cash's IRT.
         '''
+        if len(self) == 0:
+            return
     
         # Define surface normal components.
         nx = self.ux

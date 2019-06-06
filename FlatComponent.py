@@ -217,6 +217,10 @@ class FlatComponent:
         - The function cannot tell if the Rays have been traced, so this is up 
             to the user. It will still create output, but it will be wonky
         '''
+        if (len(rays) == 0):
+            return np.array([]),np.array([])
+        
+        
         # Define the x-direction basis vector, the cross product of s and n
         xdir = np.cross((self.sx,self.sy,self.sz),(self.nx,self.ny,self.nz))
         ydir = np.array([self.sx,self.sy,self.sz])

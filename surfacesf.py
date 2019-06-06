@@ -328,15 +328,15 @@ def conicplus(rays,r,k,p,Np,eliminate='nan',maxiter=12):
 
 
 def focus(rays,fn,weights=None):
+    if(len(rays)==0):
+        return
     dz1 = fn(rays,weights=weights)
     rays.transform(0,0,-dz1,0,0,0)
     rays.flat()
     dz2 = fn(rays,weights=weights)
     rays.transform(0,0,-dz2,0,0,0)
     rays.flat()
-    
-    # I don't think we need to return the rays components:
-    #return ((rays.x,rays.y,rays.z,rays.l,rays.m,rays.n,rays.ux,rays.uy,rays.uz),dz1+dz2)
+
     return dz1+dz2
 
 def focusY(rays,weights=None,coords=None):

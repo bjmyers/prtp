@@ -86,7 +86,7 @@ class Instrument:
 
         # Refresh the efficiency list
         self.effs = []
-        
+        import prtp.WolterOptic as WolterOptic
         # Iterate through each component
         for c in self.componentlist:
             
@@ -161,24 +161,19 @@ class Instrument:
         l = self.effs[0][1]
         
         # Print the header
-        print("Method:                        Local Percent:  Global Percent:")
+        print("Method:                        Local Percent:   Global Percent:")
         
         for e in self.effs:
             method = e[0].ljust(30)
-            localeff = (e[1]-e[2])*100/e[1]
-            globaleff = (e[1]-e[2])*100/l
-            print("{0} {1:08.5f}%       {2:08.5f}%".format(method,localeff,globaleff))
+            if (e[1] == 0):
+                localeff = 0.
+                globaleff = 0.
+            else:
+                localeff = (e[1]-e[2])*100/e[1]
+                globaleff = (e[1]-e[2])*100/l
+            print("{0} {1:09.5f}%       {2:09.5f}%".format(method,localeff,globaleff))
         
         finalnum = self.effs[-1][2]
         
         print()
         print("Total Throughput: {0:08.5f}%".format(finalnum * 100 / l))
-    
-    
-    
-    
-    
-    
-    
-    
-    

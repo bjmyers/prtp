@@ -104,7 +104,7 @@ class WolterOptic:
         self.z += dz.to(u.mm).value
     
     @u.quantity_input(theta=u.rad)
-    def unitrotate(self,theta=0*u.mm,axis=1):
+    def unitrotate(self,theta=0*u.rad,axis=1):
         '''
         Function unitrotate:
         Rotates the Optic about one of the three unit vectors (x, y, or z) by an 
@@ -417,16 +417,20 @@ class WolterTypeOne(WolterOptic):
         '''
         rays.wolterprimary(self.r0.value,self.z0.value,self.psi)
         
-        # Consider which photons missed the primary mirror
-        if self.axial_length is not None and self.mirror_sep is not None:
-            tarray = np.logical_or((rays.z < (self.z0 + self.mirror_sep/2).value),
-                    rays.z > (self.z0 + self.mirror_sep/2 + self.axial_length).value)
-            if (eliminate.lower() == 'remove'):
-                rays.remove(tarray)
-            else:
-                rays.x[tarray] = np.nan
+        # When called with eliminate='nan', this block will cause runtime errors,
+        # we will ignore them using this next line
+        with np.errstate(invalid='ignore'):
         
-        rays.reflect()
+            # Consider which photons missed the primary mirror
+            if self.axial_length is not None and self.mirror_sep is not None:
+                tarray = np.logical_or((rays.z < (self.z0 + self.mirror_sep/2).value),
+                        rays.z > (self.z0 + self.mirror_sep/2 + self.axial_length).value)
+                if (eliminate.lower() == 'remove'):
+                    rays.remove(tarray)
+                else:
+                    rays.x[tarray] = np.nan
+            
+            rays.reflect()
         
         # Add Beckmann Scattering, if needed
         if (self.beckmann_scatter):
