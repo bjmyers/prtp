@@ -80,26 +80,50 @@ class Combination:
         Inputs:
         theta - The amount by which you want to rotate, must be an astropy unit
             of angle
-        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, respectively.
+        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
+            respectively.
         
         Outputs:
         None
+        
+        Notes:
+        - Theta can be a single value or an array/list. If it is array-like, it
+            must have the same length as the component list as it specifies the
+            rotation angle of each component
         '''
         theta = theta.to(u.rad)
         
-        for g in self.componentlist:
-            
-            # Rotates the Grating's two vectors
-            g.unitrotate(theta,axis)
-            
-            # Move the Grating's so the rotation point is about the origin 
-            g.translate(-self.rx,-self.ry,-self.rz)
-            
-            # Rotate the Grating's position
-            g.x,g.y,g.z = trans.rotatevector(g.x,g.y,g.z,theta,axis)
-            
-            # Translate the origin back down
-            g.translate(self.rx,self.ry,self.rz)
+        try:
+            len(theta)
+            if (len(theta) != len(self.componentlist)):
+                raise ValueError('Theta Array must be the same length as the component list')
+            else:
+                arr = True
+        except:
+            arr = False
+        # arr is True if theta is an array, False otherwise
+        
+        if (arr):
+            for i in range(len(self.componentlist)):
+                g = self.componentlist[i]
+                # Rotates the Grating's two vectors
+                g.unitrotate(theta[i],axis)
+                # Move the Grating's so the rotation point is about the origin 
+                g.translate(-self.rx,-self.ry,-self.rz)
+                # Rotate the Grating's position
+                g.x,g.y,g.z = trans.rotatevector(g.x,g.y,g.z,theta[i],axis)
+                # Translate the origin back down
+                g.translate(self.rx,self.ry,self.rz)
+        else:
+            for g in self.componentlist:
+                # Rotates the Grating's two vectors
+                g.unitrotate(theta,axis)
+                # Move the Grating's so the rotation point is about the origin 
+                g.translate(-self.rx,-self.ry,-self.rz)
+                # Rotate the Grating's position
+                g.x,g.y,g.z = trans.rotatevector(g.x,g.y,g.z,theta,axis)
+                # Translate the origin back down
+                g.translate(self.rx,self.ry,self.rz)
     
     @u.quantity_input(theta=u.rad)
     def rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0):
@@ -116,26 +140,112 @@ class Combination:
         
         Outputs:
         None
+        
+        Notes:
+        - Theta can be a single value or an array/list. If it is array-like, it
+            must have the same length as the component list as it specifies the
+            rotation angle of each component
         '''
         theta = theta.to(u.rad)
         
-        for g in self.componentlist:
-            
-            # Rotates the Grating's two vectors
-            g.rotate(theta,ux,uy,uz)
-            
-            # Move the Grating's so the rotation point is about the origin 
-            g.translate(-self.rx,-self.ry,-self.rz)
-            
-            # Rotate the Grating's position
-            g.x,g.y,g.z,q1,q2,q3 = trans.rotateaxis(g.x.value,g.y.value,g.z.value,ux,uy,uz,theta.value)
-            # Restore units
-            g.x *= u.mm
-            g.y *= u.mm
-            g.z *= u.mm
-            
-            # Translate the origin back down
-            g.translate(self.rx,self.ry,self.rz)
+        try:
+            len(theta)
+            if (len(theta) != len(self.componentlist)):
+                raise ValueError('Theta Array must be the same length as the component list')
+            else:
+                arr = True
+        except:
+            arr = False
+        # arr is True if theta is an array, False otherwise
+        
+        if (arr):
+            for i in range(len(self.componentlist)):
+                g = self.componentlist[i]
+                # Rotates the Grating's two vectors
+                g.rotate(theta[i],ux,uy,uz)
+                # Move the Grating's so the rotation point is about the origin 
+                g.translate(-self.rx,-self.ry,-self.rz)
+                # Rotate the Grating's position
+                g.x,g.y,g.z,q1,q2,q3 = trans.rotateaxis(g.x.value,g.y.value,g.z.value,ux,uy,uz,theta[i].value)
+                # Restore units
+                g.x *= u.mm
+                g.y *= u.mm
+                g.z *= u.mm
+                # Translate the origin back down
+                g.translate(self.rx,self.ry,self.rz)
+        else:
+            for g in self.componentlist:
+                # Rotates the Grating's two vectors
+                g.rotate(theta,ux,uy,uz)
+                # Move the Grating's so the rotation point is about the origin 
+                g.translate(-self.rx,-self.ry,-self.rz)
+                # Rotate the Grating's position
+                g.x,g.y,g.z,q1,q2,q3 = trans.rotateaxis(g.x.value,g.y.value,g.z.value,ux,uy,uz,theta.value)
+                # Restore units
+                g.x *= u.mm
+                g.y *= u.mm
+                g.z *= u.mm
+                # Translate the origin back down
+                g.translate(self.rx,self.ry,self.rz)
+    
+    
+    @u.quantity_input(theta=u.rad)
+    def unitrotateinplace(self,theta,axis=1):
+        '''
+        Function unitrotateinplace:
+        Rotates each of the components in this combination about a unit axis.
+        Unlike unitrotate which rotates each component about a single point,
+        this function rotates each component about their center. Leaving them
+        "in place" and not changing the position of their centers.
+        
+        Inputs:
+        theta - The amount by which you want to rotate, must be an astropy unit
+            of angle
+        axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
+            respectively.
+        
+        Outputs:
+        None
+        
+        Notes:
+        - Theta must be an array of quantities the same length as self.componentlist
+            If you wished to rotate each component by the same amount, use
+            applyToAll()
+        '''
+        if (len(theta) != len(self.componentlist)):
+            raise ValueError('Theta Array must be the same length as the component list')
+        for i in range(len(self.componentlist)):
+            self.componentlist[i].unitrotate(theta[i],axis)
+    
+    
+    @u.quantity_input(theta=u.rad)
+    def rotateinplace(self,theta,ux=1,uy=0,uz=0):
+        '''
+        Function unitrotateinplace:
+        Rotates each of the components in this combination about a user-defined
+        axis. Unlike unitrotate which rotates each component about a single point,
+        this function rotates each component about their center. Leaving them
+        "in place" and not changing the position of their centers.
+        
+        Inputs:
+        theta - The amount by which you want to rotate, must be an astropy unit
+            of angle
+        ux,uy,uz - Components of the vector about which you want to rotate, does
+            not need to be a unit vector (can have any length)
+        
+        Outputs:
+        None
+        
+        Notes:
+        - Theta must be an array of quantities the same length as self.componentlist
+            If you wished to rotate each component by the same amount, use
+            applyToAll()
+        '''
+        if (len(theta) != len(self.componentlist)):
+            raise ValueError('Theta Array must be the same length as the component list')
+        for i in range(len(self.componentlist)):
+            self.componentlist[i].rotate(theta[i],ux,uy,uz)
+    
     
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm)
     def translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm):
