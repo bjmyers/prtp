@@ -27,11 +27,14 @@ ax_lens = np.ones(12) * 100 * u.mm
 mir_seps = np.ones(12) * 5 * u.mm
 
 # Generate the Wolter Module
-wm = WolterModule(r0=r0s,z0=z0s,axial_length=ax_lens,mirror_sep=mir_seps)
+wm = WolterModule(r0=r0s,z0=z0s,axial_length=ax_lens,mirror_sep=mir_seps,beckmann_scatter=True,ripple=1.48e-5)
 # NOTE: Since we did not define a position (x,y,z) or direction vector (nx,ny,nz)
 # This Wolter Module will use the default values:
 # position = (0,0,0)
 # direction = (0,0,1)
+# NOTE: Since we have set beckmann_scatter to True, scattering will be applied
+# to the rays after they reflect off the primary mirror. This is noticeable
+# if you were to focus the rays after sending them through the module
 
 # Initialize the Instrument with the source
 i = Instrument(r)
