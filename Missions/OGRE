@@ -11,7 +11,7 @@ class OgreMirrorModule:
     Stores the parameters for the Mirror Module for OGRE
     
     To get the WolterModule object, use the following code:
-    >> from OgreComponents import OgreMirrorModule
+    >> from prtp.Missions.OGRE import OgreMirrorModule
     >> mirror = OgreMirrorModule()
     '''
     def __new__(cls):
