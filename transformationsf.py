@@ -79,14 +79,7 @@ def transform(x,y,z,l,m,n,ux,uy,uz,tx,ty,tz,rx,ry,rz,coords=None):
     # Coordinate system transform, translations are done first, then rotations in XYZ order
     # Rotations act to rotate a surface via the right hand rule
     # tx,ty,tz are linear translations
-    # rx,ry,rz are angular translations
-
-    #tx *= -1
-    #ty *= -1
-    #tz *= -1
-    #rx *= -1
-    #ry *= -1
-    #rz *= -1    
+    # rx,ry,rz are angular translations   
 
     x += tx
     y += ty
@@ -159,6 +152,10 @@ def radgrat(x,y,l,m,n,dpermm,order,wave):
     # Assumes grating in x y plane, with grooves converging at 
     # hubdist in positive y direction
     
+    # Don't execute if order or wave is None, there is no way we can reflect
+    if order is None or wave is None:
+        return x, y, l, m, n
+    
     sn = n / np.abs(n)
     d = dpermm * np.sqrt(y**2 + x**2)
     yaw = np.pi/2 - np.arctan(x/np.abs(y))
@@ -184,6 +181,10 @@ def grat(l,m,n,d,order,wave, eliminate="nan"):
     # Linear grating with groove period d
     # Wavelength wave
     # Groove direction assumed in y direction
+    
+    # Don't execute if order or wave is None, there is no way we can reflect
+    if order is None or wave is None:
+        return x, y, l, m, n
     
     l -= order*wave/d
     with np.errstate(invalid='ignore'):

@@ -16,7 +16,8 @@ class Rays:
     # These functions create Rays Objects
     
     
-    def __init__(self,x=[],y=[],z=[],l=[],m=[],n=[],ux=[],uy=[],uz=[],weighting=False):
+    def __init__(self,x=[],y=[],z=[],l=[],m=[],n=[],ux=[],uy=[],uz=[],
+                weighting=False,wave=None,order=None):
         '''
         Function __init__:
         Initializes a Rays Object
@@ -27,6 +28,10 @@ class Rays:
         ux,uy,uz - The components of the normal vector of the most recent 
             surface these photons were traced to
         weighting - Used by Instrument Objects, see notes
+        wave - The wavelength of the photons, can be a singular value or a
+            numpy array that has the same length as the Rays object
+        order - The orders of the photons, can be a singular value or a
+            numpy array that has the same length as the Rays object
         
         Notes:
         - If weighting is True, each photon will immediately be given a weight
@@ -37,6 +42,8 @@ class Rays:
             weight is simply the chance that this specific photon made it this
             far through an instrument. This allows us to get accurate instrument
             efficiency values using relatively fewer photons.
+        - If wave or order are singular values, that value will be given to
+            every photon in the array.
         '''
         self.x = np.array(x)
         self.y = np.array(y)
@@ -60,6 +67,22 @@ class Rays:
         self.tags = []
         self.params = []
         self.startingeff = None
+        
+        
+        if (wave is not None):
+            if type(wave) == np.ndarray:
+                self.wave = wave
+            else:
+                self.wave = np.ones(len(self.x)) * wave
+        else:
+            self.wave = None
+        if (order is not None):
+            if type(self.order) == np.ndarray:
+                self.order = order
+            else:
+                self.order = np.ones(len(self.x)) * order
+        else:
+            self.order = None
     
     
     @classmethod
@@ -182,6 +205,8 @@ class Rays:
             self.weights = rays.weights
         else:
             self.weights = None
+        self.wave = rays.wave
+        self.order = rays.order
     
     def split(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''
@@ -232,6 +257,11 @@ class Rays:
         if self.weighting:
             new_rays.weighting = True
             new_rays.weights = np.copy(self.weights[tarray])
+        
+        if self.wave is not None:
+            new_rays.wave = np.copy(self.wave[tarray])
+        if self.order is not None:
+            new_rays.order = np.copy(self.order[tarray])
         
         return new_rays
     
@@ -1190,6 +1220,11 @@ class Rays:
         # Remove from weighting, if necessary
         if (self.weighting):
             self.weights = self.weights[trutharray]
+        
+        if self.wave is not None:
+            self.wave = self.wave[trutharray]
+        if self.order is not None:
+            self.order = self.order[trutharray]
     
     
     def probRemove(self,probability=1.,considerweights=False):

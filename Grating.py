@@ -294,11 +294,11 @@ class Grating(FlatComponent):
         self.trace_to_surf(rays)
         eff1 = self.removemissed(rays,considerweights=considerweights)
         if self.radgrat:
-            self.radgrat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
+            self.radgrat(rays,order=rays.order,wave=rays.wave,autoreflect=True)
             # Need to check l for nans b/c rays.x is not modified
             rays.remove(np.isnan(rays.l))
         else:
-            self.grat(rays,order=rays.getParam('Order'),wave=rays.getParam('Wavelength'),autoreflect=True)
+            self.grat(rays,order=rays.order,wave=rays.wave,autoreflect=True)
             rays.remove(np.isnan(rays.l))
             
         eff2 = ('Failed to Reflect off Grating', eff1[2],rays.length(considerweights))
