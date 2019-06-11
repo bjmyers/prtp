@@ -61,13 +61,17 @@ class GratingStack(Combination):
     
     ## Ray-Tracing Functions
     
-    def trace(self, rays, considerweights=False):
+    def trace(self, rays, considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces the rays through all of the Gratings in the Stack
         
         Inputs:
         rays - The rays you want to trace
+        considerweights - If true, any effect that probabilistically removes
+            photons will instead affect their weights
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         finalrays - The rays that have been traced through the Stack
@@ -77,13 +81,12 @@ class GratingStack(Combination):
         this function works with no user input.
         '''
         if self.keeporder:
-            return self.defaultTrace(rays,considerweights)
+            return self.defaultTrace(rays,considerweights,eliminate)
         else:
-            return self.smartTrace(rays,considerweights)
-        
+            return self.smartTrace(rays,considerweights,eliminate)
         
     
-    def defaultTrace(self,rays,considerweights=False):
+    def defaultTrace(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function defaultTrace:
         Traces the Rays through the Grating Stack in the order that the Gratings
@@ -94,15 +97,27 @@ class GratingStack(Combination):
         rays - The rays you want to trace through the stack
         considerweights - Boolean saying if you want to consider the reflectivity
             of the Gratings
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         A tuple containing information about the efficiency of the Gratings
         '''
         # Make a blank Rays object to store the Rays that make it
-        finalrays = Rays()
+        if eliminate == 'remove':
+            finalrays = Rays()
+        else:
+            # When eliminate is NaN, we will keep track of traced rays using
+            # finalrays, where np.nan represents a photon which has not yet
+            # been successfully traced
+            finalrays = rays.copy()
+            finalrays.x[:] = np.nan
+            # success stores which rays have been successfully traced.
+            success = np.zeros(len(rays)).astype(bool)
+        
         
         # Keep track of the input rays for when we're finished with one Grating
-        inputrays = rays
+        inputrays = rays.copy()
         
         # Keep track of the length of the input rays
         l = rays.length(considerweights)
@@ -126,13 +141,21 @@ class GratingStack(Combination):
             g.trace(hitrays,considerweights)
             
             # Add the hitrays to our final tally
-            finalrays += hitrays
-            
-            # Take the rays that hit this grating out of the original Rays object
-            inputrays.remove(tarray)
+            if eliminate == 'remove':
+                finalrays += hitrays
+                # Take the rays that hit this grating out of the original Rays object
+                inputrays.remove(tarray)
+            else:
+                # Of the rays which were just successfully traced, for which ones
+                # is it their first time? Those ones need to be pulled
+                rays_to_pull = np.logical_and(np.logical_not(success),tarray)
+                finalrays.pullrays(rays,rays_to_pull)
+                
+                # Update success array
+                success = np.logical_not(np.isnan(finalrays.x))
             
             # Back remaining rays up to their original position
-            rays = inputrays
+            rays.makecopy(inputrays)
             
             if len(rays) == 0:
                 break
@@ -143,7 +166,7 @@ class GratingStack(Combination):
         return ("Missed Grating Stack", l, rays.length(considerweights))
     
     
-    def smartTrace(self,rays,considerweights=False):
+    def smartTrace(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function smartTrace:
         Traces the Rays through the Grating Stack in the order that the photons
@@ -154,6 +177,8 @@ class GratingStack(Combination):
         rays - The rays you want to trace through the stack
         considerweights - Boolean saying if you want to consider the 
             reflectivity of the Gratings
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         A tuple containing information about the efficiency of the Gratings
@@ -164,10 +189,19 @@ class GratingStack(Combination):
             Gratings in a different order.
         '''
         # Make a blank Rays object to store the Rays that make it
-        finalrays = Rays()
+        if eliminate == 'remove':
+            finalrays = Rays()
+        else:
+            # When eliminate is NaN, we will keep track of traced rays using
+            # finalrays, where np.nan represents a photon which has not yet
+            # been successfully traced
+            finalrays = rays.copy()
+            finalrays.x[:] = np.nan
+            # success stores which rays have been successfully traced.
+            success = np.zeros(len(rays)).astype(bool)
         
         # Keep track of the input rays for when we're finished with one Grating
-        inputrays = rays
+        inputrays = rays.copy()
         
         # Keep track of the length of the input rays
         l = rays.length(considerweights)
@@ -179,7 +213,7 @@ class GratingStack(Combination):
         # orderarr stores (for each photon) the order in which it will see
         # the gratings
         orderarr = np.stack(orders,axis=1)
-        orderarr = np.argsort(orderarr)
+        orderarr = np.argsort(orderarr).astype(float)
         
         i = 0
         while True:
@@ -199,7 +233,7 @@ class GratingStack(Combination):
                 
                 continue 
             
-            newrays = rays.split(tarray)
+            newrays = rays.copy()
             
             self.componentlist[i].trace_to_surf(newrays)
             
@@ -207,14 +241,31 @@ class GratingStack(Combination):
             hit = self.componentlist[i].hit(newrays)
             
             # Keep those which have hit the Grating
-            newrays.remove(np.logical_not(hit))
+            if eliminate == 'remove':
+                newrays.remove(np.logical_and(np.logical_not(hit),tarray))
+            else:
+                newrays.x[np.logical_not(hit)] = np.nan
             
             if (np.sum(hit) != 0):
                 # These operations can only be done on non-empty Rays Objects
                 
                 # Trace and save the Rays which hit the Grating
-                self.componentlist[i].trace(newrays)
-                finalrays += newrays
+                self.componentlist[i].trace(newrays,eliminate=eliminate)
+                
+                # Add the hitrays to our final tally
+                if eliminate == 'remove':
+                    finalrays += newrays
+                    # Take the rays that hit this grating out of the original Rays object
+                    inputrays.remove(hit)
+                else:
+                    # Of the rays which were just successfully traced, for which ones
+                    # is it their first time? Those ones need to be pulled
+                    rays_to_pull = np.logical_and(np.logical_and(np.logical_not(success),hit),tarray)
+                    finalrays.pullrays(newrays,rays_to_pull)
+                    
+                    # Update success array
+                    success = np.logical_not(np.isnan(finalrays.x))
+                
             
             # Use this hit trutharray to find which of the original rays have 
             # hit the Grating
@@ -222,7 +273,10 @@ class GratingStack(Combination):
             tarray[tarray] = hit
             
             # Remove the rays which have hit this Grating
-            rays.remove(tarray)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
             
             # Update the orderarr to rotate out those which needed to be traced
             # to this Grating
@@ -233,7 +287,10 @@ class GratingStack(Combination):
             orderarr[test,-1] = -1
             
             # Update orderarr to remove the hit photons
-            orderarr = np.delete(orderarr,np.where(tarray)[0],0)
+            if eliminate == 'remove':
+                orderarr = np.delete(orderarr,np.where(tarray)[0],0)
+            else:
+                orderarr[tarray] == np.nan
             
             # Go to the next Grating
             i += 1

@@ -81,7 +81,7 @@ class Detector(FlatComponent):
         return np.logical_and(np.abs(x) < self.w.value/2, np.abs(y) < self.l.value/2)
         
     
-    def removemissed(self,rays,considerweights=False):
+    def removemissed(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function removemissed:
         Removes the rays which have missed the Detector. Also removes some photons according to the quantum efficiency (e.g: if self.q = .1, 10% of the photons that hit will be removed)
@@ -89,6 +89,8 @@ class Detector(FlatComponent):
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
         considerweights - should True if the photons are weighted
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Output:
         Two tuples describing the efficiency of the detector:
@@ -99,7 +101,11 @@ class Detector(FlatComponent):
         l = rays.length(considerweights)
         # Find rays which have not hit
         tarray = np.logical_not(self.hit(rays))
-        rays.remove(tarray)
+        
+        if eliminate == 'remove':
+            rays.remove(tarray)
+        else:
+            rays.x[tarray] = np.nan
         
         t1 = ("Missed Detector",l,rays.length(considerweights))
         l = rays.length(considerweights)
@@ -189,7 +195,7 @@ class Detector(FlatComponent):
 
     ## Trace Function:
     
-    def trace(self,rays,considerweights=False):
+    def trace(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to this Detector and removes photons as necessary. 
@@ -198,13 +204,17 @@ class Detector(FlatComponent):
         
         Inputs:
         rays - The rays you want to trace to this detector
+        considerweights - If true, any effect that probabilistically removes
+            photons will instead affect their weights
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         The efficiency, which tracks how many photons were removed by this
         detector
         '''
         self.trace_to_surf(rays)
-        return self.removemissed(rays,considerweights)
+        return self.removemissed(rays,considerweights,eliminate)
     
     
     

@@ -174,6 +174,8 @@ class Rays:
         new_rays = Rays(x,y,z,l,m,n,ux,uy,uz)
         new_rays.tags = self.tags.copy()
         new_rays.params = self.params.copy()
+        new_rays.wave = self.wave.copy()
+        new_rays.order = self.order.copy()
         return new_rays
     
     def makecopy(self,rays):
@@ -207,6 +209,54 @@ class Rays:
             self.weights = None
         self.wave = rays.wave
         self.order = rays.order
+    
+    def pullrays(self,rays,tarray):
+        '''
+        Function pullrays:
+        Takes photons from another Rays object and copies them into this one
+        
+        Inputs:
+        rays - The rays object from which you want to pull photons
+        tarray - A trutharray that disctates which photons are to be pulled.
+            For example, if trutharray[0] is True, the first photon in self
+            will be changed into a copy of the first photon in rays. If
+            trutharray[1] is False, the second photon in self will be kept
+            as it was.
+        
+        Outputs:
+        None
+        
+        Notes:
+        - self and rays must contain the same number of photons.
+        - The function was created for use in GratingStack's trace functions
+        - This might not work well for Rays objects with Tags or Params
+        '''
+        self.x[tarray] = np.copy(rays.x[tarray])
+        self.y[tarray] = np.copy(rays.y[tarray])
+        self.z[tarray] = np.copy(rays.z[tarray])
+        self.l[tarray] = np.copy(rays.l[tarray])
+        self.m[tarray] = np.copy(rays.m[tarray])
+        self.n[tarray] = np.copy(rays.n[tarray])
+        self.ux[tarray] = np.copy(rays.ux[tarray])
+        self.uy[tarray] = np.copy(rays.uy[tarray])
+        self.uz[tarray] = np.copy(rays.uz[tarray])
+        
+        for i in range(len(self.tags)):
+            value = self.tags[i][1]
+            value[tarray] = rays.getTag(self.tags[i][0])[tarray]
+            self.tags[i] = (self.tags[i][0],value)
+        for i in range(len(self.params)):
+            value = self.params[i][1]
+            value[tarray] = rays.getTag(self.params[i][0])[tarray]
+            self.params[i] = (self.params[i][0],value)
+        
+        if self.weighting:
+            self.weights[tarray] = rays.weights[tarray]
+        
+        if self.wave is not None:
+            self.wave[tarray] = rays.wave[tarray]
+        if self.order is not None:
+            self.order[tarray] = rays.order[tarray]
     
     def split(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''

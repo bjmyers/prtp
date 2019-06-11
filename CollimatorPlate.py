@@ -145,7 +145,7 @@ class CollimatorPlate(FlatComponent):
         # collisionfunction or missed the plate altogether
         return np.logical_or(collfuncarray,rectarray)
     
-    def removemissed(self,rays,considerweights):
+    def removemissed(self,rays,considerweights,eliminate):
         '''
         Function removemissed:
         Removes the rays which have missed the collimator.
@@ -161,6 +161,8 @@ class CollimatorPlate(FlatComponent):
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
         considerweights - Should be true if the photons are weighted
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         
         Output:
@@ -188,7 +190,11 @@ class CollimatorPlate(FlatComponent):
         # Check if the photons missed the plate (if length and width are defined)
         if (self.l is not None) and (self.w is not None):
             tarray = np.logical_or(np.abs(x) > self.w.value/2, np.abs(y) > self.l.value/2)
-            rays.remove(tarray)
+            
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
             
             # Store the tuple we will eventually return
             effs.append(("Missed Collimator",l,rays.length(considerweights)))
@@ -200,7 +206,10 @@ class CollimatorPlate(FlatComponent):
         if (self.collisionfunction is not None):
             tarray = self.collisionfunction(self,rays)
             
-            rays.remove(tarray)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
             
             # Store the tuple we will eventually return
             effs.append(("Eliminated by Collimator",l,rays.length(considerweights)))
@@ -210,7 +219,7 @@ class CollimatorPlate(FlatComponent):
     
     ## Trace Function:
     
-    def trace(self,rays,considerweights=False):
+    def trace(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to this Collimator Plate and removes photons as necessary. 
@@ -219,10 +228,14 @@ class CollimatorPlate(FlatComponent):
         
         Inputs:
         rays - The rays you want to trace to this plate
+        considerweights - If true, any effect that probabilistically removes
+            photons will instead affect their weights
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         The efficiency, which tracks how many photons were removed by this
         plate
         '''
         self.trace_to_surf(rays)
-        return self.removemissed(rays,considerweights)
+        return self.removemissed(rays,considerweights,eliminate)

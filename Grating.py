@@ -93,16 +93,17 @@ class Grating(FlatComponent):
         - The function cannot tell if the Rays have been traced, so this is up to the user.
         - The function use a rectangle defined by length and width (self.l and self.w) or a user-defined collision function (self.collfunc). The user-defined function will be performed preferentially.
         '''
-        if self.collfunc is not None:
-            return self.collfunc(rays)
-        elif (self.l is not None) and (self.w is not None):
-            x,y = self.getPosns(rays)
-            return np.logical_and(np.abs(x) < self.w.value/2, np.abs(y) < self.l.value/2)
-        else:
-            # If there is no collision function or dimensions, all photons hit
-            return np.ones(len(rays),dtype='bool')
+        with np.errstate(invalid='ignore'):
+            if self.collfunc is not None:
+                return self.collfunc(rays)
+            elif (self.l is not None) and (self.w is not None):
+                x,y = self.getPosns(rays)
+                return np.logical_and(np.abs(x) < self.w.value/2, np.abs(y) < self.l.value/2)
+            else:
+                # If there is no collision function or dimensions, all photons hit
+                return np.ones(len(rays),dtype='bool')
     
-    def removemissed(self,rays,considerweights=False):
+    def removemissed(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function removemissed:
         Given Rays that have been traced to the Grating, returns the photons which have hit the Grating.
@@ -110,6 +111,8 @@ class Grating(FlatComponent):
         Inputs:
         rays - A Rays object that has been traced to the Grating Plane
         considerweights - Should be used if the photons are weighted
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         A tuple containing the original number of rays and the final number of rays
@@ -121,7 +124,11 @@ class Grating(FlatComponent):
         l = rays.length(considerweights)
         # Find rays which have not hit
         tarray = np.logical_not(self.hit(rays))
-        rays.remove(tarray)
+        if eliminate == 'remove':
+            rays.remove(tarray)
+        else:
+            rays.x[tarray] = np.nan
+        
         return ("Missed Grating",l,rays.length(considerweights))
     
     
@@ -277,7 +284,7 @@ class Grating(FlatComponent):
         rays.set(l=l,m=m,n=n)
     
     
-    def trace(self,rays,considerweights=False):
+    def trace(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to and reflects them off of this Grating. This is a function
@@ -286,20 +293,32 @@ class Grating(FlatComponent):
         
         Inputs:
         rays - The rays you want to trace to this grating
+        considerweights - If true, any effect that probabilistically removes
+            photons will instead affect their weights
+        eliminate - If 'remove', photons that miss will be removed. Otherwise,
+            missed photons will be replaced with NaNs in the x-position
         
         Outputs:
         eff - The efficiency, currently only tracks how many photons missed the
         grating. In the future will consider absorption from the material too.
         '''
         self.trace_to_surf(rays)
-        eff1 = self.removemissed(rays,considerweights=considerweights)
+        eff1 = self.removemissed(rays,considerweights=considerweights,eliminate=eliminate)
         if self.radgrat:
             self.radgrat(rays,order=rays.order,wave=rays.wave,autoreflect=True)
             # Need to check l for nans b/c rays.x is not modified
-            rays.remove(np.isnan(rays.l))
+            tarray = np.isnan(rays.l)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
         else:
             self.grat(rays,order=rays.order,wave=rays.wave,autoreflect=True)
-            rays.remove(np.isnan(rays.l))
+            tarray = np.isnan(rays.l)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
             
         eff2 = ('Failed to Reflect off Grating', eff1[2],rays.length(considerweights))
         return [eff1,eff2]

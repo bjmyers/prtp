@@ -141,7 +141,7 @@ class WolterOptic:
 
     ## Tracing Rays to the Optic:
     
-    def tracehelper(self,rays,func,autoreflect=True,considerweights=False):
+    def tracehelper(self,rays,func,autoreflect=True,considerweights=False,eliminate='remove'):
         '''
         Function tracehelper:
         Allows Wolter Optics to trace their rays to their surface
@@ -204,7 +204,7 @@ class WolterOptic:
         rays.rotatevector('norm',thetax,1)
         
         # At this point, the photons have been transformed, but each type of Wolter Optic has a different way of tracing rays.
-        func(rays,autoreflect)
+        func(rays,autoreflect,eliminate=eliminate)
         
         # Undo all of our previous transformations
         rays.rotatevector('pos',-thetax,1)
@@ -216,7 +216,8 @@ class WolterOptic:
         rays.translate(self.x.value,self.y.value,self.z.value)
         
         # Remove missed photons
-        rays.remove(np.isnan(rays.x))
+        if eliminate == 'remove':
+            rays.remove(np.isnan(rays.x))
 
 
 class WolterPrimary(WolterOptic):
@@ -248,7 +249,7 @@ class WolterPrimary(WolterOptic):
 
     ## Tracing Rays to the Optic:
     
-    def tracefunction(self,rays,autoreflect=True):
+    def tracefunction(self,rays,autoreflect=True,eliminate='remove'):
         '''
         Function tracefunction:
         Determines what happens to the rays once they has been transformed, 
@@ -260,12 +261,15 @@ class WolterPrimary(WolterOptic):
         if self.axial_length is not None and self.mirror_sep is not None:
             tarray = np.logical_or((rays.z < (self.z0 + self.mirror_sep/2).value),
                     rays.z > (self.z0 + self.mirror_sep/2 + self.axial_length).value)
-            rays.remove(tarray)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
         
         if autoreflect:
             rays.reflect()
     
-    def trace(self,rays,autoreflect=True,remove=True,considerweights=False):
+    def trace(self,rays,autoreflect=True,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to the wolter optic
@@ -281,7 +285,7 @@ class WolterPrimary(WolterOptic):
             optic
         '''
         l = rays.length(considerweights)
-        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights,eliminate)
         return ("Missed Primary Optic",l,rays.length(considerweights))
 
 
@@ -314,7 +318,7 @@ class WolterSecondary(WolterOptic):
 
     ## Tracing Rays to the Optic:
     
-    def tracefunction(self,rays,autoreflect=True):
+    def tracefunction(self,rays,autoreflect=True,eliminate='remove'):
         '''
         Function tracefunction:
         Determines what happens to the rays once they has been transformed, 
@@ -326,12 +330,15 @@ class WolterSecondary(WolterOptic):
         if self.axial_length is not None and self.mirror_sep is not None:
             tarray = np.logical_or((rays.z > (self.z0 - self.mirror_sep/2).value),
                     rays.z < (self.z0 - self.mirror_sep/2 - self.axial_length).value)
-            rays.remove(tarray)
+            if eliminate == 'remove':
+                rays.remove(tarray)
+            else:
+                rays.x[tarray] = np.nan
         
         if autoreflect:
             rays.reflect()
     
-    def trace(self,rays,autoreflect=True,considerweights=False):
+    def trace(self,rays,autoreflect=True,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to the wolter optic
@@ -347,7 +354,7 @@ class WolterSecondary(WolterOptic):
             optic
         '''
         l = rays.length(considerweights)
-        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights,eliminate)
         return ("Missed Secondary Optic",l,rays.length(considerweights))
 
 
@@ -454,7 +461,7 @@ class WolterTypeOne(WolterOptic):
         if autoreflect:
             rays.reflect()
     
-    def trace(self,rays,autoreflect=True,considerweights=False):
+    def trace(self,rays,autoreflect=True,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to the wolter optic
@@ -470,7 +477,7 @@ class WolterTypeOne(WolterOptic):
             optic
         '''
         l = rays.length(considerweights)
-        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights,eliminate)
         return ("Missed Wolter Optic",l,rays.length(considerweights))
 
 
@@ -541,7 +548,7 @@ class WolterModule(WolterOptic, Combination):
                 psi,axial_length,mirror_sep, beckmann_scatter, h, rho, ripple))
     
     ## Tracing Rays to the Optic:
-    def tracefunction(self,rays,autoreflect=True):
+    def tracefunction(self,rays,autoreflect=True,eliminate='remove'):
         '''
         Function defaultTrace:
         Traces the Rays through the Mirror Module in the order that the Mirrors
@@ -594,7 +601,7 @@ class WolterModule(WolterOptic, Combination):
         rays.makecopy(finalrays)
     
     
-    def trace(self,rays,autoreflect=True,considerweights=False):
+    def trace(self,rays,autoreflect=True,considerweights=False,eliminate='remove'):
         '''
         Function trace:
         Traces rays to the wolter module
@@ -610,5 +617,5 @@ class WolterModule(WolterOptic, Combination):
             optic
         '''
         l = rays.length(considerweights)
-        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights)
+        self.tracehelper(rays,self.tracefunction,autoreflect,considerweights,eliminate)
         return ("Missed Wolter Module",l,rays.length(considerweights))
