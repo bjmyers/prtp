@@ -265,3 +265,92 @@ class Combination:
         '''
         for g in self.componentlist:
             g.translate(dx,dy,dz)
+    
+    
+    ## Trace Function:
+    
+    def trace(self,rays,considerweights=False,eliminate='remove'):
+        '''
+        Function trace:
+        Traces rays to each component in the Combination, keeps the photons 
+        which hit either component
+        
+        Inputs:
+        rays - The Rays object you want to trace
+        considerweights - If True, the weighting of rays will be used when
+            trying to remove rays based on a probability, with reflectivity,
+            for example.
+        eliminate - If 'remove', photons that miss will be removed from the 
+            Rays object. If it is anything else, the photons which miss will
+            be given NaN for their x-position
+        
+        Outputs:
+        Efficiency information about the combination
+        '''
+        # Store the length of the incoming rays
+        l = rays.length(considerweights)
+        
+        # Initialize a list in which efficiencies will be stored
+        effs = []
+        
+        # Make a blank Rays object to store the Rays that make it
+        finalrays = Rays()
+        
+        # Keep track of the input rays for when we're finished with one Mirror
+        inputrays = rays.copy()
+        temprays = rays.copy()
+        
+        # Iterate through each Mirror Object
+        for r in self.componentlist:
+            # Through each pass we need to ensure that the rays that make it are 
+            # placed into a final rays object
+            # All those that miss are passed to the next Mirror
+            eff = r.trace(temprays,considerweights=considerweights,eliminate='nan')
+            
+            # Some components return a list of efficiencies, check if this is the case
+            if type(eff) == list:
+                effs.extend(eff)
+            else:
+                effs.append(eff)
+            
+            # Find the Rays which missed the 
+            tarray = np.logical_not(np.isnan(temprays.x))
+            hitrays = temprays.split(tarray)
+            
+            # Take the rays that hit this grating out of the original Rays object
+            inputrays.remove(tarray)
+            
+            # Back remaining rays up to their original position
+            temprays = inputrays.copy()
+
+            # Make sure at least some rays have hit the mirror
+            if (len(hitrays) == 0):
+                continue
+            
+            # Add the hitrays to our final tally
+            finalrays += hitrays
+            
+            # If there are no rays left, we can stop
+            if len(temprays) == 0:
+                break
+        
+        # Make it so that the original rays now contain the output
+        rays.makecopy(finalrays)
+        
+        # Sort efficiency outputs into rays lost by missing the components and
+        # rays lost through other effects
+
+        # hit_but_lost stores the number of rays which hit a component but were
+        # lost through other effects
+        hit_but_lost = 0
+        for e in effs:
+            # All missed efficiencies start with "Missed"
+            if e[0][:6] != 'Missed':
+                hit_but_lost += e[2] - e[1]
+        
+        eff1 = ('Missed Combination',l,rays.length(considerweights)+hit_but_lost)
+        
+        eff2 = ('Lost By Combination - Other',
+        rays.length(considerweights)+hit_but_lost,rays.length(considerweights))
+        
+        return [eff1,eff2]
