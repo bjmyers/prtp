@@ -217,7 +217,7 @@ class Rays:
         
         Inputs:
         rays - The rays object from which you want to pull photons
-        tarray - A trutharray that disctates which photons are to be pulled.
+        tarray - A trutharray that dictates which photons are to be pulled.
             For example, if trutharray[0] is True, the first photon in self
             will be changed into a copy of the first photon in rays. If
             trutharray[1] is False, the second photon in self will be kept
@@ -1723,6 +1723,31 @@ class Rays:
         if newweights is not None:
             newrays.weighting = True
             newrays.weights = newweights
+        
+        # If both objects have wavelengths
+        if (self.wave is not None and other.wave is not None):
+            newrays.wave = np.concatenate((self.wave,other.wave))
+        #TODO: Currently this supposes that the only way wave could be None is for an empty Rays object, improve in the future
+        # If only one has wavelengths
+        elif (self.wave is not None and other.wave is None):
+            newrays.wave = self.wave
+        elif (self.wave is None and other.wave is not None):
+            newrays.wave = other.wave
+        # If both have wavelengths, do nothing
+        
+        # If both objects have order
+        if (self.order is not None and other.order is not None):
+            newrays.order = np.concatenate((self.order,other.order))
+        #TODO: Currently this supposes that the only way order could be None is for an empty Rays object, improve in the future
+        # If only one has order
+        elif (self.order is not None and other.order is None):
+            newrays.order = self.order
+        elif (self.order is None and other.order is not None):
+            newrays.order = other.order
+        # If both have order, do nothing
+        
+        
+        
         
         return newrays
     
