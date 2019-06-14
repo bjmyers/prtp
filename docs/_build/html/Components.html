@@ -1,0 +1,139 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Components &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Overview" href="Overview.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="components">
+<h1>Components<a class="headerlink" href="#components" title="Permalink to this headline">¶</a></h1>
+<p>Components are the essential building blocks of any simulation using PRTP.</p>
+<div class="section" id="initializing-a-component">
+<h2>Initializing a Component<a class="headerlink" href="#initializing-a-component" title="Permalink to this headline">¶</a></h2>
+<p>Each Component in PRTP is governed by a class, where each class is located in a file. To import the necessary class, you need both the class name and the file name. For example, the Grating class is located within the Grating file. To import the class, you would use the syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+</pre></div>
+</div>
+<p>Most standalone Components have identical class names and file names. However, Components which are part of a larger group are often grouped with these other Components in a single file. For example, the WolterOptic file stores every type of Wolter mirror. So if you wished to define just a Wolter Primary mirror, you could import the class using the syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.WolterOptic</span> <span class="kn">import</span> <span class="n">WolterPrimary</span>
+</pre></div>
+</div>
+<p>Once you’ve imported the necessary class, you just need to initialize an instance of the class. For a Grating, that could look like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">Grating</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above block, **kwargs represents all of the necessary arguments. To see what arguments are necessary for a given Component type, see the page for that component.</p>
+</div>
+<div class="section" id="use-an-existing-mission-component">
+<h2>Use an Existing Mission Component<a class="headerlink" href="#use-an-existing-mission-component" title="Permalink to this headline">¶</a></h2>
+<p>Included with PRTP are the components used in different missions that have already been created with all the proper parameters. All of these components are located within the prtp.Missions folder. To see all available missions and the Components each one includes, see the Mission page.</p>
+<p>Each Mission Component is stored in a class within its mission’s file. So to initialize a Mission Component, you must first initialize its class. Then, it is enough to call the class name with parenthesis to initialize the Component. For example, OGRE’s Mirror Module can be accessed using the following lines of code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Missions.OGRE</span> <span class="kn">import</span> <span class="n">OgreMirrorModule</span>
+<span class="n">mirrormod</span> <span class="o">=</span> <span class="n">OgreMirrorModule</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Some Mission Components can accept additional arguments. For example, all Mission Sources can have the number of photons specified during initialization. To see the optional arguments for each Mission Component, see the Mission page.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initializing-a-component">Initializing a Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#use-an-existing-mission-component">Use an Existing Mission Component</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Overview.html" title="previous chapter">Overview</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/Components.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
