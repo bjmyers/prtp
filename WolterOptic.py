@@ -563,10 +563,10 @@ class WolterModule(WolterOptic, Combination):
         Nothing
         '''
         # Make a blank Rays object to store the Rays that make it
-        finalrays = Rays()
+        finalrays = rays.copy()
+        finalrays.x[:] = np.nan
         
         # Keep track of the input rays for when we're finished with one Mirror
-        inputrays = rays.copy()
         temprays = rays.copy()
         
         # Iterate through each Mirror Object
@@ -576,26 +576,21 @@ class WolterModule(WolterOptic, Combination):
             # All those that miss are passed to the next Mirror
             r.tracefunction(temprays,autoreflect,eliminate='nan')
             
-            # Find the Rays which missed the 
+            # Find the Rays which hit the optic
             tarray = np.logical_not(np.isnan(temprays.x))
-            hitrays = temprays.split(tarray)
-            
-            # Take the rays that hit this grating out of the original Rays object
-            inputrays.remove(tarray)
-            
-            # Back remaining rays up to their original position
-            temprays = inputrays.copy()
-
-            # Make sure at least some rays have hit the mirror
-            if (len(hitrays) == 0):
-                continue
             
             # Add the hitrays to our final tally
-            finalrays += hitrays
+            finalrays.pullrays(temprays,tarray)
             
             # If there are no rays left, we can stop
-            if len(temprays) == 0:
+            if np.sum(np.isnan(finalrays.x)) == 0:
                 break
+            
+            # Back remaining rays up to their original position
+            temprays = rays.copy()
+        
+        if eliminate == 'remove':
+            finalrays.remove(np.isnan(finalrays.x))
         
         # Make it so that the original rays now contain the output
         rays.makecopy(finalrays)
