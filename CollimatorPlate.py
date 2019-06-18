@@ -9,7 +9,7 @@ class CollimatorPlate(FlatComponent):
     
     ## Initialization Functions:
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,l=u.mm,w=u.mm)
-    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0, l=None,w=None,collfunc=None):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0, l=None,w=None,collisionfunction=None):
         '''
         Initializes a CollimatorPlate Object, requires the following arguments:
         
@@ -89,7 +89,7 @@ class CollimatorPlate(FlatComponent):
         
         Example:
         >> c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0)
-        >> c.collfunc = CollimatorPlate.wires
+        >> c.collisionfunction = CollimatorPlate.wires
         >> c.thickness = .1
         >> c.sep = 1
         >> c.trace()
