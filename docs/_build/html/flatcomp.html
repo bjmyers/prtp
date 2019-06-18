@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Flat Components &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Collimator Plate" href="collimatorplate.html" />
+    <link rel="prev" title="Creating Components" href="Components.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="flat-components">
+<span id="flat-comp-top"></span><h1>Flat Components<a class="headerlink" href="#flat-components" title="Permalink to this headline">¶</a></h1>
+<p>The term Flat Component is a blanket term for any Component that can be defined in a single plane. Currently, the following components are FlatComponents:</p>
+<ul class="simple">
+<li><p>Collimator Plates</p></li>
+<li><p>Detectors</p></li>
+<li><p>Gratings</p></li>
+</ul>
+<p>All Flat Component descend from this class. Though they can be initialized, they lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.</p>
+<div class="section" id="creating-a-flat-component">
+<h2>Creating a Flat Component<a class="headerlink" href="#creating-a-flat-component" title="Permalink to this headline">¶</a></h2>
+<p id="flat-component-definition">A Flat Component requires the following arguments</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>x,y,z - The position in Cartesian Coordinates of the center of the Component.</dt><dd><ul>
+<li><p>These parameters must be in units of length. See the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>nx,ny,nz - These three quantities describe the normal vector, extending outward from the Component’s surface. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively.</p></li>
+<li><p>sx,sy,sz - These three quantities describe a surface vector. For some components (like Gratings), the surface vector represents a very specific direction. But for most Flat Components, the surface vector just helps the user orient the component. sx, sy, and sz describe the distance that the vector extends in the x, y, and z directions, respectively.</p></li>
+<li><p>collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects.</p></li>
+</ul>
+<p>For example, a Flat Component could be initialized using the following syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Tracing rays to the Components reveals information about its surface:</p>
+<div class="figure align-center" id="id1">
+<img alt="_images/basic_flatcomp_init.png" src="_images/basic_flatcomp_init.png" />
+<p class="caption"><span class="caption-text">Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+<p id="flat-component-motion"><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="translate">
+<h2>Translate<a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h2>
+<p>translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm)</p>
+<p>This function moves the center of the component in space, it takes arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>dx,dy,dz - The amount by which you want to move the Component’s center in the x, y, and z directions, respectively.</dt><dd><ul>
+<li><p>These parameters must be in units of length. See the section on Astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example: Take the Flat Component we defined before and move it 2 mm in x and -3 mm in y.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dy</span><span class="o">=-</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Building an instrument and tracing photons to this Component shows that the center has indeed been moved to (x,y,z) = (2,-3,3)</p>
+<div class="figure align-center">
+<img alt="_images/basic_flatcomp_translate.png" src="_images/basic_flatcomp_translate.png" />
+</div>
+<p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="unit-rotate">
+<h2>Unit Rotate<a class="headerlink" href="#unit-rotate" title="Permalink to this headline">¶</a></h2>
+<p>unitrotate(self,theta=0*u.rad,axis=1)</p>
+<p>This function rotates the Flat Component about one of the unit axes. It takes arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The amount that you want to rotate about the specified axis.</dt><dd><ul>
+<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>axis - An integer that should take the values 1,2, or 3.</dt><dd><ul>
+<li><p>If axis = 1: The Component will be rotate about the x-axis</p></li>
+<li><p>If axis = 2: The Component will be rotate about the y-axis</p></li>
+<li><p>If axis = 3: The Component will be rotate about the z-axis</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note: All rotations are performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.</p>
+<p>Example: Let’s take the Flat Component we defined at first and rotate it 20 degrees about the y-axis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can then see (using traced rays) how the Component has been rotated:</p>
+<div class="figure align-center" id="id2">
+<img alt="_images/basic_flatcomp_unitrotate.png" src="_images/basic_flatcomp_unitrotate.png" />
+<p class="caption"><span class="caption-text">The blue arrow in this image represents the axis of rotation (here the positive y axis)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+<p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="rotate">
+<h2>Rotate<a class="headerlink" href="#rotate" title="Permalink to this headline">¶</a></h2>
+<p>rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0)</p>
+<p>This function rotates the Flat Component about an arbitrary, user-defined axis. It takes arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The amount that you want to rotate about the user-defined axis.</dt><dd><ul>
+<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ux,uy,uz - These three parameters define the axis about which you want to rotate. ux, uy, and uz describe the distance that the vector extends in the x, y, and z directions, respectively.</p></li>
+</ul>
+<p>Note: The rotation is performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.</p>
+<p>Note: The magnitude of the vector does not matter, only its direction.</p>
+<p>Example: Let’s take the Flat Component we defined at first and rotate it 40 degrees about the vector &lt;1,1,0&gt;</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">40</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This produces a Flat Component that looks something like this:</p>
+<div class="figure align-center" id="id3">
+<img alt="_images/basic_flatcomp_rotate.png" src="_images/basic_flatcomp_rotate.png" />
+<p class="caption"><span class="caption-text">The blue arror represents the axis of rotation, here it is the vector &lt;1,1,0&gt;</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+<p>Flat Component objects have several more functions, but these are primarily called by other objects when tracing rays.</p>
+<p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="coordinates">
+<h2>Coordinates<a class="headerlink" href="#coordinates" title="Permalink to this headline">¶</a></h2>
+<p>Flat Components can be arbitrarily positioned in space and can be arbitrarily oriented in space. For this reason, we need a coordinate system that easily describes photons when they’re on the surface. Since Flat Components occupy a plane, we need only to define i and j unit vectors to create a Cartesian Plane.</p>
+<p>On the surface of the Flat Component, we define the cross product of the surface vector and the normal vector as the i unit vector. We also define the surface vector as the j unit vector.</p>
+<p>Therefore, when photons have been traced to the surface of the Flat Component, their positions can be described with just an x and a y coordinate.</p>
+<p>The image below shows how the vectors can define a Cartesian Plane:</p>
+<div class="figure align-center">
+<img alt="_images/basic_flatcomp_coords.png" src="_images/basic_flatcomp_coords.png" />
+</div>
+<div class="section" id="getting-coordinates">
+<h3>Getting Coordinates<a class="headerlink" href="#getting-coordinates" title="Permalink to this headline">¶</a></h3>
+<p>If you have some rays and a flat component initialized. You must first trace the rays to the surface of the component, then you can calcluate the positions of each photon:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># rays and flat have been defined elsewhere</span>
+
+<span class="c1"># trace rays to surface</span>
+<span class="n">flat</span><span class="o">.</span><span class="n">trace_to_surf</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="c1"># get the x and y positions of each photon</span>
+<span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">flat</span><span class="o">.</span><span class="n">getPosns</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These coordinates are very important for all of the subclasses of FlatComponent</p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Flat Components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-flat-component">Creating a Flat Component</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#translate">Translate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#unit-rotate">Unit Rotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rotate">Rotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coordinates">Coordinates</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#getting-coordinates">Getting Coordinates</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plate</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="Components.html" title="previous chapter">Creating Components</a></li>
+      <li>Next: <a href="collimatorplate.html" title="next chapter">Collimator Plate</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/flatcomp.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

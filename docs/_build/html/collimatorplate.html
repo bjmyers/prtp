@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Collimator Plate &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Flat Components" href="flatcomp.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="collimator-plate">
+<h1>Collimator Plate<a class="headerlink" href="#collimator-plate" title="Permalink to this headline">¶</a></h1>
+<p>Collimator Plates are Flat Components, but they are specialized to handle complicated ways of eliminating photons which hit them. They can be used as pieces of a large Collimator, or individually to function as an Aperture.</p>
+<div class="section" id="creating-a-collimator-plate">
+<h2>Creating a Collimator Plate<a class="headerlink" href="#creating-a-collimator-plate" title="Permalink to this headline">¶</a></h2>
+<p>A Collimator Plate requires the following arguments:</p>
+<ul class="simple">
+<li><p>x,y,z - The spatial coordinates of the center of the plate. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><p>nx,ny,nz - The components of the normal vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><p>sx,sy,sz - The components of the surface vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><dl class="simple">
+<dt>l - The length of the Collimator Plate. This is the extent of the Component in the direction of the surface vector</dt><dd><ul>
+<li><p>If l is None, the length and width of the Collimator Plate will not be considered. That is, the Component will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>w - The width of the Collimator Plate. This is the extent of the Component in the direction of the cross product of the surface and normal vectors (sxn).</dt><dd><ul>
+<li><p>If w is not None, it must be in units of length. See the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>collfunc - A function that defines how photons will be removed from the surface. More on this in a later section.</p></li>
+</ul>
+</div>
+<div class="section" id="moving-a-collimator-plate">
+<h2>Moving a Collimator Plate<a class="headerlink" href="#moving-a-collimator-plate" title="Permalink to this headline">¶</a></h2>
+<p>Collimator Plate objects inherit translate, rotate, and unitrotate from Flat Component, see the function usage <a class="reference internal" href="flatcomp.html#flat-component-motion"><span class="std std-ref">here</span></a></p>
+</div>
+<div class="section" id="collision-functions">
+<h2>Collision Functions<a class="headerlink" href="#collision-functions" title="Permalink to this headline">¶</a></h2>
+<p>Collimator Plates have two ways to remove rays once they’ve been traced.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Collimator Plate</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-collimator-plate">Creating a Collimator Plate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-a-collimator-plate">Moving a Collimator Plate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#collision-functions">Collision Functions</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="flatcomp.html" title="previous chapter">Flat Components</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/collimatorplate.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

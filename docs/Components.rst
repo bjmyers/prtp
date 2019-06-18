@@ -1,5 +1,5 @@
 
-Components
+Creating Components
 ================================
 
 Components are the essential building blocks of any simulation using PRTP.
@@ -44,6 +44,36 @@ Each Mission Component is stored in a class within its mission's file. So to ini
    mirrormod = OgreMirrorModule()
 
 Some Mission Components can accept additional arguments. For example, all Mission Sources can have the number of photons specified during initialization. To see the optional arguments for each Mission Component, see the Mission page.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
