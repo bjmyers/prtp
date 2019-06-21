@@ -40,7 +40,7 @@
 <li><p>Detectors</p></li>
 <li><p>Gratings</p></li>
 </ul>
-<p>All Flat Component descend from this class. Though they can be initialized, they lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.</p>
+<p>All Flat Component descend from this class. Though the FlatComponent superclass can be initialized, these objects lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.</p>
 <div class="section" id="creating-a-flat-component">
 <h2>Creating a Flat Component<a class="headerlink" href="#creating-a-flat-component" title="Permalink to this headline">¶</a></h2>
 <p id="flat-component-definition">A Flat Component requires the following arguments</p>
@@ -54,8 +54,9 @@
 </li>
 <li><p>nx,ny,nz - These three quantities describe the normal vector, extending outward from the Component’s surface. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively.</p></li>
 <li><p>sx,sy,sz - These three quantities describe a surface vector. For some components (like Gratings), the surface vector represents a very specific direction. But for most Flat Components, the surface vector just helps the user orient the component. sx, sy, and sz describe the distance that the vector extends in the x, y, and z directions, respectively.</p></li>
-<li><p>collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects.</p></li>
+<li><p>collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects. See the section on <a class="reference internal" href="collimatorplate.html#coll-funcs"><span class="std std-ref">Collision Functions</span></a></p></li>
 </ul>
+<p>For an illustration of the vectors which define a Flat Component, see the graphic <a class="reference internal" href="#flat-comp-vectors"><span class="std std-ref">here</span></a></p>
 <p>For example, a Flat Component could be initialized using the following syntax:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
@@ -109,9 +110,9 @@
 </li>
 <li><dl class="simple">
 <dt>axis - An integer that should take the values 1,2, or 3.</dt><dd><ul>
-<li><p>If axis = 1: The Component will be rotate about the x-axis</p></li>
-<li><p>If axis = 2: The Component will be rotate about the y-axis</p></li>
-<li><p>If axis = 3: The Component will be rotate about the z-axis</p></li>
+<li><p>If axis = 1: The Component will be rotated about the x-axis</p></li>
+<li><p>If axis = 2: The Component will be rotated about the y-axis</p></li>
+<li><p>If axis = 3: The Component will be rotated about the z-axis</p></li>
 </ul>
 </dd>
 </dl>
@@ -173,7 +174,7 @@
 <img alt="_images/basic_flatcomp_coords.png" src="_images/basic_flatcomp_coords.png" />
 </div>
 <div class="section" id="getting-coordinates">
-<h3>Getting Coordinates<a class="headerlink" href="#getting-coordinates" title="Permalink to this headline">¶</a></h3>
+<span id="flat-comp-vectors"></span><h3>Getting Coordinates<a class="headerlink" href="#getting-coordinates" title="Permalink to this headline">¶</a></h3>
 <p>If you have some rays and a flat component initialized. You must first trace the rays to the surface of the component, then you can calcluate the positions of each photon:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># rays and flat have been defined elsewhere</span>
 
@@ -185,6 +186,7 @@
 </pre></div>
 </div>
 <p>These coordinates are very important for all of the subclasses of FlatComponent</p>
+<p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 </div>
 </div>
@@ -222,6 +224,8 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plate</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detector</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Grating</a></li>
 </ul>
 
 <div class="relations">

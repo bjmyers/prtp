@@ -10,7 +10,7 @@ The term Flat Component is a blanket term for any Component that can be defined 
 * Detectors
 * Gratings
 
-All Flat Component descend from this class. Though they can be initialized, they lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.
+All Flat Component descend from this class. Though the FlatComponent superclass can be initialized, these objects lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.
 
 Creating a Flat Component
 ---------------------------
@@ -23,7 +23,9 @@ A Flat Component requires the following arguments
    * These parameters must be in units of length. See the section on Astropy Units.
 * nx,ny,nz - These three quantities describe the normal vector, extending outward from the Component's surface. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively.
 * sx,sy,sz - These three quantities describe a surface vector. For some components (like Gratings), the surface vector represents a very specific direction. But for most Flat Components, the surface vector just helps the user orient the component. sx, sy, and sz describe the distance that the vector extends in the x, y, and z directions, respectively.
-* collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects.
+* collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects. See the section on :ref:`Collision Functions<coll-funcs>`
+
+For an illustration of the vectors which define a Flat Component, see the graphic :ref:`here<flat-comp-vectors>`
 
 For example, a Flat Component could be initialized using the following syntax:
 
@@ -78,9 +80,9 @@ This function rotates the Flat Component about one of the unit axes. It takes ar
 * theta - The amount that you want to rotate about the specified axis.
     * This parameter must be in units of angle. See the section on Astropy units
 * axis - An integer that should take the values 1,2, or 3. 
-   * If axis = 1: The Component will be rotate about the x-axis
-   * If axis = 2: The Component will be rotate about the y-axis
-   * If axis = 3: The Component will be rotate about the z-axis
+   * If axis = 1: The Component will be rotated about the x-axis
+   * If axis = 2: The Component will be rotated about the y-axis
+   * If axis = 3: The Component will be rotated about the z-axis
 
 Note: All rotations are performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.
 
@@ -149,6 +151,8 @@ The image below shows how the vectors can define a Cartesian Plane:
 
 .. figure:: images/basic_flatcomp_coords.png
 
+.. _flat-comp-vectors:
+
 Getting Coordinates
 ********************
 
@@ -166,7 +170,7 @@ If you have some rays and a flat component initialized. You must first trace the
 
 These coordinates are very important for all of the subclasses of FlatComponent
 
-
+:ref:`Back to Top<flat-comp-top>`
 
 
 

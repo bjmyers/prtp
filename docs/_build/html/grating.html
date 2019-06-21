@@ -1,0 +1,294 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Gratings &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Detectors" href="detector.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="gratings">
+<span id="grating-top"></span><h1>Gratings<a class="headerlink" href="#gratings" title="Permalink to this headline">¶</a></h1>
+<p>Gratings are Flat Components, they are used to reflect and diffract photons that they interact with. There are two main classes of gratings, parallel and radial.</p>
+<div class="section" id="creating-a-grating">
+<h2>Creating a Grating<a class="headerlink" href="#creating-a-grating" title="Permalink to this headline">¶</a></h2>
+<p>A Grating requires the following arguments:</p>
+<ul class="simple">
+<li><p>x,y,z - The spatial coordinates of the center of the grating. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><p>nx,ny,nz - The components of the normal vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><dl class="simple">
+<dt>sx,sy,sz - The components of the surface vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></dt><dd><ul>
+<li><p>In gratings, the surface vector has a very specific definition. It is defined as the average groove direction. For parallel gratings, it is the same direction as every groove. For radial gratings, it is the same direction as the central groove.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>l - The length of the Grating. This is the extent of the Grating in the direction of the surface vector</dt><dd><ul>
+<li><p>If l is None, the length and width of the Grating will not be considered. That is, the grating will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>w - The width of the Grating. This is the extent of the Grating in the direction of the cross product of the surface and normal vectors (sxn).</dt><dd><ul>
+<li><p>If w is not None, it must be in units of length. See the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>collfunc - A function that defines how photons will be removed from the surface. It is used in the same manner as a Collimator Plate’s collision function, but is not typically used for Gratings. See the section on <a class="reference internal" href="collimatorplate.html#coll-funcs"><span class="std std-ref">Collision Functions</span></a></p></li>
+<li><p>pfunc - A function that determines the groove period that each photon experiences. If None, the Grating will be initialized as an ideal parallel or radial grating. See the section on period functions for more information.</p></li>
+<li><p>radial - A boolean. If True, the Grating will be radial. If False, the Grating will be parallel.</p></li>
+<li><dl class="simple">
+<dt>d - The groove period at the center point of the Grating, defaults to 160 nm, the groove period for OGRE gratings.</dt><dd><ul>
+<li><p>d must be in units of length, see the section on Astropy Units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>fdist - The distance to the Grating’s focus. This parameter defaults to None and it only relevant for radial Gratings.</dt><dd><ul>
+<li><p>If fdist is not None, it must be in units of length, see the section on Astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Also, if you have one Grating, you can use the copy() function to create another identical one:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define grat elsewhere</span>
+<span class="n">copiedgrating</span> <span class="o">=</span> <span class="n">grat</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="moving-a-grating">
+<h2>Moving a Grating<a class="headerlink" href="#moving-a-grating" title="Permalink to this headline">¶</a></h2>
+<p>Grating objects inherit translate, rotate, and unitrotate from Flat Component, see the function usage <a class="reference internal" href="flatcomp.html#flat-component-motion"><span class="std std-ref">here</span></a></p>
+<p><a class="reference internal" href="#grating-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="trace">
+<h2>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h2>
+<p>Trace is a function of all descendents of Flat Component. When called, rays will be traced to the surface and photons will be eliminated according to the dimensions and collision function of the Grating. If this Grating is in an Instrument object which is then simulated, trace() will be called automatically.</p>
+<p>Trace takes the following inputs:</p>
+<ul class="simple">
+<li><p>rays - The Rays object which you want to trace to the grating.</p></li>
+<li><p>considerweights - This is a boolean which should be true if your photons are weighted. It does not have any effect on Gratings currently, but in the future it will be useful for simulating the reflectivity of Gratings.</p></li>
+<li><p>eliminate - This is an argument of every trace function. It is a string which defaults to “remove”. If it is the default value, photons which are eliminated will be removed from the Rays object. If it is anything else, the x-position of the missed photons will be set to NaN. This argument is mostly used by Combination objects.</p></li>
+</ul>
+<p>The Trace function will modify the Rays object in place. It will return a tuple that gives information about how many photons made it to the detector. This tuple is used by Instrument objects to analyze the efficiency of the entire Instrument.</p>
+</div>
+<div class="section" id="period-functions">
+<h2>Period Functions<a class="headerlink" href="#period-functions" title="Permalink to this headline">¶</a></h2>
+<p>Period functions (or pfuncs) are functions which take in a Rays object and the groove period experienced by each photon in the Rays object.</p>
+<p>Important to note, all period functions should return periods in units of nanometers, but as a float data type. Period functions cannot return Astropy Quantities.</p>
+<p>Furthermore, all period functions should have two inputs:</p>
+<ul class="simple">
+<li><p>self - Refers to the Grating itself</p></li>
+<li><p>rays - The Rays for which you will be producing groove periods</p></li>
+</ul>
+<div class="section" id="period-function-for-parallel-gratings">
+<h3>Period Function for Parallel Gratings<a class="headerlink" href="#period-function-for-parallel-gratings" title="Permalink to this headline">¶</a></h3>
+<p>We will start with the simpler case. In an ideal parallel grating, each photon experiences the exact same groove period. As an example, we will create a period function that adds Gaussian Noise to this groove period. But to make the example more challenging, we will specify that the standard deviation of the noise distribution depends on the distance of the photon from the center of the grating. Our grating will have an ideal period of 160 nm, but a photon 2 mm from the center will experience a groove period that follows a normal distribution with mean 160 nm and standard deviation 2 nm.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+
+<span class="c1"># Begin the function definition</span>
+<span class="c1"># Note it inputs self and rays.</span>
+<span class="k">def</span> <span class="nf">noise</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rays</span><span class="p">):</span>
+
+   <span class="c1"># Gets the ideal period, gets its value since</span>
+   <span class="c1"># it is currently an Astropy Quantity</span>
+   <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">value</span>
+
+   <span class="c1"># Gets the positions of the photons on the Grating</span>
+   <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPosns</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+   <span class="c1"># find the distance of each photon from the center</span>
+   <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+   <span class="c1"># produce the groove periods using a mean of 0,</span>
+   <span class="c1"># a standard deviation of y, and a length the same as</span>
+   <span class="c1"># that of the rays object.</span>
+   <span class="n">ds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">y</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span>
+
+   <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>Then, if you have define some Grating grat, this function can be added as a period function using the syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grat</span><span class="o">.</span><span class="n">pfunc</span> <span class="o">=</span> <span class="n">noise</span>
+</pre></div>
+</div>
+<p>Now you can simulate the Grating using your custom period function.</p>
+<p><a class="reference internal" href="#grating-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="period-function-for-radial-gratings">
+<h3>Period Function for Radial Gratings<a class="headerlink" href="#period-function-for-radial-gratings" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="finding-the-central-period-of-the-grating">
+<h4>Finding the central period of the Grating<a class="headerlink" href="#finding-the-central-period-of-the-grating" title="Permalink to this headline">¶</a></h4>
+<p>If a Grating has been defined with radial=True and d=160nm, it will not be true that every photon experiences a groove period of 160 nm. Radial Gratings work by first finding the quantity “d-per-mm”. Which is defined as:</p>
+<div class="math notranslate nohighlight">
+\[dpermm = \frac{Grat.d}{Grat.fdist}\]</div>
+<p>This quantity says that if a photon is at a distance l away from the grating focus, it will experience a groove period of:</p>
+<div class="math notranslate nohighlight">
+\[d = l*dpermm\]</div>
+<p>So in order to find the period experienced by a certain photon, we must first find the distance from the focal point to that photon given the its x and y positions on the Grating. It is clear that the distance in x from the focus is still x, but the distance in y is Grat.fdist-y, see the diagram below:</p>
+<div class="figure align-center">
+<img alt="_images/dist_to_focus_diagram.png" src="_images/dist_to_focus_diagram.png" />
+</div>
+<p>Note that the surface vector points towards the focus, so a photon with a positive y-position is closer to the focal point. Using the diagram above, it is easy to see that the distance from a photon to the focal point is:</p>
+<div class="math notranslate nohighlight">
+\[l = \sqrt{x^2 + (grat.fdist-y)^2}\]</div>
+<p>Therefore, if we know that a certain photon experiences a grating period d, we can work backwards to find what the central period (grat.d) must be by combining the above equations into:</p>
+<div class="math notranslate nohighlight">
+\[grat.d = \frac{d*grat.fdist}{\sqrt{x^2 + (grat.fdist-y)^2}}\]</div>
+<p>This is important because the radial grating function takes in the central period for each photon, NOT the period at each photon’s location. So a period function for a radial grating must return Grat.d as defined by the above equation. See the next section for an example of this.</p>
+</div>
+<div class="section" id="defining-the-period-function">
+<h4>Defining the Period Function<a class="headerlink" href="#defining-the-period-function" title="Permalink to this headline">¶</a></h4>
+<p>As an example, we will create a period function that turns a radial grating into a parallel grating. That is, every photon that strikes the grating will experience the same groove period.</p>
+<p>Of course, this example would be trivial with a parallel grating, the period function would just return grat.d for every photon. But attempting this with a radial grating illustrates the difference between period functions for the two types of gratings.</p>
+<p>We define the period function as such:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+
+<span class="c1"># Begin the function definition</span>
+<span class="c1"># Note it inputs self and rays.</span>
+<span class="k">def</span> <span class="nf">parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">rays</span><span class="p">):</span>
+
+   <span class="c1"># Gets the ideal period, gets its value since</span>
+   <span class="c1"># it is currently an Astropy Quantity</span>
+   <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">value</span>
+
+   <span class="c1"># Gets the positions of the photons on the Grating</span>
+   <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPosns</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+   <span class="c1"># find the distance of each photon from the focus</span>
+   <span class="n">dist</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fdist</span><span class="o">.</span><span class="n">value</span> <span class="o">-</span> <span class="n">y</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+   <span class="c1"># use the equation we derived to find the central</span>
+   <span class="c1"># period for each photon</span>
+   <span class="n">ds</span> <span class="o">=</span> <span class="n">d</span> <span class="o">*</span> <span class="n">grat</span><span class="o">.</span><span class="n">fdist</span><span class="o">.</span><span class="n">value</span> <span class="o">/</span> <span class="n">dist</span>
+
+   <span class="k">return</span> <span class="n">ds</span>
+</pre></div>
+</div>
+<p>Then, if you have define some Grating grat, this function can be added as a period function using the syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">grat</span><span class="o">.</span><span class="n">pfunc</span> <span class="o">=</span> <span class="n">parallel</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Gratings</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-grating">Creating a Grating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-a-grating">Moving a Grating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#period-functions">Period Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#period-function-for-parallel-gratings">Period Function for Parallel Gratings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#period-function-for-radial-gratings">Period Function for Radial Gratings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="detector.html" title="previous chapter">Detectors</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/grating.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

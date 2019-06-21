@@ -16,6 +16,8 @@ The Python Raytrace Package (PRTP) is a package of Python functions that simulat
    Components
    flatcomp
    collimatorplate
+   detector
+   grating
 
 
 Indices and tables

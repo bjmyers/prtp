@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Collimator Plate &#8212; PRTP 0.0 documentation</title>
+    <title>Collimator Plates &#8212; PRTP 0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
@@ -12,8 +12,10 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Detectors" href="detector.html" />
     <link rel="prev" title="Flat Components" href="flatcomp.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -31,8 +33,8 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="collimator-plate">
-<h1>Collimator Plate<a class="headerlink" href="#collimator-plate" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="collimator-plates">
+<span id="coll-plate-top"></span><h1>Collimator Plates<a class="headerlink" href="#collimator-plates" title="Permalink to this headline">¶</a></h1>
 <p>Collimator Plates are Flat Components, but they are specialized to handle complicated ways of eliminating photons which hit them. They can be used as pieces of a large Collimator, or individually to function as an Aperture.</p>
 <div class="section" id="creating-a-collimator-plate">
 <h2>Creating a Collimator Plate<a class="headerlink" href="#creating-a-collimator-plate" title="Permalink to this headline">¶</a></h2>
@@ -55,16 +57,133 @@
 </dd>
 </dl>
 </li>
-<li><p>collfunc - A function that defines how photons will be removed from the surface. More on this in a later section.</p></li>
+<li><p>collisionfunction - A function that defines how photons will be removed from the surface. More on this in a later section.</p></li>
 </ul>
+<p>Also, if you have one Collimator Plate, you can use the copy() function to create another identical one:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># define coll elsewhere</span>
+<span class="n">copiedplate</span> <span class="o">=</span> <span class="n">coll</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note: parameters other than the ones given during initialization (such as those given for a collision function) will not be copied, i.e: if you define coll.sep for a collision function, copiedplate will not have a sep parameter defined.</p>
 </div>
 <div class="section" id="moving-a-collimator-plate">
 <h2>Moving a Collimator Plate<a class="headerlink" href="#moving-a-collimator-plate" title="Permalink to this headline">¶</a></h2>
 <p>Collimator Plate objects inherit translate, rotate, and unitrotate from Flat Component, see the function usage <a class="reference internal" href="flatcomp.html#flat-component-motion"><span class="std std-ref">here</span></a></p>
+<p><a class="reference internal" href="#coll-plate-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="trace">
+<h2>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h2>
+<p>Trace is a function of all descendents of Flat Component. When called, rays will be traced to the surface and photons will be eliminated according to the dimensions and collision function of the Collimator Plate. If this Collimator Plate is in an Instrument object which is then simulated, trace() will be called automatically.</p>
+<p>Trace takes the following inputs:</p>
+<ul class="simple">
+<li><p>rays - The Rays object which you want to trace to the Plate.</p></li>
+<li><p>considerweights - This is a boolean which should be true if your photons are weighted. It does not have any effect on Collimator Plates.</p></li>
+<li><p>eliminate - This is an argument of every trace function. It is a string which defaults to “remove”. If it is the default value, photons which are eliminated will be removed from the Rays object. If it is anything else, the x-position of the missed photons will be set to NaN. This argument is mostly used by Combination objects.</p></li>
+</ul>
+<p>The Trace function will modify the Rays object in place. It will return a tuple that gives information about how many photons made it to the detector. This tuple is used by Instrument objects to analyze the efficiency of the entire Instrument.</p>
 </div>
 <div class="section" id="collision-functions">
-<h2>Collision Functions<a class="headerlink" href="#collision-functions" title="Permalink to this headline">¶</a></h2>
-<p>Collimator Plates have two ways to remove rays once they’ve been traced.</p>
+<span id="coll-funcs"></span><h2>Collision Functions<a class="headerlink" href="#collision-functions" title="Permalink to this headline">¶</a></h2>
+<p>Collimator Plates have two ways to remove rays once they’ve been traced. First, if l and w have been defined, the Collimator Plate object will be treated as an l by w rectangle, and any photons which fall outside of this rectangle will be eliminated.</p>
+<p>For example, this image is of a Collimator Plate with length 5 and width 5.</p>
+<div class="figure align-center">
+<img alt="_images/basic_flatcomp_init.png" src="_images/basic_flatcomp_init.png" />
+</div>
+<p>The user can also define their own collision functions which take in rays and return an array of which photons should be removed.</p>
+<p><a class="reference internal" href="#coll-plate-top"><span class="std std-ref">Back to Top</span></a></p>
+<div class="section" id="using-existing-collision-functions">
+<h3>Using Existing Collision Functions:<a class="headerlink" href="#using-existing-collision-functions" title="Permalink to this headline">¶</a></h3>
+<p>Before we define our own collision functions, we should know how to use collision functions that come with PRTP. The most common of which is known as “wires.” This function behaves as many thin parallel wires which run in the direction of the surface vector and eliminate any photons which collide with them.</p>
+<p>When defining collision functions, we run into an issue. Since the collision functions are most commonly called by an Instrument object, there is no time where the user can input custom arguments while the simulation is running. Therefore, the Collimator Plate object must have all of the parameters it needs before the simulation is begun.</p>
+<p>The wires function has two parameters, it requires the thickness of the wires, and their separation. Since they cannot be given as arguments to the collision function, they must be defined as parameters beforehand.</p>
+<p>The following block of code shows how this is done. Note that the name of the parameters is very important, separation must be given as “c.sep” and thickness must be given as “c.thickness” or else the code will not run.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">collisionfunction</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="o">.</span><span class="n">wires</span>
+<span class="n">c</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+<span class="n">c</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+</pre></div>
+</div>
+<p>When rays are traced to this CollimatorPlate, they will look something like this:</p>
+<div class="figure align-center">
+<img alt="_images/collplate_basic_wires.png" src="_images/collplate_basic_wires.png" />
+</div>
+<p>Also note that there is a wire running down the center of the plate. This is true of all Collimator Plates using the wires collision function.</p>
+<p>If both a collision function and length/width are defined, then both will be applied to the Collimator Plate.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="n">l</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">8</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">collisionfunction</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="o">.</span><span class="n">wires</span>
+<span class="n">c</span><span class="o">.</span><span class="n">thickness</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+<span class="n">c</span><span class="o">.</span><span class="n">sep</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/collplate_rect_wires.png" src="_images/collplate_rect_wires.png" />
+</div>
+<p><a class="reference internal" href="#coll-plate-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="define-your-own-collision-functions">
+<h3>Define Your Own Collision Functions<a class="headerlink" href="#define-your-own-collision-functions" title="Permalink to this headline">¶</a></h3>
+<p>There are a few important notes to consider before defining your own collision function:</p>
+<ul>
+<li><p>Any collision function must take the same arguments, self and rays. self will refer to the Collimator Plate, and rays will be a Rays object.</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>But other arguments can be called from the Collimator Plate’s parameters, like thickness and separation for the wires function.</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>The output of a collision function must be an array of booleans containing True if the photon is to be removed and false if the photon is to be kept.</p></li>
+</ul>
+<p>As an example, let’s define a collision function that removes photons in the shape of the thick ring. But since we may want more Collimator Plates to use this collision function in the future, let’s make the inner and outer radii of the ring arbitrary.</p>
+<p>Step 1: The function</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+
+<span class="c1"># Begin the function definition,</span>
+<span class="c1"># note the arguments must be self and rays.</span>
+<span class="k">def</span> <span class="nf">circle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rays</span><span class="p">):</span>
+
+   <span class="c1"># We can use the self argument to</span>
+   <span class="c1"># recover the positions of the photons</span>
+   <span class="n">x</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getPosns</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+   <span class="c1"># Now get the distance from the center of each photon</span>
+   <span class="n">r</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">y</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+   <span class="c1"># Get the inner and outer radii, the user should define</span>
+   <span class="c1"># these with units. If they are not, an error will be raised.</span>
+   <span class="c1"># Here we will also convert the units to standard units (mm)</span>
+   <span class="n">rin</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rin</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+   <span class="n">rout</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rout</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+
+   <span class="c1"># This line will create an array of True where photons fall</span>
+   <span class="c1"># within the ring and False otherwise</span>
+   <span class="n">arr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">r</span> <span class="o">&gt;</span> <span class="n">rin</span><span class="p">,</span> <span class="n">r</span> <span class="o">&lt;</span> <span class="n">rout</span><span class="p">)</span>
+
+   <span class="k">return</span> <span class="n">arr</span>
+</pre></div>
+</div>
+<p>Step 2: Adding the function to a CollimatorPlate</p>
+<p>This code will be very similar to the code we used for the wires function. Also note that this should be in the same script in which you defined the circle function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+<span class="n">l</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">8</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">collisionfunction</span> <span class="o">=</span> <span class="n">circle</span>
+<span class="n">c</span><span class="o">.</span><span class="n">rin</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+<span class="n">c</span><span class="o">.</span><span class="n">rout</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
+</pre></div>
+</div>
+<p>After Tracing rays to the surface, we can see how photons were removed by the ring:</p>
+<div class="figure align-center">
+<img alt="_images/collplate_circle_collfunc.png" src="_images/collplate_circle_collfunc.png" />
+</div>
+<p>Since we defined rin and rout as arbitrary parameters. It is now easy to add this collision function to other Collimator Plates with different sized rings.</p>
+<p><a class="reference internal" href="#coll-plate-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
 </div>
 </div>
 
@@ -90,12 +209,19 @@
 <li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Collimator Plate</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Collimator Plates</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-collimator-plate">Creating a Collimator Plate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#moving-a-collimator-plate">Moving a Collimator Plate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#collision-functions">Collision Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#collision-functions">Collision Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#using-existing-collision-functions">Using Existing Collision Functions:</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#define-your-own-collision-functions">Define Your Own Collision Functions</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
 </ul>
 
 <div class="relations">
@@ -103,6 +229,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="flatcomp.html" title="previous chapter">Flat Components</a></li>
+      <li>Next: <a href="detector.html" title="next chapter">Detectors</a></li>
   </ul></li>
 </ul>
 </div>
