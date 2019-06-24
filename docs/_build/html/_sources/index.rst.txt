@@ -6,7 +6,7 @@
 Welcome to PRTP's documentation!
 ================================
 
-The Python Raytrace Package (PRTP) is a package of Python functions that simulate X-Ray instruments. It was designed for the McEntaffer Group at the Pennsylvania University. PRTP expands on the functionality of `PyXFocus <https://github.com/rallured/PyXFocus>`_, but with a more intuitive, modular design.
+The Python Raytrace Package (PRTP) is a package of Python functions that simulate X-Ray instruments. It was designed for the McEntaffer Group at the Pennsylvania State University. PRTP expands on the functionality of `PyXFocus <https://github.com/rallured/PyXFocus>`_, but with a more intuitive, modular design.
 
 .. toctree::
    :maxdepth: 3
@@ -18,6 +18,7 @@ The Python Raytrace Package (PRTP) is a package of Python functions that simulat
    collimatorplate
    detector
    grating
+   wolteroptics
 
 
 Indices and tables

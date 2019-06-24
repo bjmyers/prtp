@@ -12,9 +12,10 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Collimator Plate" href="collimatorplate.html" />
+    <link rel="next" title="Collimator Plates" href="collimatorplate.html" />
     <link rel="prev" title="Creating Components" href="Components.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -36,14 +37,14 @@
 <span id="flat-comp-top"></span><h1>Flat Components<a class="headerlink" href="#flat-components" title="Permalink to this headline">¶</a></h1>
 <p>The term Flat Component is a blanket term for any Component that can be defined in a single plane. Currently, the following components are FlatComponents:</p>
 <ul class="simple">
-<li><p>Collimator Plates</p></li>
-<li><p>Detectors</p></li>
-<li><p>Gratings</p></li>
+<li><p><a class="reference internal" href="collimatorplate.html#coll-plate-top"><span class="std std-ref">Collimator Plates</span></a></p></li>
+<li><p><a class="reference internal" href="detector.html#detector-top"><span class="std std-ref">Detectors</span></a></p></li>
+<li><p><a class="reference internal" href="grating.html#grating-top"><span class="std std-ref">Gratings</span></a></p></li>
 </ul>
 <p>All Flat Component descend from this class. Though the FlatComponent superclass can be initialized, these objects lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.</p>
 <div class="section" id="creating-a-flat-component">
 <h2>Creating a Flat Component<a class="headerlink" href="#creating-a-flat-component" title="Permalink to this headline">¶</a></h2>
-<p id="flat-component-definition">A Flat Component requires the following arguments</p>
+<p>A Flat Component requires the following arguments</p>
 <ul class="simple">
 <li><dl class="simple">
 <dt>x,y,z - The position in Cartesian Coordinates of the center of the Component.</dt><dd><ul>
@@ -68,7 +69,7 @@
 <img alt="_images/basic_flatcomp_init.png" src="_images/basic_flatcomp_init.png" />
 <p class="caption"><span class="caption-text">Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
-<p id="flat-component-motion"><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+<p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="translate">
 <h2>Translate<a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h2>
@@ -223,9 +224,11 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plate</a></li>
-<li class="toctree-l1"><a class="reference internal" href="detector.html">Detector</a></li>
-<li class="toctree-l1"><a class="reference internal" href="grating.html">Grating</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html#wolter-primary">Wolter Primary</a></li>
 </ul>
 
 <div class="relations">
@@ -233,7 +236,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="Components.html" title="previous chapter">Creating Components</a></li>
-      <li>Next: <a href="collimatorplate.html" title="next chapter">Collimator Plate</a></li>
+      <li>Next: <a href="collimatorplate.html" title="next chapter">Collimator Plates</a></li>
   </ul></li>
 </ul>
 </div>

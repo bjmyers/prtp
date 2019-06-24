@@ -188,6 +188,8 @@ Then, if you have define some Grating grat, this function can be added as a peri
 
    grat.pfunc = parallel
 
+:ref:`Back to Top<grating-top>`
+
 
 
 

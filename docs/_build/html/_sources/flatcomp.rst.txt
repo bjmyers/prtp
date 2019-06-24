@@ -6,16 +6,15 @@ Flat Components
 
 The term Flat Component is a blanket term for any Component that can be defined in a single plane. Currently, the following components are FlatComponents:
 
-* Collimator Plates
-* Detectors
-* Gratings
+* :ref:`Collimator Plates<coll-plate-top>`
+* :ref:`Detectors<detector-top>`
+* :ref:`Gratings<grating-top>`
 
 All Flat Component descend from this class. Though the FlatComponent superclass can be initialized, these objects lack a trace function, and therefore cannot be used in Instrument objects. The following sections describe functions and parameters that are shared by all Flat Components.
 
 Creating a Flat Component
 ---------------------------
 
-.. _flat-component-definition: 
 
 A Flat Component requires the following arguments
 
@@ -41,7 +40,6 @@ Tracing rays to the Components reveals information about its surface:
 
    Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.
 
-.. _flat-component-motion: 
 
 :ref:`Back to Top<flat-comp-top>`
 
