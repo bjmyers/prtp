@@ -270,18 +270,16 @@ class Grating(FlatComponent):
         
         
         x,y = self.getPosns(rays)
-        y += self.fdist.value
+        y = self.fdist.value - y
         d /= self.fdist.value
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
         x,y,gratl,gratm,gratn = trans.radgrat(x,y,gratl,gratm,gratn,d,order,wave)
-        
-        # # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
+
+        # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
         l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
         m = gratl*sxn[1] + gratm*s[1] + gratn*nor[1]
         n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
-        
-        rays.set(l=l,m=m,n=n)
     
     
     def trace(self,rays,considerweights=False,eliminate='remove'):
@@ -322,3 +320,4 @@ class Grating(FlatComponent):
             
         eff2 = ('Failed to Reflect off Grating', eff1[2],rays.length(considerweights))
         return [eff1,eff2]
+        

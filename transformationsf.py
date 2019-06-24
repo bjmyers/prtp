@@ -158,7 +158,7 @@ def radgrat(x,y,l,m,n,dpermm,order,wave):
     
     sn = n / np.abs(n)
     d = dpermm * np.sqrt(y**2 + x**2)
-    yaw = np.pi/2 - np.arctan(x/np.abs(y))
+    yaw = -np.pi/2 + np.arctan(x/y)
     
     l += np.sin(yaw)*order*wave/d
     m -= np.cos(yaw)*order*wave/d
