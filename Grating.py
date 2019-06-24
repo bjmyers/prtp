@@ -280,6 +280,8 @@ class Grating(FlatComponent):
         l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
         m = gratl*sxn[1] + gratm*s[1] + gratn*nor[1]
         n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
+        
+        rays.set(l=l,m=m,n=n)
     
     
     def trace(self,rays,considerweights=False,eliminate='remove'):
