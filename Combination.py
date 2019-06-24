@@ -293,12 +293,15 @@ class Combination:
         # Initialize a list in which efficiencies will be stored
         effs = []
         
-        # Make a blank Rays object to store the Rays that make it
-        finalrays = Rays()
+        # Make a Rays object to store the Rays that make it
+        finalrays = rays.copy()
+        finalrays.x[:] = np.nan
         
         # Keep track of the input rays for when we're finished with one Mirror
-        inputrays = rays.copy()
         temprays = rays.copy()
+        
+        # This array will keep track of which rays have been successfully traced
+        success = np.zeros(len(rays)).astype(bool)
         
         # Iterate through each Mirror Object
         for r in self.componentlist:
@@ -313,22 +316,18 @@ class Combination:
             else:
                 effs.append(eff)
             
-            # Find the Rays which missed the 
+            # Find the Rays which hit the component
             tarray = np.logical_not(np.isnan(temprays.x))
-            hitrays = temprays.split(tarray)
             
-            # Take the rays that hit this grating out of the original Rays object
-            inputrays.remove(tarray)
+            # Save the Rays which hit this component in finalrays, if they
+            # haven't hit any other component first
+            finalrays.pullrays(temprays,np.logical_and(tarray,np.logical_not(success)))
+            
+            # Update success to include the rays which just hit
+            success = np.logical_or(success,tarray)
             
             # Back remaining rays up to their original position
-            temprays = inputrays.copy()
-
-            # Make sure at least some rays have hit the mirror
-            if (len(hitrays) == 0):
-                continue
-            
-            # Add the hitrays to our final tally
-            finalrays += hitrays
+            temprays = rays.copy()
             
             # If there are no rays left, we can stop
             if len(temprays) == 0:
@@ -336,6 +335,10 @@ class Combination:
         
         # Make it so that the original rays now contain the output
         rays.makecopy(finalrays)
+        
+        # Remove NaNs, if needed
+        if eliminate == 'remove':
+            rays.remove(np.isnan(rays.x))
         
         # Sort efficiency outputs into rays lost by missing the components and
         # rays lost through other effects
