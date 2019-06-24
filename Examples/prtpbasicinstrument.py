@@ -24,7 +24,7 @@ rp_front = prtp.conicsolve.primrad(z0 + mirror_sep/2 + mirror_len, r0, z0)
 rp_back = prtp.conicsolve.primrad(z0 + mirror_sep/2, r0, z0)
 
 # Define initial rays in subannulus.
-source = Subannulus(1000,rp_back, rp_front, np.radians(30.)*u.rad,wave=0.83401*u.nm,order=0)
+source = Subannulus(10000,rp_back, rp_front, np.radians(30.)*u.rad,wave=0.83401*u.nm,order=-1)
 
 # Define Wolter Optic
 # Make sure to add Beckmann Scattering, will be added after the Primary Mirror
@@ -33,13 +33,12 @@ wolter = WolterTypeOne(r0=r0,z0=z0,beckmann_scatter=True,ripple=1.48e-5)
 # Define Grating (values from old code)
 grat = Grating(0.*u.mm,151.86466758*u.mm,3247.56521956*u.mm,
             0.,0.99978888,-0.0205472,
-            0.01518378,0.02054483,0.99967363,
+            -0.01518378,-0.02054483,-0.99967363,
             l=100*u.mm,w=100*u.mm,d=d,radial=True,fdist=3250*u.mm)
 
 # Initialize the instrument and add components
 i = Instrument(source)
 i.addComponent(wolter)
-# i.addComponent(scatter)
 i.addComponent(grat)
 
 # Simulate the Rays through the instrument
