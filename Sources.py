@@ -28,9 +28,9 @@ class Source:
         self.num = num
         self.order = order
     
-    @u.quantity_input(dx=u.mm,dy=u.mm,dz=u.mm,dl=u.mm,dm=u.mm,dn=u.mm)
+    @u.quantity_input(dx=u.mm,dy=u.mm,dz=u.mm,dl=u.rad,dm=u.rad,dn=u.rad)
     def addMisalignment(self, dx = 0*u.mm, dy = 0*u.mm, dz = 0*u.mm, 
-                              dl = 0*u.mm, dm = 0*u.mm, dn = 0*u.mm):
+                              dl = 0*u.rad, dm = 0*u.rad, dn = 0*u.rad):
         '''
         Function addMisalignment:
         Initializes misalingments of the Rays
@@ -45,9 +45,9 @@ class Source:
         self.dx = dx.to(u.mm)
         self.dy = dy.to(u.mm)
         self.dz = dz.to(u.mm)
-        self.dl = dl.to(u.mm)
-        self.dm = dm.to(u.mm)
-        self.dn = dn.to(u.mm)
+        self.dl = dl.to(u.rad)
+        self.dm = dm.to(u.rad)
+        self.dn = dn.to(u.rad)
     
     def misalign(self,rays):
         '''
@@ -94,17 +94,6 @@ class Source:
             adding a warning to the user that no waves or orders have been 
             added
         '''
-        # Parameter Variant:
-        # if (self.wave is not None):
-        #     if type(self.wave.value) == np.ndarray:
-        #         rays.addParam('Wavelength',self.wave.value)
-        #     else:
-        #         rays.addParam('Wavelength',np.array([self.wave.value]*len(rays)))
-        # if (self.order is not None):
-        #     if type(self.order) == np.ndarray:
-        #         rays.addParam('Order',self.order)
-        #     else:
-        #         rays.addParam('Order',np.array([self.order]*len(rays)))
         
         # Simplified Variant
         if (self.wave is not None):
