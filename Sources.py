@@ -153,11 +153,11 @@ class ConvergingBeam(Source):
     
     @u.quantity_input(zset=u.mm,rin=u.mm,rout=u.mm,tmin=u.rad,tmax=u.rad,lscat=u.arcsec,z=u.mm)
     def __init__(self,num=1000,zset=0*u.mm,rin=0*u.mm,rout=1*u.mm,
-    tmin=0*u.rad,tmax=1*u.rad,lscat=1*u.arcsec,z=0*u.mm,wave=None,order=None):
+    tmin=0*u.rad,tmax=1*u.rad,lscat=0*u.arcsec,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
         
         self.zset = zset.to(u.mm)
-        self.rin = rin.to(t.mm)
+        self.rin = rin.to(u.mm)
         self.rout = rout.to(u.mm)
         self.tmin = tmin.to(u.rad)
         self.tmax = tmax.to(u.rad)
@@ -178,7 +178,7 @@ class ConvergingBeam2(Source):
     
     @u.quantity_input(zset=u.mm,xmin=u.mm,xmax=u.mm,ymin=u.mm,ymax=u.mm,lscat=u.arcsec,z=u.mm)
     def __init__(self,num=1000,zset=0*u.mm,xmin=0*u.mm,xmax=1*u.mm,
-    ymin=0*u.mm,ymax=1*u.mm,lscat=1*u.arcsec,z=0*u.mm,wave=None,order=None):
+    ymin=0*u.mm,ymax=1*u.mm,lscat=0*u.arcsec,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
         
         self.zset = zset.to(u.mm)
@@ -218,7 +218,7 @@ class PointSource(Source):
 class RectArray(Source):
     
     @u.quantity_input(xsize=u.mm,ysize=u.mm,z=u.mm)
-    def __init__(self,num=1000,xsize=1*u.mm,ysize=1*u.mm,z=0*u.mm,wave=None,order=None):
+    def __init__(self,num=100,xsize=1*u.mm,ysize=1*u.mm,z=0*u.mm,wave=None,order=None):
         Source.__init__(self,num,wave,order)
         self.xsize = xsize.to(u.mm)
         self.ysize = ysize.to(u.mm)
