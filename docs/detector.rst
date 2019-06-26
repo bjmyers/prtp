@@ -110,7 +110,7 @@ This example will trace a circular beam of photons to a Detector's surface and t
 
 When executed, the code produces the following plot:
 
-.. figure:: images/detector_basic_example.png
+.. figure:: ../images/detector_basic_example.png
 
 As it was defined, this detector has dimensions 10mm x 10mm and has 100 pixels on a side.
 
@@ -139,7 +139,7 @@ This example will perform the same trace as before but with Gaussian noise added
    plt.imshow(arr)
    plt.show()
 
-.. figure:: images/detector_noisy_example.png
+.. figure:: ../images/detector_noisy_example.png
 
 Note that the call to addGaussianNoise() could have been performed before or after the call to trace(), so long as view() was called last.
 
@@ -170,7 +170,7 @@ This example will trace photons that do not hit the detector dead on, rather, th
    plt.imshow(arr)
    plt.show()
 
-.. figure:: images/detector_rotated_example.png
+.. figure:: ../images/detector_rotated_example.png
 
 :ref:`Back to Top<detector-top>`
 

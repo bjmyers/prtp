@@ -59,7 +59,7 @@ Collimator Plates have two ways to remove rays once they've been traced. First, 
 
 For example, this image is of a Collimator Plate with length 5 and width 5.
 
-.. figure:: images/basic_flatcomp_init.png
+.. figure:: ../images/basic_flatcomp_init.png
 
 The user can also define their own collision functions which take in rays and return an array of which photons should be removed.
 
@@ -87,7 +87,7 @@ The following block of code shows how this is done. Note that the name of the pa
 
 When rays are traced to this CollimatorPlate, they will look something like this:
 
-.. figure:: images/collplate_basic_wires.png
+.. figure:: ../images/collplate_basic_wires.png
 
 Also note that there is a wire running down the center of the plate. This is true of all Collimator Plates using the wires collision function.
 
@@ -103,7 +103,7 @@ If both a collision function and length/width are defined, then both will be app
    c.thickness = 1 * u.mm
    c.sep = 2 * u.mm
 
-.. figure:: images/collplate_rect_wires.png
+.. figure:: ../images/collplate_rect_wires.png
 
 :ref:`Back to Top<coll-plate-top>`
 
@@ -166,7 +166,7 @@ This code will be very similar to the code we used for the wires function. Also 
 
 After Tracing rays to the surface, we can see how photons were removed by the ring:
 
-.. figure:: images/collplate_circle_collfunc.png
+.. figure:: ../images/collplate_circle_collfunc.png
 
 Since we defined rin and rout as arbitrary parameters. It is now easy to add this collision function to other Collimator Plates with different sized rings.
 

@@ -130,7 +130,7 @@ This quantity says that if a photon is at a distance l away from the grating foc
 
 So in order to find the period experienced by a certain photon, we must first find the distance from the focal point to that photon given the its x and y positions on the Grating. It is clear that the distance in x from the focus is still x, but the distance in y is Grat.fdist-y, see the diagram below:
 
-.. figure:: images/dist_to_focus_diagram.png
+.. figure:: ../images/dist_to_focus_diagram.png
 
 Note that the surface vector points towards the focus, so a photon with a positive y-position is closer to the focal point. Using the diagram above, it is easy to see that the distance from a photon to the focal point is:
 

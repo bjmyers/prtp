@@ -15,6 +15,7 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Sources" href="sources.html" />
     <link rel="prev" title="Gratings" href="grating.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -36,10 +37,10 @@
 <span id="wolter-top"></span><h1>Wolter Optics<a class="headerlink" href="#wolter-optics" title="Permalink to this headline">¶</a></h1>
 <p>WolterOptic is the file which stores all of the objects that simulate parts of Wolter Telescopes. The following classes are found within the file:</p>
 <ul class="simple">
-<li><p>WolterPrimary</p></li>
-<li><p>WolterSecondary</p></li>
-<li><p>WolterTypeOne</p></li>
-<li><p>WolterModule</p></li>
+<li><p><a class="reference internal" href="#wolter-primary"><span class="std std-ref">WolterPrimary</span></a></p></li>
+<li><p><a class="reference internal" href="#wolter-secondary"><span class="std std-ref">WolterSecondary</span></a></p></li>
+<li><p><a class="reference internal" href="#wolter-typeone"><span class="std std-ref">WolterTypeOne</span></a></p></li>
+<li><p><a class="reference internal" href="#wolter-module"><span class="std std-ref">WolterModule</span></a></p></li>
 </ul>
 <p>The WolterOptic class can be initialized, but is lacks a trace function. So it cannot be used in an Instrument object and rays cannot be traced manually. However, it does contain parameters and functions that are shared by all of its subclasses.</p>
 <div class="section" id="creating-a-wolter-optic">
@@ -96,8 +97,10 @@ Note that all variants of this image are adapted from the original image created
 </pre></div>
 </div>
 </div>
+<div class="section" id="moving-wolter-optics">
+<h2>Moving Wolter Optics<a class="headerlink" href="#moving-wolter-optics" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="translate">
-<span id="wolter-optic-motion"></span><h2>Translate<a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h2>
+<span id="wolter-optic-motion"></span><h3>Translate<a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h3>
 <p>translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm)</p>
 <p>This function moves the center of the component in space, it takes arguments:</p>
 <ul class="simple">
@@ -118,7 +121,7 @@ Note that all variants of this image are adapted from the original image created
 <p><a class="reference internal" href="#wolter-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="unit-rotate">
-<h2>Unit Rotate<a class="headerlink" href="#unit-rotate" title="Permalink to this headline">¶</a></h2>
+<h3>Unit Rotate<a class="headerlink" href="#unit-rotate" title="Permalink to this headline">¶</a></h3>
 <p>unitrotate(self,theta=0*u.rad,axis=1)</p>
 <p>This function rotates the Wolter Optic about one of the unit axes. Since the only vector is the n-vector, this is what it rotated. It takes arguments:</p>
 <ul class="simple">
@@ -149,7 +152,7 @@ Note that all variants of this image are adapted from the original image created
 <p><a class="reference internal" href="#wolter-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="rotate">
-<h2>Rotate<a class="headerlink" href="#rotate" title="Permalink to this headline">¶</a></h2>
+<h3>Rotate<a class="headerlink" href="#rotate" title="Permalink to this headline">¶</a></h3>
 <p>rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0)</p>
 <p>This function rotates the Wolter Optic about an arbitrary, user-defined axis. It takes arguments:</p>
 <ul class="simple">
@@ -175,18 +178,18 @@ Note that all variants of this image are adapted from the original image created
 </div>
 </div>
 <div class="section" id="wolter-primary">
-<h1>Wolter Primary<a class="headerlink" href="#wolter-primary" title="Permalink to this headline">¶</a></h1>
+<span id="id1"></span><h2>Wolter Primary<a class="headerlink" href="#wolter-primary" title="Permalink to this headline">¶</a></h2>
 <p>A subclass of WolterOptic, these objects simulate only the primary mirror (the paraboloid) in a Wolter Telescope.</p>
 <div class="section" id="creating-a-wolter-primary-mirror">
-<h2>Creating a Wolter Primary Mirror<a class="headerlink" href="#creating-a-wolter-primary-mirror" title="Permalink to this headline">¶</a></h2>
+<h3>Creating a Wolter Primary Mirror<a class="headerlink" href="#creating-a-wolter-primary-mirror" title="Permalink to this headline">¶</a></h3>
 <p>WolterPrimary takes in the same arguments as Wolter Optic, the list of these arguments can be found <a class="reference internal" href="#wolter-optic-params"><span class="std std-ref">here</span></a>.</p>
 </div>
 <div class="section" id="moving-wolter-primaries">
-<h2>Moving Wolter Primaries<a class="headerlink" href="#moving-wolter-primaries" title="Permalink to this headline">¶</a></h2>
+<h3>Moving Wolter Primaries<a class="headerlink" href="#moving-wolter-primaries" title="Permalink to this headline">¶</a></h3>
 <p>WolterPrimary objects inherit translate, unitrotate, and rotate from the WolterOptic superclass. Documentation on these functions’ uses can be found <a class="reference internal" href="#wolter-optic-motion"><span class="std std-ref">here</span></a></p>
 </div>
 <div class="section" id="trace">
-<h2>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h2>
+<h3>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h3>
 <p>trace is the function used to actually move rays to the surface of the primary mirror. Photons which miss the axial_length of the mirror will be removed. trace takes the following arguments:</p>
 <ul class="simple">
 <li><p>rays - The Rays object containing the photons that you want to trace.</p></li>
@@ -225,18 +228,18 @@ Note that all variants of this image are adapted from the original image created
 </div>
 </div>
 <div class="section" id="wolter-secondary">
-<h1>Wolter Secondary<a class="headerlink" href="#wolter-secondary" title="Permalink to this headline">¶</a></h1>
+<span id="id2"></span><h2>Wolter Secondary<a class="headerlink" href="#wolter-secondary" title="Permalink to this headline">¶</a></h2>
 <p>A subclass of WolterOptic, these objects simulate only the secondary mirror (the hyperboloid) in a Wolter Telescope.</p>
 <div class="section" id="creating-a-wolter-secondary-mirror">
-<h2>Creating a Wolter Secondary Mirror<a class="headerlink" href="#creating-a-wolter-secondary-mirror" title="Permalink to this headline">¶</a></h2>
+<h3>Creating a Wolter Secondary Mirror<a class="headerlink" href="#creating-a-wolter-secondary-mirror" title="Permalink to this headline">¶</a></h3>
 <p>WolterSecondary takes in the same arguments as Wolter Optic, the list of these arguments can be found <a class="reference internal" href="#wolter-optic-params"><span class="std std-ref">here</span></a>.</p>
 </div>
 <div class="section" id="moving-wolter-secondaries">
-<h2>Moving Wolter Secondaries<a class="headerlink" href="#moving-wolter-secondaries" title="Permalink to this headline">¶</a></h2>
+<h3>Moving Wolter Secondaries<a class="headerlink" href="#moving-wolter-secondaries" title="Permalink to this headline">¶</a></h3>
 <p>WolterSecondary objects inherit translate, unitrotate, and rotate from the WolterOptic superclass. Documentation on these functions’ uses can be found <a class="reference internal" href="#wolter-optic-motion"><span class="std std-ref">here</span></a></p>
 </div>
-<div class="section" id="id1">
-<h2>Trace<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3>Trace<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>trace is the function used to actually move rays to the surface of the primary mirror. Photons which miss the axial_length of the mirror will be removed. trace takes the following arguments:</p>
 <ul class="simple">
 <li><p>rays - The Rays object containing the photons that you want to trace.</p></li>
@@ -278,10 +281,10 @@ Note that all variants of this image are adapted from the original image created
 </div>
 </div>
 <div class="section" id="wolter-type-one">
-<h1>Wolter Type One<a class="headerlink" href="#wolter-type-one" title="Permalink to this headline">¶</a></h1>
+<span id="wolter-typeone"></span><h2>Wolter Type One<a class="headerlink" href="#wolter-type-one" title="Permalink to this headline">¶</a></h2>
 <p>A subclass of WolterOptic, these objects simulate both the primary and secondary mirrors of a Wolter Telescope</p>
 <div class="section" id="creating-a-wolter-type-one-object">
-<h2>Creating a Wolter Type One Object<a class="headerlink" href="#creating-a-wolter-type-one-object" title="Permalink to this headline">¶</a></h2>
+<h3>Creating a Wolter Type One Object<a class="headerlink" href="#creating-a-wolter-type-one-object" title="Permalink to this headline">¶</a></h3>
 <p>WolterSecondary takes in most of the same arguments as Wolter Optic, the list of these arguments can be found <a class="reference internal" href="#wolter-optic-params"><span class="std std-ref">here</span></a>.</p>
 <p>However, there are four new arguments that are present in WolterTypeOne objects, they are:</p>
 <ul class="simple">
@@ -291,16 +294,16 @@ Note that all variants of this image are adapted from the original image created
 <p>Note that if you were to use Wolter Primary and Wolter Secondary objects separately, beckmann scattering would have to be added as a Modification object between them.</p>
 </div>
 <div class="section" id="when-to-use-wolter-type-one-objects">
-<h2>When to Use Wolter Type One Objects<a class="headerlink" href="#when-to-use-wolter-type-one-objects" title="Permalink to this headline">¶</a></h2>
+<h3>When to Use Wolter Type One Objects<a class="headerlink" href="#when-to-use-wolter-type-one-objects" title="Permalink to this headline">¶</a></h3>
 <p>Since Wolter Type One objects are singular objects that have the effect as two other mirrors, using Type One objects can make your code look cleaner. Also, Type One objects only have to transform the Rays into the mirror’s coordinate system once, so using Type One objects over Primary and Secondary objects can speed up your simulation.</p>
 <p>While you can translate and rotate the Type One object itself, there is no way to move one part of the Type One object but not the other. For example, you cannot misalign the primary mirror while maintaning alignment in the secondary mirror. Doing this requires separate primary and secondary mirror objects.</p>
 </div>
 <div class="section" id="moving-wolter-type-one-objects">
-<h2>Moving Wolter Type One Objects<a class="headerlink" href="#moving-wolter-type-one-objects" title="Permalink to this headline">¶</a></h2>
+<h3>Moving Wolter Type One Objects<a class="headerlink" href="#moving-wolter-type-one-objects" title="Permalink to this headline">¶</a></h3>
 <p>WolterTypeOne objects inherit translate, unitrotate, and rotate from the WolterOptic superclass. Documentation on these functions’ uses can be found <a class="reference internal" href="#wolter-optic-motion"><span class="std std-ref">here</span></a></p>
 </div>
-<div class="section" id="id2">
-<h2>Trace<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3>Trace<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <p>trace is the function used to actually move rays to the surface of the primary mirror. Photons which miss the axial_length of the mirror will be removed. trace takes the following arguments:</p>
 <ul class="simple">
 <li><p>rays - The Rays object containing the photons that you want to trace.</p></li>
@@ -340,22 +343,22 @@ Note that all variants of this image are adapted from the original image created
 </div>
 </div>
 <div class="section" id="wolter-modules">
-<h1>Wolter Modules<a class="headerlink" href="#wolter-modules" title="Permalink to this headline">¶</a></h1>
+<span id="wolter-module"></span><h2>Wolter Modules<a class="headerlink" href="#wolter-modules" title="Permalink to this headline">¶</a></h2>
 <p>Wolter Modules are subclasses of both WolterOptic and Combination. They consist of many nested Wolter Type One mirrors. These mirrors must all share the same focus and n-vector, but can have different values for r0, z0, axial_len, and mirror_sep.</p>
 <p>When compared to general Combination objects, Wolter Modules are specialized in that they only contain Wolter Type One objects, but they can be initialized in a single line containing all of the mirrors.</p>
 <p>Note: It is possible to put components other than WolterTypeOne into the componentlist of a Wolter Module, but to do so requires the use of the addComponent() function inherited from Combination. At this point, there is no benefit gained by using a Wolter Module over a Combination object.</p>
-<div class="section" id="id3">
-<h2>Creating a Wolter Type One Object<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creating-a-wolter-module-object">
+<h3>Creating a Wolter Module Object<a class="headerlink" href="#creating-a-wolter-module-object" title="Permalink to this headline">¶</a></h3>
 <p>WolterSecondary takes in most of the same arguments as Wolter Optic, the list of these arguments can be found <a class="reference internal" href="#wolter-optic-params"><span class="std std-ref">here</span></a>.</p>
-<p>However, there are four new arguments that are present in WolterTypeOne objects, they are:</p>
+<p>However, there are four new arguments that are present in WolterModule objects, they are:</p>
 <ul class="simple">
 <li><p>beckmann_scatter - A boolean. If True, beckmann scattering will be added to the rays ftaer they reflect off the primary mirror. If False, no scattering will be added.</p></li>
 <li><p>h, rho, ripple - These are the three parameters that are passed to the rays.beckmann_scatter() function. h is the rms surface height roughness, rho is the correlation length, and ripple scales the scattering in the output.</p></li>
 </ul>
 <p>Note that if you were to use Wolter Primary and Wolter Secondary objects separately, beckmann scattering would have to be added as a Modification object between them.</p>
 </div>
-<div class="section" id="id4">
-<h2>Moving Wolter Type One Objects<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="moving-wolter-module-objects">
+<h3>Moving Wolter Module Objects<a class="headerlink" href="#moving-wolter-module-objects" title="Permalink to this headline">¶</a></h3>
 <p>WolterTypeOne objects inherit translate, unitrotate, and rotate from the WolterOptic superclass. Documentation on these functions’ uses can be found <a class="reference internal" href="#wolter-optic-motion"><span class="std std-ref">here</span></a>. These functions will move the shared focus and n-vector of the mirrors in the module.</p>
 <p>Descending from Combination, WolterModule also inherits defineRotationPoint, as well as separate versions of rotate and unitrotate. If you wish to call these functions, you must use the alternate syntax:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
@@ -369,7 +372,7 @@ Note that all variants of this image are adapted from the original image created
 </div>
 </div>
 <div class="section" id="id5">
-<h2>Trace<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h2>
+<h3>Trace<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
 <p>trace is the function used to actually move rays to the surface of the primary mirror. Photons which miss the axial_length of the mirror will be removed. trace takes the following arguments:</p>
 <ul class="simple">
 <li><p>rays - The Rays object containing the photons that you want to trace.</p></li>
@@ -389,6 +392,8 @@ Note that all variants of this image are adapted from the original image created
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">Subannulus</span><span class="p">(</span><span class="mi">1000</span><span class="p">,</span><span class="n">rp_back</span><span class="p">,</span> <span class="n">rp_front</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="mf">30.</span><span class="p">)</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
 
+<span class="c1"># r0, z0, ax_len, and mir_sep must all be arrays for Wolter Modules</span>
+<span class="c1"># This allows one object to contain many different mirrors at once</span>
 <span class="n">r0s</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">165.</span><span class="p">,</span> <span class="mf">167.5503</span><span class="p">,</span> <span class="mf">170.1193</span><span class="p">,</span> <span class="mf">172.7023</span><span class="p">,</span>
                <span class="mf">175.3143</span><span class="p">,</span> <span class="mf">177.9404</span><span class="p">,</span> <span class="mf">180.5859</span><span class="p">,</span> <span class="mf">183.2509</span><span class="p">,</span>
                <span class="mf">185.9355</span><span class="p">,</span> <span class="mf">188.6398</span><span class="p">,</span> <span class="mf">191.3640</span><span class="p">,</span> <span class="mf">194.1083</span><span class="p">])</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
@@ -398,19 +403,21 @@ Note that all variants of this image are adapted from the original image created
 <span class="n">mrseps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="mi">12</span><span class="p">)</span> <span class="o">*</span> <span class="mi">5</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">mm</span>
 
 <span class="c1"># Generate the Wolter Module</span>
-<span class="n">wm</span> <span class="o">=</span> <span class="n">WolterModule</span><span class="p">(</span><span class="n">r0</span><span class="o">=</span><span class="n">r0s</span><span class="p">,</span><span class="n">z0</span><span class="o">=</span><span class="n">z0s</span><span class="p">,</span><span class="n">axial_length</span><span class="o">=</span><span class="n">axlens</span><span class="p">,</span><span class="n">mirror_sep</span><span class="o">=</span><span class="n">mrseps</span><span class="p">)</span>
+<span class="n">wm</span> <span class="o">=</span> <span class="n">WolterModule</span><span class="p">(</span><span class="n">r0</span><span class="o">=</span><span class="n">r0s</span><span class="p">,</span><span class="n">z0</span><span class="o">=</span><span class="n">z0s</span><span class="p">,</span><span class="n">axial_length</span><span class="o">=</span><span class="n">axlens</span><span class="p">,</span><span class="n">mirror_sep</span><span class="o">=</span><span class="n">mrseps</span><span class="p">,</span>
+   <span class="n">beckmann_scatter</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">ripple</span><span class="o">=</span><span class="mf">1.5e-5</span><span class="p">)</span>
 
 <span class="n">rays</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 <span class="n">wm</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
 <span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The above block of code traces rays through both a primary and a secondary mirror and will produce the following plot:</p>
+<p>The above block of code traces rays through the module and will produce the following plot:</p>
 <div class="figure align-center">
 <img alt="_images/wolter_module_trace.png" src="_images/wolter_module_trace.png" />
 </div>
 <p>Looking downwards on the rays shows that they have been traced to nested Wolter Type One objects</p>
 <p><a class="reference internal" href="#wolter-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
 </div>
 </div>
 
@@ -441,36 +448,40 @@ Note that all variants of this image are adapted from the original image created
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Wolter Optics</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-wolter-optic">Creating a Wolter Optic</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#translate">Translate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#unit-rotate">Unit Rotate</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#rotate">Rotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-wolter-optics">Moving Wolter Optics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#translate">Translate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-rotate">Unit Rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotate">Rotate</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#wolter-primary">Wolter Primary</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-wolter-primary-mirror">Creating a Wolter Primary Mirror</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#moving-wolter-primaries">Moving Wolter Primaries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wolter-primary">Wolter Primary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-wolter-primary-mirror">Creating a Wolter Primary Mirror</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moving-wolter-primaries">Moving Wolter Primaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#trace">Trace</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#wolter-secondary">Wolter Secondary</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-wolter-secondary-mirror">Creating a Wolter Secondary Mirror</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#moving-wolter-secondaries">Moving Wolter Secondaries</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id1">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wolter-secondary">Wolter Secondary</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-wolter-secondary-mirror">Creating a Wolter Secondary Mirror</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moving-wolter-secondaries">Moving Wolter Secondaries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Trace</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#wolter-type-one">Wolter Type One</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#creating-a-wolter-type-one-object">Creating a Wolter Type One Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#when-to-use-wolter-type-one-objects">When to Use Wolter Type One Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#moving-wolter-type-one-objects">Moving Wolter Type One Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id2">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wolter-type-one">Wolter Type One</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-wolter-type-one-object">Creating a Wolter Type One Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#when-to-use-wolter-type-one-objects">When to Use Wolter Type One Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moving-wolter-type-one-objects">Moving Wolter Type One Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Trace</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="#wolter-modules">Wolter Modules</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#id3">Creating a Wolter Type One Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id4">Moving Wolter Type One Objects</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#id5">Trace</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#wolter-modules">Wolter Modules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-a-wolter-module-object">Creating a Wolter Module Object</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#moving-wolter-module-objects">Moving Wolter Module Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Trace</a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 </ul>
 
 <div class="relations">
@@ -478,6 +489,7 @@ Note that all variants of this image are adapted from the original image created
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="grating.html" title="previous chapter">Gratings</a></li>
+      <li>Next: <a href="sources.html" title="next chapter">Sources</a></li>
   </ul></li>
 </ul>
 </div>

@@ -15,6 +15,7 @@ All Flat Component descend from this class. Though the FlatComponent superclass 
 Creating a Flat Component
 ---------------------------
 
+.. _flat-component-definition:
 
 A Flat Component requires the following arguments
 
@@ -36,12 +37,14 @@ For example, a Flat Component could be initialized using the following syntax:
 
 Tracing rays to the Components reveals information about its surface:
 
-.. figure:: images/basic_flatcomp_init.png
+.. figure:: ../images/basic_flatcomp_init.png
 
    Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.
 
 
 :ref:`Back to Top<flat-comp-top>`
+
+.. _flat-component-motion:
 
 Translate
 --------------
@@ -64,7 +67,7 @@ Example: Take the Flat Component we defined before and move it 2 mm in x and -3 
 
 Building an instrument and tracing photons to this Component shows that the center has indeed been moved to (x,y,z) = (2,-3,3)
 
-.. figure:: images/basic_flatcomp_translate.png
+.. figure:: ../images/basic_flatcomp_translate.png
 
 :ref:`Back to Top<flat-comp-top>`
 
@@ -95,7 +98,7 @@ Example: Let's take the Flat Component we defined at first and rotate it 20 degr
 
 We can then see (using traced rays) how the Component has been rotated:
 
-.. figure:: images/basic_flatcomp_unitrotate.png
+.. figure:: ../images/basic_flatcomp_unitrotate.png
 
    The blue arrow in this image represents the axis of rotation (here the positive y axis)
 
@@ -127,7 +130,7 @@ Example: Let's take the Flat Component we defined at first and rotate it 40 degr
 
 This produces a Flat Component that looks something like this:
 
-.. figure:: images/basic_flatcomp_rotate.png
+.. figure:: ../images/basic_flatcomp_rotate.png
 
    The blue arror represents the axis of rotation, here it is the vector <1,1,0>
 
@@ -147,7 +150,7 @@ Therefore, when photons have been traced to the surface of the Flat Component, t
 
 The image below shows how the vectors can define a Cartesian Plane:
 
-.. figure:: images/basic_flatcomp_coords.png
+.. figure:: ../images/basic_flatcomp_coords.png
 
 .. _flat-comp-vectors:
 

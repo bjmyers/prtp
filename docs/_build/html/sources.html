@@ -1,0 +1,616 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sources &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Wolter Optics" href="wolteroptics.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="sources">
+<span id="source-top"></span><h1>Sources<a class="headerlink" href="#sources" title="Permalink to this headline">¶</a></h1>
+<p>Sources are objects that are used to generate rays. Every instrument must have a Rays object which tells it how to make an initial Rays object. The following classes are found within the file:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#annulus"><span class="std std-ref">Annulus</span></a></p></li>
+<li><p><a class="reference internal" href="#circularbeam"><span class="std std-ref">CircularBeam</span></a></p></li>
+<li><p><a class="reference internal" href="#convergingbeam"><span class="std std-ref">ConvergingBeam</span></a></p></li>
+<li><p><a class="reference internal" href="#convergingbeam2"><span class="std std-ref">ConvergingBeam2</span></a></p></li>
+<li><p><a class="reference internal" href="#pointsource"><span class="std std-ref">PointSource</span></a></p></li>
+<li><p><a class="reference internal" href="#rectarray"><span class="std std-ref">RectArray</span></a></p></li>
+<li><p><a class="reference internal" href="#rectbeam"><span class="std std-ref">RectBeam</span></a></p></li>
+<li><p><a class="reference internal" href="#subannulus"><span class="std std-ref">Subannulus</span></a></p></li>
+<li><p><a class="reference internal" href="#xslit"><span class="std std-ref">Xslit</span></a></p></li>
+</ul>
+<div class="section" id="creating-a-source">
+<h2>Creating a Source<a class="headerlink" href="#creating-a-source" title="Permalink to this headline">¶</a></h2>
+<p id="source-params">Each Source subclass takes additional arguments, but these arguments are shared by all Source objects.</p>
+<ul class="simple">
+<li><p>num - The length of the Rays object that this source will generate, defaults to 1000.</p></li>
+<li><dl class="simple">
+<dt>z - The initial z-position of the photons. Changing this parameter when initializing the Source object is the same as adding a misalignment in z.</dt><dd><ul>
+<li><p>z must be in units of length, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>wave - The wavelength of the photons in the Rays object.</dt><dd><ul>
+<li><p>wave must be in an astropy units that can be converted to nanometers. This means that energies are also accepted (i.e: the wave argument can be given in eV, but the Rays object this Source creates will always measure the wavelength in nm).</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>order - The order of the photons in the Rays object that this source will generate.</p></li>
+</ul>
+<p>Note: wave and order both default to None. If these values are left as None, the photons will not be correctly diffrected by Gratings, but can be traced to other objects successfully.</p>
+<p>Also, if the wave and order of a Source have not been defined when the Source was initialized but you wish to add them later, the parameters values can still be changed. If you have a source “s”, you can access the wavelength parameter using s.wave, and you can access the order parameter using s.order. Note that any wavelength added in this manner must still be an astropy unit, but it will not be automatically converted to nanometers, this must be done by the user.</p>
+</div>
+<div class="section" id="misalignments">
+<h2>Misalignments<a class="headerlink" href="#misalignments" title="Permalink to this headline">¶</a></h2>
+<p>Almost all sources are originally centered around the origin and pointing upwards. But this is unacceptable for some applications. Luckily, the Source class can transform Rays automatically.</p>
+<p>Misalignments are generated using the function addMisalignment(), which takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>dx, dy, dz - These arguments describe how much each ray must be moved in x, y, and z.</dt><dd><ul>
+<li><p>dx, dy, and dz must be in units of length, see the section on Astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>dl, dm, dn - These arguments describe how much each ray must be rotated about the x, y, and z, axes, respectively. Note that these differ from most component rotations in which rotate and unitrotate simply change the vectors of the component without translating the component. These rotations will physically move the photons around the axes, similar to the rotation functions for Combination objects. See the example below to see how rotations work.</dt><dd><ul>
+<li><p>dl, dm, and dn must be in angular units, see the seciton on Astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note: linear translations (dx, dy, and dz) are performed first, then the rotations are performed in a right-handed manner.</p>
+<p>Example: Below we generate a CircularBeam Source first with default alignment, and then with both a translation and a rotation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+
+<span class="n">s</span><span class="o">.</span><span class="n">addMisalignment</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dm</span><span class="o">=</span><span class="mi">30</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+<span class="n">rotatedrays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rotatedrays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that the call to addMisalignment() is performed after initialization, but before rotatedrays are generated, misalignments will not affect the Rays after they’ve been generated.</p>
+<p>When this code is executed, it produces the following plot, first of the default Rays:</p>
+<div class="figure align-center">
+<img alt="_images/source_aligned_example.png" src="_images/source_aligned_example.png" />
+</div>
+<p>Note that the center of the beam is at position (x,y,z) = (0,0,0).</p>
+<p>Then the code produces a plot of the misaligned rays:</p>
+<div class="figure align-center">
+<img alt="_images/source_misaligned_example.png" src="_images/source_misaligned_example.png" />
+</div>
+<p>Note that the center of the beam is no longer at the origin. We can see from the call to s.addMisalignment() that our rays were moved along the x-axis, then rotated about the y-axis. Though not visible from these plots, the direction of propagation of the photons has also been transformed.</p>
+</div>
+<div class="section" id="generating-rays">
+<h2>Generating Rays<a class="headerlink" href="#generating-rays" title="Permalink to this headline">¶</a></h2>
+<p>Getting a Rays object from an initialized Source only requires a call to the function generateRays(), which takes no arguments and returns the Rays object. For an example of its use, see the code block in the section above.</p>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="annulus">
+<span id="id1"></span><h2>Annulus<a class="headerlink" href="#annulus" title="Permalink to this headline">¶</a></h2>
+<p>An Annulus is a Source which generates photons in a donut shape, all of the photons have the same direction. In addition to num, z, wave, and order, Annulus takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>rin - The inner radius of the photons, defaults to 1 mm</dt><dd><ul>
+<li><p>rin must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rout - The outer radius of the photons, defaults to 2 mm</dt><dd><ul>
+<li><p>rout must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>zhat - This argument specified the z-component of the photons’ velocities. It should be -1 is the photons are pointing in the -x direction and should be 1 if the photons are travelling in the +x direction. Defaults to -1.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Annulus</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Annulus</span><span class="p">(</span><span class="n">rin</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">rout</span> <span class="o">=</span> <span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">wave</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">J</span><span class="p">,</span><span class="n">order</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_annulus_example.png" src="_images/source_annulus_example.png" />
+</div>
+</div>
+<div class="section" id="circularbeam">
+<span id="id2"></span><h2>CircularBeam<a class="headerlink" href="#circularbeam" title="Permalink to this headline">¶</a></h2>
+<p>A CircularBeam is a Source which generates photons in a circle, all of the photons have the same direction. In addition to num, z, wave, and order, CircularBeam takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>rad - The radius of the circular beam, defaults to 1 mm.</dt><dd><ul>
+<li><p>rad must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span><span class="n">rad</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_circularbeam_example.png" src="_images/source_circularbeam_example.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="convergingbeam">
+<span id="id3"></span><h2>ConvergingBeam<a class="headerlink" href="#convergingbeam" title="Permalink to this headline">¶</a></h2>
+<p>A ConvergingBeam is a Source which generates a sup-apertured annulus beam with specified inner and outer radii. In addition to num, z, wave, and order, ConvergingBeam takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.</dt><dd><ul>
+<li><p>zset must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rin - The inner radius of the sub-apertured annulus beam, defaults to 0 mm</dt><dd><ul>
+<li><p>rin must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>rout - The outer radius of the sub-apertured annulus beam, defaults to 1 mm</dt><dd><ul>
+<li><p>rout must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>tmin - The minimum angular extent of the sub-apertured annulus beam, defaults to 0 rad</dt><dd><ul>
+<li><p>tmin must be in units of angle, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>tmax - The maximum angular extent of the sub-apertured annulus beam, defaults to 1 rad</dt><dd><ul>
+<li><p>tmax must be in units of angle, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>lscat -  The scatter in the angular convergence, defaults to 0 arcsec</dt><dd><ul>
+<li><p>lscat must be in units of angle, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">ConvergingBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">ConvergingBeam</span><span class="p">(</span><span class="n">zset</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">rin</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">rout</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">tmin</span><span class="o">=</span><span class="mi">45</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">tmax</span><span class="o">=</span><span class="mi">135</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">lscat</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_convergingbeam_example.png" src="_images/source_convergingbeam_example.png" />
+</div>
+<p>To show that it converges, we will trace the rays from their initial position at z=1m to a blank collimator plate at z=0.5m:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="c1"># use the rays object we defined previously</span>
+
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">50</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">col</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block will produce a plot showing that the pattern of the rays has indeed moved closer to the origin:</p>
+<div class="figure align-center">
+<img alt="_images/source_convergingbeam_trace.png" src="_images/source_convergingbeam_trace.png" />
+</div>
+<p>Note that some of the rays have moved out from the pattern entirely, this is due to the lscat parameter. If we had set lscat to 0mm, all of the rays would maintain their original positions in the pattern.</p>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="convergingbeam2">
+<span id="id4"></span><h2>ConvergingBeam2<a class="headerlink" href="#convergingbeam2" title="Permalink to this headline">¶</a></h2>
+<p>A ConvergingBeam2 is a Source which generates a rectangular beam that converges in the x and the y dimensions. In addition to num, z, wave, and order, ConvergingBeam2 takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.</dt><dd><ul>
+<li><p>zset must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>xmin - The minimum extent of the beam in the x-direction, defaults to 0 mm</dt><dd><ul>
+<li><p>xmin must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>xmax - The maximum extent of the beam in the x-direction, defaults to 1 mm</dt><dd><ul>
+<li><p>xmax must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ymin - The minimum extent of the beam in the y-direction, defaults to 0 mm</dt><dd><ul>
+<li><p>ymin must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ymax - The maximum extent of the beam in the y-direction, defaults to 1 mm</dt><dd><ul>
+<li><p>ymax must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>lscat - The scatter in the angular convergence, defaults to 0 arcsec</dt><dd><ul>
+<li><p>lscat must be in units of angle, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">ConvergingBeam2</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">ConvergingBeam2</span><span class="p">(</span><span class="n">zset</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span><span class="n">xmin</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">xmax</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">ymin</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">ymax</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">lscat</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block produces the following plot, note the dimensions of the rectangle along the axes:</p>
+<div class="figure align-center">
+<img alt="_images/source_convergingbeam2_example.png" src="_images/source_convergingbeam2_example.png" />
+</div>
+<p>To show that the rays converge, we will trace them onto a blank Collimator Plate at z=.1m, note that the zset value makes our rays have an initial z-position of 1m.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="k">import</span> <span class="n">CollimatorPlate</span>
+<span class="c1"># Use the rays we defined previously</span>
+
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">col</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block produces the following plot, notice how the dimensions of the rectangle have become smaller as our rays begin to converg:</p>
+<div class="figure align-center">
+<img alt="_images/source_convergingbeam2_trace.png" src="_images/source_convergingbeam2_trace.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="pointsource">
+<span id="id5"></span><h2>PointSource<a class="headerlink" href="#pointsource" title="Permalink to this headline">¶</a></h2>
+<p>A PointSource is a Source which generate rays which start at the origin but propagate outward with a specified angular divergence. In addition to num, z, wave, and order, PointSource takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>ang - The angular divergence of the rays</dt><dd><ul>
+<li><p>ang must be in units of angle, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">PointSource</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">PointSource</span><span class="p">(</span><span class="n">ang</span> <span class="o">=</span> <span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_pointsource_example.png" src="_images/source_pointsource_example.png" />
+</div>
+<p>Certainly all of the rays are generated to begin in the same point, but by tracing them further in the z-direction, we can see how the rays diverge:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="c1"># Use the rays we defined previously</span>
+
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">col</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_pointsource_trace.png" src="_images/source_pointsource_trace.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="rectarray">
+<span id="id6"></span><h2>RectArray<a class="headerlink" href="#rectarray" title="Permalink to this headline">¶</a></h2>
+<p>A RectArray is a Source which generates a rectangular beam with a specified width and height, unlike other Sources, the photons here are evenly spaced, rather than randomly generated. In addition to num, z, wave, and order, RectArray takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>xsize - Half the length in the x-direction. For example, if xsize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.</dt><dd><ul>
+<li><p>xsize must be in units of length, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>ysize - Half the length in the y-direction. For example, if ysize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.</dt><dd><ul>
+<li><p>ysize must be in units of length, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note: Unlike other Sources, num does not specify the number of photons in the resulting Rays object. Since this Source has evenly spaced photons, num gives how many photons are along one side of the array, so the total number of photons in the array will be num-squared. The num argument in RectArray defaults to 100 while it defaults to 1000 in most other Source objects.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">RectArray</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">RectArray</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span><span class="n">xsize</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">ysize</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_rectarray_example.png" src="_images/source_rectarray_example.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="rectbeam">
+<span id="id7"></span><h2>RectBeam<a class="headerlink" href="#rectbeam" title="Permalink to this headline">¶</a></h2>
+<p>A RectBeam is a Source which generates a rectangular beam with a specified width and height, unlike RectArray, these photons are randomly generated within the rectangle. In addition to num, z, wave, and order, RectArray takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>xhalfwidth - Half the length in the x-direction. For example, if xhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.</dt><dd><ul>
+<li><p>xhalfwidth must be in units of length, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>yhalfwidth - Half the length in the y-direction. For example, if yhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.</dt><dd><ul>
+<li><p>yhalfwidth must be in units of length, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">RectBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">RectBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span><span class="n">xhalfwidth</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">yhalfwidth</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_rectbeam_example.png" src="_images/source_rectbeam_example.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="subannulus">
+<span id="id8"></span><h2>Subannulus<a class="headerlink" href="#subannulus" title="Permalink to this headline">¶</a></h2>
+<p>A Subannulus is a Source which generates photons which occupy only a portion of a full annulus. The subannulus is always symmetric about the positive y-axis, but has a angular width that can be specified. In addition to num, z, wave, and order, RectArray takes the following arguments:</p>
+<ul class="simple">
+<li><p>rin - The inner radius of the annulus.
+* rin must be in units of length, see the section on astopy units</p></li>
+<li><p>rout - The outer radius of the annulus
+* rout must be in units of length, see the section on astopy units</p></li>
+<li><p>dphi - The full angular width of the subannulus. phi = 0 is always defined as the positive y-axis. So if dphi was set to 60 degrees, the subannulus would extend 30 degrees below and 30 degrees above the y-axis.
+* dphi must be in units of angle, see the section on astopy units</p></li>
+<li><p>zhat - This argument specified the z-component of the photons’ velocities. It should be -1 is the photons are pointing in the -x direction and should be 1 if the photons are travelling in the +x direction. Defaults to +1.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Subannulus</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Subannulus</span><span class="p">(</span><span class="n">rin</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">rout</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dphi</span><span class="o">=</span><span class="mi">180</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_subannulus_example.png" src="_images/source_subannulus_example.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="xslit">
+<span id="id9"></span><h2>Xslit<a class="headerlink" href="#xslit" title="Permalink to this headline">¶</a></h2>
+<p>An Xslit is a Source which generates photons which are equally spaced along the x-axis in a slit with a given width. In addition to num, z, wave, and order, Xslit takes the following arguments:</p>
+<ul class="simple">
+<li><p>xin - The inner position of the slit.
+* xin must be in units of length, see the section on astopy units</p></li>
+<li><p>xout - The outer position of the slit
+* xout must be in units of length, see the section on astopy units</p></li>
+<li><p>zhat - This argument specified the z-component of the photons’ velocities. It should be -1 is the photons are pointing in the -x direction and should be 1 if the photons are travelling in the +x direction. Defaults to -1.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Xslit</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Xslit</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span><span class="n">xin</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">xout</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block generates the following plot:</p>
+<div class="figure align-center">
+<img alt="_images/source_xslit_example.png" src="_images/source_xslit_example.png" />
+</div>
+<p><a class="reference internal" href="#source-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Sources</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-source">Creating a Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#misalignments">Misalignments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-rays">Generating Rays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#annulus">Annulus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#circularbeam">CircularBeam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#convergingbeam">ConvergingBeam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#convergingbeam2">ConvergingBeam2</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pointsource">PointSource</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rectarray">RectArray</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#rectbeam">RectBeam</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#subannulus">Subannulus</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#xslit">Xslit</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="wolteroptics.html" title="previous chapter">Wolter Optics</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/sources.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
