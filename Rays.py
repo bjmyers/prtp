@@ -174,8 +174,10 @@ class Rays:
         new_rays = Rays(x,y,z,l,m,n,ux,uy,uz)
         new_rays.tags = self.tags.copy()
         new_rays.params = self.params.copy()
-        new_rays.wave = self.wave.copy()
-        new_rays.order = self.order.copy()
+        if self.wave is not None:
+            new_rays.wave = self.wave.copy()
+        if self.order is not None:
+            new_rays.order = self.order.copy()
         return new_rays
     
     def makecopy(self,rays):
@@ -854,7 +856,9 @@ class Rays:
             tarray = (trutharray != 0)
         else:
             tarray = np.full((len(self)), True, dtype=bool)
-        l,m,n = transformationsf.reflect(     self.l[tarray],self.m[tarray],self.n[tarray], self.ux[tarray],self.uy[tarray],self.uz[tarray])
+        l,m,n = transformationsf.reflect(
+            self.l[tarray],self.m[tarray],self.n[tarray], 
+            self.ux[tarray],self.uy[tarray],self.uz[tarray])
         self.l[tarray] = l
         self.m[tarray] = m
         self.n[tarray] = n
@@ -2022,11 +2026,13 @@ class Rays:
         
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(xarg,yarg,zarg,c=c,marker=marker,cmap=cmap,norm=norm,
+        p=ax.scatter(xarg,yarg,zarg,c=c,marker=marker,cmap=cmap,norm=norm,
                    vmin=vmin,vmax=vmax,alpha=alpha,linewidths=linewidths, 
                    verts=verts,edgecolors=edgecolors)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
         ax.set_zlabel(zlabel)
+        if c is not None:
+            plt.colorbar(p)
         plt.show()
     
