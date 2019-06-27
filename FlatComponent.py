@@ -177,17 +177,11 @@ class FlatComponent:
         if (not modify):
             rays = rays.copy()
         
-        gratx = np.ones(len(rays))*self.x.value
-        graty = np.ones(len(rays))*self.y.value
-        gratz = np.ones(len(rays))*self.z.value
-        gratnx = np.ones(len(rays))*self.nx
-        gratny = np.ones(len(rays))*self.ny
-        gratnz = np.ones(len(rays))*self.nz
-        
-        diff = np.array([gratx - rays.x,graty - rays.y, gratz - rays.z])
         # Calculate the distance each ray needs to travel to reach the plane
-        #Note: (x*y).sum(0) finds the dot product of two arrays of vectors
-        dist = (diff*np.array([gratnx,gratny,gratnz])).sum(0) / (np.array([rays.l,rays.m,rays.n])*np.array([gratnx,gratny,gratnz])).sum(0)
+        # This distance is {deltap (dot) normal} / {direction (dot) normal}
+        # where deltap is the vector pointing from the ray to the center
+        
+        dist = (((self.x.value - rays.x) * self.nx) + ((self.y.value - rays.y) * self.ny) + ((self.z.value - rays.z) * self.nz)) / ((rays.l * self.nx) + (rays.m * self.ny) + (rays.n * self.nz))
         
         # Move the rays that distance
         vel = np.sqrt(rays.l**2 + rays.m**2 + rays.n**2)
@@ -225,17 +219,11 @@ class FlatComponent:
         xdir = np.cross((self.sx,self.sy,self.sz),(self.nx,self.ny,self.nz))
         ydir = np.array([self.sx,self.sy,self.sz])
         
-        # Stack direction vectors so they can be easily compared with the rays
-        xdir = np.vstack([xdir] * len(rays))
-        ydir = np.vstack([ydir] * len(rays))
-        
-        # Define the vector going from the rays to the center of the plane
-        deltap = np.array([rays.x - self.x.value, rays.y - self.y.value, rays.z - self.z.value]).transpose()
-        
         # X-components are {deltap (dot) (s x n)}
-        xs = (deltap * xdir).sum(1)
+        xs = (rays.x - self.x.value) * (xdir[0]) + (rays.y - self.y.value) * (xdir[1]) + (rays.z - self.z.value) * (xdir[2])
+        
         # Y-components are {deltap (dot) s}
-        ys = (deltap * ydir).sum(1)
+        ys = (rays.x - self.x.value) * (ydir[0]) + (rays.y - self.y.value) * (ydir[1]) + (rays.z - self.z.value) * (ydir[2])
         
         return xs,ys
     
@@ -252,17 +240,11 @@ class FlatComponent:
         An array of length len(rays) containing the distance of each photon to
             the plane
         '''
-        gratx = np.ones(len(rays))*self.x.value
-        graty = np.ones(len(rays))*self.y.value
-        gratz = np.ones(len(rays))*self.z.value
-        gratnx = np.ones(len(rays))*self.nx
-        gratny = np.ones(len(rays))*self.ny
-        gratnz = np.ones(len(rays))*self.nz
-        
-        diff = np.array([gratx - rays.x,graty - rays.y, gratz - rays.z])
         # Calculate the distance each ray needs to travel to reach the plane
-        #Note: (x*y).sum(0) finds the dot product of two arrays of vectors
-        return (diff*np.array([gratnx,gratny,gratnz])).sum(0) / (np.array([rays.l,rays.m,rays.n])*np.array([gratnx,gratny,gratnz])).sum(0)
+        # This distance is {deltap (dot) normal} / {direction (dot) normal}
+        # where deltap is the vector pointing from the ray to the center
+        
+        return (((self.x.value - rays.x) * self.nx) + ((self.y.value - rays.y) * self.ny) + ((self.z.value - rays.z) * self.nz)) / ((rays.l * self.nx) + (rays.m * self.ny) + (rays.n * self.nz))
     
     
     def reflect(self,rays):

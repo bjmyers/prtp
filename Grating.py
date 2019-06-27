@@ -187,19 +187,17 @@ class Grating(FlatComponent):
         - Photons must be reflected after this function is called or they will 
             not behave properly
         '''
-        vel = [rays.l,rays.m,rays.n]
+        
         # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
         nor = self.Normal()
         s = self.Surface()
         sxn = np.cross(s,n)
-        norm = np.tile(n,(len(rays),1)).transpose()
-        surf = np.tile(s,(len(rays),1)).transpose()
-        crossproduct = np.tile(np.cross(s,n),(len(rays),1)).transpose()
         
         # Define velocity components aligned with Grating (if it were in the xy-plane) using dot products
-        gratl = (vel * crossproduct).sum(0)
-        gratm = (vel * surf).sum(0)
-        gratn = (vel * norm).sum(0)
+        
+        gratl = (rays.l * sxn[0]) + (rays.m * sxn[1]) + (rays.n * sxn[2])        
+        gratm = (rays.l * s[0]) + (rays.m * s[1]) + (rays.n * s[2])        
+        gratn = (rays.l * nor[0]) + (rays.m * nor[1]) + (rays.n * nor[2])
         
         # Find the groove period each photon sees
         if self.periodfunction is None:
@@ -248,19 +246,16 @@ class Grating(FlatComponent):
         if (autoreflect):
             self.reflect(rays)
         
-        vel = [rays.l,rays.m,rays.n]
         # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
         nor = self.Normal()
         s = self.Surface()
         sxn = np.cross(s,nor)
-        norm = np.tile(nor,(len(rays),1)).transpose()
-        surf = np.tile(s,(len(rays),1)).transpose()
-        crossproduct = np.tile(np.cross(s,nor),(len(rays),1)).transpose()
         
         # Define velocity components aligned with Grating (if it were in the xy-plane) using dot products
-        gratl = (vel * crossproduct).sum(0) # Vel aligned with sxn vector
-        gratm = (vel * surf).sum(0)         # Vel aligned with surf vector
-        gratn = (vel * norm).sum(0)         # Vel aligned with norm vector
+        
+        gratl = (rays.l * sxn[0]) + (rays.m * sxn[1]) + (rays.n * sxn[2])        
+        gratm = (rays.l * s[0]) + (rays.m * s[1]) + (rays.n * s[2])        
+        gratn = (rays.l * nor[0]) + (rays.m * nor[1]) + (rays.n * nor[2])
         
         # Find the groove period each photon sees
         if self.periodfunction is None:
