@@ -1098,17 +1098,25 @@ class Rays:
     
         # Compute some cross products.
         op = np.cross(n, q)
-        op = np.array([(op[i] / np.linalg.norm(op[i])) for i in range(len(op))])
-    
+        
+        norm = np.linalg.norm(op,axis=1)
+        op[:,0] /= norm
+        op[:,1] /= norm
+        op[:,2] /= norm
+        
         ip = np.cross(q, op)
-        ip = np.array([(ip[i] / np.linalg.norm(ip[i])) for i in range(len(ip))])
+        
+        norm = np.linalg.norm(ip,axis=1)
+        ip[:,0] /= norm
+        ip[:,1] /= norm
+        ip[:,2] /= norm
     
-        dot = np.array([np.dot(a, b) for a, b in zip(q, n)])
-    
+        dot = np.sum((q*n),1)
+        
         nel = len(self)
-    
+        
         dq = np.zeros(np.shape(q))
-    
+        
         # Create *h* array.
         if type(h) is int or float:
             h = [h]
@@ -1145,10 +1153,18 @@ class Rays:
         rth = np.random.rand(nel) * 2 * np.pi
         dth = ripr * np.sin(rth)
         dph = ripr * np.cos(rth) * dot
-    
-        dq = dq + np.array([(dth[i]*ip[i] + dph[i]*op[i]) for i in range(nel)])
+        
+        dq[:,0] += (dth*ip[:,0]) + (dph*op[:,0])        
+        dq[:,1] += (dth*ip[:,1]) + (dph*op[:,1])        
+        dq[:,2] += (dth*ip[:,2]) + (dph*op[:,2])
+        
         q = q + dq
-        q = np.array([(q[i] / np.linalg.norm(q[i])) for i in range(len(q))])
+        
+        norm = np.linalg.norm(q,axis=1)
+        q[:,0] /= norm
+        q[:,1] /= norm
+        q[:,2] /= norm
+        
         q = q.transpose()
     
         self.l = np.array(q[0], order='F')
