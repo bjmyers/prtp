@@ -1658,15 +1658,20 @@ class Rays:
         respectively
         -defaulttag and defaultparam arguments must be numeric (0 will be False
         for the tag arrays)
-        -If one of the two Rays objects has weighting, it will be added to the
-            other Rays object
+        -If one of the two Rays objects has weighting, weighting will be added 
+            to the other Rays object
         -If both Rays objects have weighting, their weights will be concatenated
         -If neither Rays objects have weighting, the resultant Rays object will
             also not have weighting
+        - If one of the two Rays objects has wavelength or order and the other
+            does not. The other Rays object will be given wavelength and order
+            equal to the average wavelength and order of the first Rays object.
+            This is not the best solution, but it is not recommended to add
+            Rays with wavelengths and Rays without wavelengths
         '''
         tagstr = str(defaulttag)
         paramstr = str(defaultparam)
-        if (not tagstr.isnumeric() or not paramstr.isnumeric()):
+        if not(tagstr.isnumeric() and paramstr.isnumeric()):
             raise ValueError('Defaulttag and DefaultParam must both be numeric')
         
         selflen = len(self)
@@ -1747,27 +1752,22 @@ class Rays:
         # If both objects have wavelengths
         if (self.wave is not None and other.wave is not None):
             newrays.wave = np.concatenate((self.wave,other.wave))
-        #TODO: Currently this supposes that the only way wave could be None is for an empty Rays object, improve in the future
         # If only one has wavelengths
         elif (self.wave is not None and other.wave is None):
-            newrays.wave = self.wave
+            newrays.wave = np.concatenate((self.wave,np.array([np.mean(self.wave)]*len(other))))
         elif (self.wave is None and other.wave is not None):
-            newrays.wave = other.wave
-        # If both have wavelengths, do nothing
+            newrays.wave = np.concatenate((np.array([np.mean(other.wave)]*len(self)),other.wave))
+        # If neither have wavelengths, do nothing
         
         # If both objects have order
         if (self.order is not None and other.order is not None):
             newrays.order = np.concatenate((self.order,other.order))
-        #TODO: Currently this supposes that the only way order could be None is for an empty Rays object, improve in the future
         # If only one has order
         elif (self.order is not None and other.order is None):
-            newrays.order = self.order
+            newrays.order = np.concatenate((self.order,np.array([int(np.mean(self.order))]*len(other))))
         elif (self.order is None and other.order is not None):
-            newrays.order = other.order
-        # If both have order, do nothing
-        
-        
-        
+            newrays.order = np.concatenate((np.array([int(np.mean(other.order))]*len(self)),other.order))
+        # If neither have order, do nothing
         
         return newrays
     
