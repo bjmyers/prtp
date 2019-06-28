@@ -24,7 +24,7 @@ rp_front = prtp.conicsolve.primrad(z0 + mirror_sep/2 + mirror_len, r0, z0)
 rp_back = prtp.conicsolve.primrad(z0 + mirror_sep/2, r0, z0)
 
 # Define initial rays in subannulus.
-source = Subannulus(10000,rp_back, rp_front, np.radians(30.)*u.rad,wave=0.83401*u.nm,order=-1)
+source = Subannulus(10000,rp_back, rp_front, np.radians(30.)*u.rad,wave=0.83401*u.nm,order=0)
 
 # Define Wolter Optic
 # Make sure to add Beckmann Scattering, will be added after the Primary Mirror
@@ -40,6 +40,7 @@ grat = Grating(0.*u.mm,151.86466758*u.mm,3247.56521956*u.mm,
 i = Instrument(source)
 i.addComponent(wolter)
 i.addComponent(grat)
+i.addFocus()
 
 # Simulate the Rays through the instrument
 i.simulate()
@@ -50,6 +51,5 @@ i.displayEfficiency()
 # Access the final rays
 rays = i.getRays()
 
-# Send the rays to the focus and plot them
-rays.focusX()
+# Plot the Rays
 rays.scatter2d()
