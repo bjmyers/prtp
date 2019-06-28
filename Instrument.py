@@ -1,5 +1,6 @@
 import numpy as np
-
+from prtp.Sources import Source
+from prtp.Modification import Modification
 
 class Instrument:
     # The main class for simulating optical systems, each Instrument object
@@ -12,7 +13,9 @@ class Instrument:
         
         Inputs:
         source - A Source Object, this will generate the Rays that you want to 
-            send through the instrument
+            send through the instrument. This can also be in Instrument object,
+            if this is the case, this new Instrument will be given a source 
+            that contains the Rays that the argument Instrument has generated.
         weighting - If False, the instrument will not weight photons
         
         Notes: 
@@ -22,7 +25,13 @@ class Instrument:
             when photons are traced to each component
         - self.rays will contain the result after calling simulate()
         '''
-        self.source = source
+        if (type(source) == Instrument):
+            if source.rays is None:
+                raise Exception('Source Instrument has not yet been simulated')
+            else:
+                self.source = Source.sourceFromRays(source.rays)
+        else:
+            self.source = source
         self.weighting = weighting
         self.componentlist = []
         self.effs = []
@@ -59,6 +68,14 @@ class Instrument:
         '''
         return self.componentlist.pop(index)
     
+    def addFocus(self,index=None):
+        def focusfunc(rays,cw):
+            rays.focusX()
+        
+        m = Modification(focusfunc)
+        
+        self.addComponent(m,index)
+    
     
     ## Simulation Functions
     
@@ -86,7 +103,6 @@ class Instrument:
 
         # Refresh the efficiency list
         self.effs = []
-        import prtp.WolterOptic as WolterOptic
         # Iterate through each component
         for c in self.componentlist:
             
