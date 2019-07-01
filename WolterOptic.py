@@ -99,9 +99,9 @@ class WolterOptic:
         - This move is relative, not absolute. That is, you will move BY dx, dy,
             and z, you will not move TO dx, dy, and dz
         '''
-        self.x += dx.to(u.mm).value
-        self.y += dy.to(u.mm).value
-        self.z += dz.to(u.mm).value
+        self.x += dx.to(u.mm)
+        self.y += dy.to(u.mm)
+        self.z += dz.to(u.mm)
     
     @u.quantity_input(theta=u.rad)
     def unitrotate(self,theta=0*u.rad,axis=1):
