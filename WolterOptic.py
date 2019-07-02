@@ -574,7 +574,7 @@ class WolterModule(WolterOptic, Combination):
             # Through each pass we need to ensure that the rays that make it are 
             # placed into a final rays object
             # All those that miss are passed to the next Mirror
-            r.tracefunction(temprays,autoreflect,eliminate='nan')
+            r.trace(temprays,autoreflect,False,eliminate='nan')
             
             # Find the Rays which hit the optic
             tarray = np.logical_not(np.isnan(temprays.x))
