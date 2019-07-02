@@ -468,15 +468,22 @@ class Rays:
     def interpolateVec(self,I,Nx,Ny,xr=None,yr=None,method='linear',polar=False):
         return analyses.interpolateVec(self,I,Nx,Ny,xr,yr,method,polar)
     
-    # wavefront requires the no longer used utilities.imaging.man package
-    # def wavefront(self,Nx,Ny,method='cubic',polar=False):
-    #     return analyses.wavefront(self,Nx,Ny,method,polar)
-    
-    
-    # measurePower requires the no longer used utilities.imaging.man package
-    # def measurePower(self,Nx,Ny,method='linear'):
-    #     return analyses.measurePower(self,Nx,Ny,method)
-    
+    def spectralResolution(self):
+        '''
+        Function spectralResolution:
+        Returns the spectral resolution of the rays with dispersion in the
+            x-direction, using the formula res=mean(x)/fwhm(x)
+        
+        Inputs:
+        None
+        
+        Outputs:
+        The spectral resolution as a float
+        '''
+        if len(self) == 0:
+            return np.nan
+        return np.abs(np.mean(self.x)/(np.std(self.x)*2.355))
+
     
     ## Surfaces Functions:
     # These functions call to prtp.surfacesf

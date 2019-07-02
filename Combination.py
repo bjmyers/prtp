@@ -6,9 +6,13 @@ import prtp.transformationsf as trans
 class Combination:
     '''
     Class Combination:
-    A combination object is a group of several components that the user wants to group together
-    When Rays are traced to a Combination Object, they will be traced to each Component individually and only those components who missed every component will be removed
-    Tracing to Combinations will also give detailed information about how each Component affected the overall efficiency
+    A combination object is a group of several components that the user wants to 
+        group together
+    When Rays are traced to a Combination Object, they will be traced to each 
+        Component individually and only those components who missed every 
+        component will be removed
+    Tracing to Combinations will also give detailed information about how each 
+        Component affected the overall efficiency
     '''
     
     def __init__(self):
@@ -22,7 +26,8 @@ class Combination:
         
         Inputs:
         comp - The component to add
-        index - Where in the list you want to add the component, if None, it will be added to the end
+        index - Where in the list you want to add the component, if None, it 
+            will be added to the end
         '''
         if index is None:
             self.componentlist.append(comp)
@@ -33,7 +38,9 @@ class Combination:
         '''
         Function applyToAll:
         Applies a function to each component in the Combination Object
-        (e.g: applyToAll(self,FlatComponent.UnitRotate,theta=.1,axis=2) will rotate each component in the Combination .1 radians about the y-axis
+        (e.g: applyToAll(self,FlatComponent.UnitRotate,theta=.1*u.rad,axis=2)
+            will rotate each component in the Combination .1 radians about the 
+            y-axis
         
         Inputs:
         func - The function you want to apply to each element
@@ -44,6 +51,55 @@ class Combination:
         '''
         for c in self.componentlist:
             func(c,**kwargs)
+    
+    def setAttribute(self, name, value):
+        '''
+        Function setAttribute:
+        Changes the value of a parameter for every Component in the Combination
+        
+        Inputs:
+        name - The name of the parameter
+        value - The value that you would like to set the parameter to
+        
+        Notes:
+        - This function cannot check for astropy units, check what form the 
+            parameter should be in before you call this function.
+        '''
+        for c in self.componentlist:
+            setattr(c,name,value)
+    
+    def getSubComponents(self):
+        '''
+        Function getSubComponents:
+        Returns a list of the components in this Combination. If one of the 
+            components is a Combination itself, the components that make up this
+            Combination will be returned instead. This process is repeated
+            until every component of every Combination in self has been returned
+        
+        Inputs:
+        Nothing
+        
+        Output:
+        - A list containing every subcomponent
+        '''
+        output = []
+        combinations = []
+        
+        for c in self.componentlist:
+            if isinstance(c,Combination):
+                combinations.append(c)
+            else:
+                output.append(c)
+        
+        while len(combinations) > 0:
+            comb = combinations.pop()
+            for c in comb.componentlist:
+                if isinstance(c,Combination):
+                    combinations.append(c)
+                else:
+                    output.append(c)
+        
+        return output
     
     ## Movement Functions:
     
@@ -115,7 +171,7 @@ class Combination:
                 # Translate the origin back down
                 g.translate(self.rx,self.ry,self.rz)
         else:
-            for g in self.componentlist:
+            for g in self.getSubComponents():
                 # Rotates the Grating's two vectors
                 g.unitrotate(theta,axis)
                 # Move the Grating's so the rotation point is about the origin 
@@ -174,7 +230,7 @@ class Combination:
                 # Translate the origin back down
                 g.translate(self.rx,self.ry,self.rz)
         else:
-            for g in self.componentlist:
+            for g in self.getSubComponents():
                 # Rotates the Grating's two vectors
                 g.rotate(theta,ux,uy,uz)
                 # Move the Grating's so the rotation point is about the origin 
@@ -263,7 +319,7 @@ class Combination:
         Notes:
         - This move is relative, not absolute. That is, you will move BY dx, dy, and z, you will not move TO dx, dy, and dz
         '''
-        for g in self.componentlist:
+        for g in self.getSubComponents():
             g.translate(dx,dy,dz)
     
     

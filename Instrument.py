@@ -1,6 +1,9 @@
 import numpy as np
 from prtp.Sources import Source
 from prtp.Modification import Modification
+from prtp.Combination import Combination
+import astropy.units as u
+import matplotlib.pyplot as plt
 
 class Instrument:
     # The main class for simulating optical systems, each Instrument object
@@ -76,6 +79,269 @@ class Instrument:
         
         self.addComponent(m,index)
     
+    def spectralResolution(self):
+        '''
+        Function spectralResolution:
+        Returns the spectral resolution of the rays with dispersion in the
+            x-direction, using the formula res=mean(x)/fwhm(x)
+        
+        Inputs:
+        None
+        
+        Outputs:
+        The spectral resolution as a float
+        
+        Notes:
+        - There must be rays in the Instrument, meaning that it must have been
+            simulated prior to the call to spectralResolution()
+        '''
+        if self.rays is None:
+            raise ValueError('Instrument has not yet been simulated')
+        else:
+            return self.rays.spectralResolution()
+    
+    ## Misalignment Tests
+    
+    @u.quantity_input(min=u.mm,max=u.mm)
+    def singleTranslateTest(self,index=0,min=-1*u.mm,max=1*u.mm,num=10,dim=1,plot=True):
+        '''
+        Function singleTranslateTest:
+        Performs repeated translational misalignments on the specified component
+            and compares the resolution after each one
+        
+        Inputs:
+        index - The index in self.componentlist that refers to the component
+            which you want to misalign
+        min,max - This function will generate misalignment values equally spaced
+            on the range [min,max]
+        mun - The number of misalignment values you want to test
+        dim - Can be 1, 2, or 3. Specifies if you want to translate in the 
+            x-direction, y-direction, or z-direction, respectively.
+        plot - boolean. If True, the misalignment and resolution values will
+            automatically be plotted in a scatter plot. If False, the values
+            will just be returned
+        
+        Outputs:
+        misValues - The misalignment values that were tested, not as astropy
+            Quantity but it gives values in mm
+        resValues - The resolution values produced by each misalignment value
+        '''
+        min = min.to(u.mm)
+        max = max.to(u.mm)
+        
+        # Create an Instrument that simulates this up until the point of the
+        # misalignment, this means all previous components will not have to be
+        # simulated more than once, speeding up the test
+        # prevInst = Instrument(self.source)
+        # prevInst.componentlist = self.componentlist[:index]
+        # prevInst.simulate()
+        
+        # misalignedInst = Instrument(prevInst)
+        # misalignedInst.componentlist = self.componentlist[index:]        
+        misalignedInst = Instrument(self.source)
+        misalignedInst.componentlist = self.componentlist
+        
+        misValues = np.linspace(min.value,max.value,num)
+        resValues = np.zeros(num)
+        
+        if type(misalignedInst.componentlist[index] == Combination):
+        
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                if dim == 1:
+                    Combination.translate(misalignedInst.componentlist[index],dx=misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    Combination.translate(misalignedInst.componentlist[index],dx=-1*misValues[i]*u.mm)
+                elif dim == 2:
+                    Combination.translate(misalignedInst.componentlist[index],dy=misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    Combination.translate(misalignedInst.componentlist[index],dy=-1*misValues[i]*u.mm)
+                elif dim == 3:
+                    Combination.translate(misalignedInst.componentlist[index],dz=-1*misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    Combination.translate(misalignedInst.componentlist[index],dz=misValues[i]*u.mm)
+                else:
+                    raise ValueError('dim must be 1, 2, or 3')
+                resValues[i] = misalignedInst.spectralResolution()
+            
+        else:
+            
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                if dim == 1:
+                    misalignedInst.componentlist[index].translate(dx=misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    misalignedInst.componentlist[index].translate(dx=-1*misValues[i]*u.mm)
+                elif dim == 2:
+                    misalignedInst.componentlist[index].translate(dy=misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    misalignedInst.componentlist[index].translate(dy=-1*misValues[i]*u.mm)
+                elif dim == 3:
+                    misalignedInst.componentlist[index].translate(dz=misValues[i]*u.mm)
+                    misalignedInst.simulate()
+                    misalignedInst.componentlist[index].translate(dz=-1*misValues[i]*u.mm)
+                else:
+                    raise ValueError('dim must be 1, 2, or 3')
+                resValues[i] = misalignedInst.spectralResolution()
+        
+        # Plot the Resolutions
+        if plot:
+            plt.figure()
+            plt.scatter(misValues,resValues)
+            plt.xlabel('Misalignment (mm)')
+            plt.ylabel('Resolution')
+            plt.show()
+        
+        return misValues,resValues
+    
+    
+    @u.quantity_input(min=u.rad,max=u.rad)
+    def singleUnitRotateTest(self,index=0,min=-1*u.deg,max=1*u.deg,num=10,axis=1,plot=True):
+        '''
+        Function singleUnitRotateTest:
+        Performs repeated unit-rotational misalignments on the specified component
+            and compares the resolution after each one
+        
+        Inputs:
+        index - The index in self.componentlist that refers to the component
+            which you want to misalign
+        min,max - This function will generate misalignment values equally spaced
+            on the range [min,max]
+        mun - The number of misalignment values you want to test
+        axis - Can be 1, 2, or 3. Specifies if you want to rotate about the 
+            x-axis, y-axis, or z-axis, respectively.
+        plot - boolean. If True, the misalignment and resolution values will
+            automatically be plotted in a scatter plot. If False, the values
+            will just be returned
+        
+        Outputs:
+        misValues - The misalignment values that were tested, not as astropy
+            Quantity but it gives values in degrees
+        resValues - The resolution values produced by each misalignment value
+        '''
+        min = min.to(u.rad)
+        max = max.to(u.rad)
+        
+        # Create an Instrument that simulates this up until the point of the
+        # misalignment, this means all previous components will not have to be
+        # simulated more than once, speeding up the test
+        # prevInst = Instrument(self.source)
+        # prevInst.componentlist = self.componentlist[:index]
+        # prevInst.simulate()
+        
+        # misalignedInst = Instrument(prevInst)
+        # misalignedInst.componentlist = self.componentlist[index:]        
+        misalignedInst = Instrument(self.source)
+        misalignedInst.componentlist = self.componentlist
+        
+        misValues = np.linspace(min.value,max.value,num)
+        resValues = np.zeros(num)
+        
+        if type(misalignedInst.componentlist[index] == Combination):
+        
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                Combination.unitrotate(misalignedInst.componentlist[index],theta=misValues[i]*u.rad,axis=axis)
+                misalignedInst.simulate()
+                Combination.unitrotate(misalignedInst.componentlist[index],theta=-1*misValues[i]*u.rad,axis=axis)
+                resValues[i] = misalignedInst.spectralResolution()
+            
+        else:
+            
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                misalignedInst.componentlist[index].unitrotate(theta=misValues[i]*u.rad,axis=axis)
+                misalignedInst.simulate()
+                misalignedInst.componentlist[index].unitrotate(theta=-1*misValues[i]*u.rad,axis=axis)
+                resValues[i] = misalignedInst.spectralResolution()
+        
+        # Plot the Resolutions
+        if plot:
+            plt.figure()
+            plt.scatter((misValues*u.rad).to(u.deg),resValues)
+            plt.xlabel('Misalignment (degrees)')
+            plt.ylabel('Resolution')
+            plt.show()
+        
+        return misValues,resValues
+    
+    
+    @u.quantity_input(min=u.rad,max=u.rad)
+    def singleRotateTest(self,index=0,min=-1*u.deg,max=1*u.deg,num=10,ux=1,uy=0,uz=0,plot=True):
+        '''
+        Function singleRotateTest:
+        Performs repeated unit-rotational misalignments on the specified component
+            and compares the resolution after each one
+        
+        Inputs:
+        index - The index in self.componentlist that refers to the component
+            which you want to misalign
+        min,max - This function will generate misalignment values equally spaced
+            on the range [min,max]
+        mun - The number of misalignment values you want to test
+        ux, uy, uz - These arguments describe the axis about which you want
+            to rotate
+        plot - boolean. If True, the misalignment and resolution values will
+            automatically be plotted in a scatter plot. If False, the values
+            will just be returned
+        
+        Outputs:
+        misValues - The misalignment values that were tested, not as astropy
+            Quantity but it gives values in degrees
+        resValues - The resolution values produced by each misalignment value
+        '''
+        min = min.to(u.rad)
+        max = max.to(u.rad)
+        
+        # Create an Instrument that simulates this up until the point of the
+        # misalignment, this means all previous components will not have to be
+        # simulated more than once, speeding up the test
+        # prevInst = Instrument(self.source)
+        # prevInst.componentlist = self.componentlist[:index]
+        # prevInst.simulate()
+        
+        # misalignedInst = Instrument(prevInst)
+        # misalignedInst.componentlist = self.componentlist[index:]        
+        misalignedInst = Instrument(self.source)
+        misalignedInst.componentlist = self.componentlist
+        
+        misValues = np.linspace(min.value,max.value,num)
+        resValues = np.zeros(num)
+        
+        if type(misalignedInst.componentlist[index] == Combination):
+        
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                Combination.rotate(misalignedInst.componentlist[index],theta=misValues[i]*u.rad,ux=ux,uy=uy,uz=uz)
+                misalignedInst.simulate()
+                Combination.rotate(misalignedInst.componentlist[index],theta=-1*misValues[i]*u.rad,ux=ux,uy=uy,uz=uz)
+                resValues[i] = misalignedInst.spectralResolution()
+            
+        else:
+            
+            for i in range(num):
+                # In each case, we must misalign the relevant component, simulate 
+                # the instrument, then re-align the component
+                misalignedInst.componentlist[index].rotate(theta=misValues[i]*u.rad,ux=ux,uy=uy,uz=uz)
+                misalignedInst.simulate()
+                misalignedInst.componentlist[index].rotate(theta=-1*misValues[i]*u.rad,ux=ux,uy=uy,uz=uz)
+                resValues[i] = misalignedInst.spectralResolution()
+        
+        # Plot the Resolutions
+        if plot:
+            plt.figure()
+            plt.scatter((misValues*u.rad).to(u.deg),resValues)
+            plt.xlabel('Misalignment (degrees)')
+            plt.ylabel('Resolution')
+            plt.show()
+        
+        return misValues,resValues
+        
     
     ## Simulation Functions
     
