@@ -483,6 +483,40 @@ class Rays:
         if len(self) == 0:
             return np.nan
         return np.abs(np.mean(self.x)/(np.std(self.x)*2.355))
+    
+    def fwhm(self,param='x'):
+        '''
+        Function fwhm:
+        Returns the full width at half maximum of the rays in the specified
+            parameter
+        
+        Inputs:
+        param - String with potential values:
+            x,y,z,l,m,n,ux,uy,uz
+        
+        Outputs:
+        The FWHM in the x-direction as a float
+        '''
+        if len(self) == 0:
+            return np.nan
+        if param.lower() == 'x':
+            return np.std(self.x)*2.355
+        if param.lower() == 'y':
+            return np.std(self.y)*2.355
+        if param.lower() == 'z':
+            return np.std(self.z)*2.355
+        if param.lower() == 'l':
+            return np.std(self.l)*2.355
+        if param.lower() == 'm':
+            return np.std(self.m)*2.355
+        if param.lower() == 'n':
+            return np.std(self.n)*2.355
+        if param.lower() == 'ux':
+            return np.std(self.ux)*2.355
+        if param.lower() == 'uy':
+            return np.std(self.uy)*2.355
+        if param.lower() == 'uz':
+            return np.std(self.uz)*2.355
 
     
     ## Surfaces Functions:
