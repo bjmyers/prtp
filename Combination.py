@@ -256,22 +256,21 @@ class Combination:
         
         Inputs:
         theta - The amount by which you want to rotate, must be an astropy unit
-            of angle
+            of angle. Can be a single value or array-like
         axis - integer input of 1, 2, or 3 to rotate about the x, y, or z axes, 
             respectively.
         
         Outputs:
         None
-        
-        Notes:
-        - Theta must be an array of quantities the same length as self.componentlist
-            If you wished to rotate each component by the same amount, use
-            applyToAll()
         '''
-        if (len(theta) != len(self.componentlist)):
-            raise ValueError('Theta Array must be the same length as the component list')
-        for i in range(len(self.componentlist)):
-            self.componentlist[i].unitrotate(theta[i],axis)
+        if isinstance(theta.value, (list, tuple, np.ndarray)):
+            if (len(theta.value) != len(self.componentlist)):
+                raise ValueError('Theta Array must be the same length as the component list')
+            for i in range(len(self.componentlist)):
+                self.componentlist[i].unitrotate(theta[i],axis)
+        else:
+            for i in range(len(self.componentlist)):
+                self.componentlist[i].unitrotate(theta,axis)
     
     
     @u.quantity_input(theta=u.rad)
@@ -285,22 +284,21 @@ class Combination:
         
         Inputs:
         theta - The amount by which you want to rotate, must be an astropy unit
-            of angle
+            of angle. Can be a single value or array-like
         ux,uy,uz - Components of the vector about which you want to rotate, does
             not need to be a unit vector (can have any length)
         
         Outputs:
         None
-        
-        Notes:
-        - Theta must be an array of quantities the same length as self.componentlist
-            If you wished to rotate each component by the same amount, use
-            applyToAll()
         '''
-        if (len(theta) != len(self.componentlist)):
-            raise ValueError('Theta Array must be the same length as the component list')
-        for i in range(len(self.componentlist)):
-            self.componentlist[i].rotate(theta[i],ux,uy,uz)
+        if isinstance(theta.value, (list, tuple, np.ndarray)):
+            if (len(theta.value) != len(self.componentlist)):
+                raise ValueError('Theta Array must be the same length as the component list')
+            for i in range(len(self.componentlist)):
+                self.componentlist[i].rotate(theta[i],ux,uy,uz)
+        else:
+            for i in range(len(self.componentlist)):
+                self.componentlist[i].rotate(theta[i],ux,uy,uz)
     
     
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm)
