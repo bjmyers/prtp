@@ -59,6 +59,21 @@ Collimator Plates have two ways to remove rays once they've been traced. First, 
 
 For example, this image is of a Collimator Plate with length 5 and width 5.
 
+.. code-block:: python
+
+   from prtp.CollimatorPlate import CollimatorPlate
+   from prtp.Sources import CircularBeam
+   import astropy.units as u
+
+   col = CollimatorPlate(0*u.mm,0*u.mm,3*u.mm,
+      0,0,1,0,1,0,l=5*u.mm,w=5*u.mm)
+
+   s = CircularBeam(num=5000,rad=10*u.mm)
+   rays = s.generateRays()
+   col.trace(rays)
+
+   rays.scatter3d()
+
 .. figure:: ../images/basic_flatcomp_init.png
 
 The user can also define their own collision functions which take in rays and return an array of which photons should be removed.
@@ -79,11 +94,20 @@ The following block of code shows how this is done. Note that the name of the pa
 .. code-block:: python
 
    from prtp.CollimatorPlate import CollimatorPlate
+   from prtp.Sources import CircularBeam
    import astropy.units as u
-   c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0)
+
+   c = CollimatorPlate(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=0,sy=1,sz=0)
    c.collisionfunction = CollimatorPlate.wires
    c.thickness = 1 * u.mm
    c.sep = 2 * u.mm
+
+   s = CircularBeam(num=4000,rad=10*u.mm)
+   rays = s.generateRays()
+
+   c.trace(rays)
+   rays.scatter2d()
 
 When rays are traced to this CollimatorPlate, they will look something like this:
 
@@ -96,12 +120,20 @@ If both a collision function and length/width are defined, then both will be app
 .. code-block:: python
 
    from prtp.CollimatorPlate import CollimatorPlate
+   from prtp.Sources import CircularBeam
    import astropy.units as u
-   c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
-   l=6*u.mm,w=8*u.mm)
+
+   c = CollimatorPlate(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,l=6*u.mm,w=8*u.mm)
    c.collisionfunction = CollimatorPlate.wires
    c.thickness = 1 * u.mm
    c.sep = 2 * u.mm
+
+   s = CircularBeam(num=10000,rad=10*u.mm)
+   rays = s.generateRays()
+
+   c.trace(rays)
+   rays.scatter2d()
 
 .. figure:: ../images/collplate_rect_wires.png
 
@@ -158,11 +190,21 @@ This code will be very similar to the code we used for the wires function. Also 
 
 .. code-block:: python
 
+   from prtp.CollimatorPlate import CollimatorPlate
+   from prtp.Sources import CircularBeam
+   import astropy.units as u
+
    c = CollimatorPlate(x=0,y=0,z=0,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
    l=6*u.mm,w=8*u.mm)
    c.collisionfunction = circle
    c.rin = 1 * u.mm
    c.rout = 2 * u.mm
+
+   s = CircularBeam(num=10000,rad=10*u.mm)
+   rays = s.generateRays()
+
+   c.trace(rays)
+   rays.scatter2d()
 
 After Tracing rays to the surface, we can see how photons were removed by the ring:
 

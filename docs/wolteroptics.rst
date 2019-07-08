@@ -67,8 +67,12 @@ Example: Take the WolterOptic we defined before and move it 2 mm in x and -3 mm 
 
 .. code-block:: python
 
-   import astropy.units as u
-   # w had been defined previously
+   import astropy.units as u   
+   from prtp.WolterOptic import WolterOptic
+
+   w = WolterOptic(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+   r0=165*u.mm,z0=3500*u.mm,axial_len=100*u.mm,mirror_sep=1*u.mm)
+
    w.translate(dx=2*u.mm,dy=-3*u.mm)
 
 :ref:`Back to Top<wolter-top>`
@@ -94,7 +98,11 @@ Example: Let's take the Wolter Optic we defined at first and rotate it 20 degree
 .. code-block:: python
 
    import astropy.units as u
-   # w is defined previously
+   from prtp.WolterOptic import WolterOptic
+
+   w = WolterOptic(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+   r0=165*u.mm,z0=3500*u.mm,axial_len=100*u.mm,mirror_sep=1*u.mm)
+
    w.unitrotate(theta=20*u.deg,axis=2)
 
 
@@ -119,9 +127,12 @@ Example: Let's take the mirror we defined at first and rotate it 40 degrees abou
 
 .. code-block:: python
 
-   from prtp.WolterOptic import WolterOptic
    import astropy.units as u
-   # w has been defined previously
+   from prtp.WolterOptic import WolterOptic
+
+   w = WolterOptic(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,
+   r0=165*u.mm,z0=3500*u.mm,axial_len=100*u.mm,mirror_sep=1*u.mm)
+
    w.rotate(theta=40*u.deg,ux=1,uy=1,uz=0)
 
 :ref:`Back to Top<wolter-top>`
@@ -338,10 +349,21 @@ Descending from Combination, WolterModule also inherits defineRotationPoint, as 
 .. code-block:: python
 
    from prtp.Combination import Combination
+   from prtp.WolterOptic import WolterModule
    import astropy.units as u
 
-   # The WolterModule wm has been defined elsewhere
+   # Generate the Wolter Module
+   r0s = np.array([165., 167.5503, 170.1193, 172.7023,
+                  175.3143, 177.9404, 180.5859, 183.2509,
+                  185.9355, 188.6398, 191.3640, 194.1083]) * u.mm
 
+   z0s = np.ones(12) * 3500. * u.mm
+   axlens = np.ones(12) * 100 * u.mm
+   mrseps = np.ones(12) * 5 * u.mm
+   wm = WolterModule(r0=r0s,z0=z0s,axial_length=axlens,mirror_sep=mrseps,
+      beckmann_scatter=True,ripple=1.5e-5)
+
+   # Move the Wolter Module
    wm.defineRotationPoint(0*u.mm,0*u.mm,0*u.mm)
    Combination.unitrotate(wm,20*u.deg,1)
    

@@ -116,6 +116,8 @@ Example:
 
    rays.scatter2d()
 
+Note that the wavelength is given in Joules, this shows that wavelength can be given in either units of length or energy.
+
 This code block generates the following plot:
 
 .. figure:: ../images/source_annulus_example.png
