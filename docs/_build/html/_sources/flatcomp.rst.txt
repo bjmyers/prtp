@@ -33,13 +33,16 @@ For example, a Flat Component could be initialized using the following syntax:
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
 
 Tracing rays to the Components reveals information about its surface:
 
 .. figure:: ../images/basic_flatcomp_init.png
 
-   Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.
+Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. 
+
+Also note that the FlatComponent superclass has no trace() method, which would be necessary to generate the above plot. In fact, the above plot was generated using a :ref:`Collimator Plate<coll-plate-top>` object. Every usbsequent plot on this page was generated using these objects, which descend from FlatComponent.
 
 
 :ref:`Back to Top<flat-comp-top>`
@@ -62,7 +65,8 @@ Example: Take the Flat Component we defined before and move it 2 mm in x and -3 
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
    f.translate(dx=2*u.mm,dy=-3*u.mm)
 
 Building an instrument and tracing photons to this Component shows that the center has indeed been moved to (x,y,z) = (2,-3,3)

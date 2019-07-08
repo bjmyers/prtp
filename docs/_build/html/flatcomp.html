@@ -61,14 +61,16 @@
 <p>For example, a Flat Component could be initialized using the following syntax:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Tracing rays to the Components reveals information about its surface:</p>
-<div class="figure align-center" id="id1">
+<div class="figure align-center">
 <img alt="_images/basic_flatcomp_init1.png" src="_images/basic_flatcomp_init1.png" />
-<p class="caption"><span class="caption-text">Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
+<p>Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances.</p>
+<p>Also note that the FlatComponent superclass has no trace() method, which would be necessary to generate the above plot. In fact, the above plot was generated using a <a class="reference internal" href="collimatorplate.html#coll-plate-top"><span class="std std-ref">Collimator Plate</span></a> object. Every usbsequent plot on this page was generated using these objects, which descend from FlatComponent.</p>
 <p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="translate">
@@ -87,7 +89,8 @@
 <p>Example: Take the Flat Component we defined before and move it 2 mm in x and -3 mm in y.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">f</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dy</span><span class="o">=-</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -128,9 +131,9 @@
 </pre></div>
 </div>
 <p>We can then see (using traced rays) how the Component has been rotated:</p>
-<div class="figure align-center" id="id2">
+<div class="figure align-center" id="id1">
 <img alt="_images/basic_flatcomp_unitrotate.png" src="_images/basic_flatcomp_unitrotate.png" />
-<p class="caption"><span class="caption-text">The blue arrow in this image represents the axis of rotation (here the positive y axis)</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">The blue arrow in this image represents the axis of rotation (here the positive y axis)</span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
 </div>
 <p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
@@ -158,9 +161,9 @@
 </pre></div>
 </div>
 <p>This produces a Flat Component that looks something like this:</p>
-<div class="figure align-center" id="id3">
+<div class="figure align-center" id="id2">
 <img alt="_images/basic_flatcomp_rotate.png" src="_images/basic_flatcomp_rotate.png" />
-<p class="caption"><span class="caption-text">The blue arror represents the axis of rotation, here it is the vector &lt;1,1,0&gt;</span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+<p class="caption"><span class="caption-text">The blue arror represents the axis of rotation, here it is the vector &lt;1,1,0&gt;</span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
 </div>
 <p>Flat Component objects have several more functions, but these are primarily called by other objects when tracing rays.</p>
 <p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
@@ -229,6 +232,7 @@
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
 </ul>
 
 <div class="relations">

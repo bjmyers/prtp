@@ -93,9 +93,11 @@ This example will trace a circular beam of photons to a Detector's surface and t
 
    import matplotlib.pyplot as plt
    from prtp.Detector import Detector
+   from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   # Rays have been defined in a circular beam elsewhere
+   s = CircularBeam(num=10000,rad=4*u.mm)
+   rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
       nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,
@@ -123,9 +125,11 @@ This example will perform the same trace as before but with Gaussian noise added
 
    import matplotlib.pyplot as plt
    from prtp.Detector import Detector
+   from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   # Rays have been defined in a circular beam elsewhere
+   s = CircularBeam(num=10000,rad=4*u.mm)
+   rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
       nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,
@@ -152,9 +156,11 @@ This example will trace photons that do not hit the detector dead on, rather, th
 
    import matplotlib.pyplot as plt
    from prtp.Detector import Detector
+   from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   # Rays have been defined in a circular beam elsewhere
+   s = CircularBeam(num=10000,rad=4*u.mm)
+   rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
       nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,

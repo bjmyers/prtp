@@ -40,9 +40,9 @@
 <h2>Creating a Detector<a class="headerlink" href="#creating-a-detector" title="Permalink to this headline">¶</a></h2>
 <p>A Collimator Plate requires the following arguments:</p>
 <ul class="simple">
-<li><p>x,y,z - The spatial coordinates of the center of the plate. See <span class="xref std std-ref">Flat Component</span></p></li>
-<li><p>nx,ny,nz - The components of the normal vector. See <span class="xref std std-ref">Flat Component</span></p></li>
-<li><p>sx,sy,sz - The components of the surface vector. See <span class="xref std std-ref">Flat Component</span></p></li>
+<li><p>x,y,z - The spatial coordinates of the center of the plate. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><p>nx,ny,nz - The components of the normal vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
+<li><p>sx,sy,sz - The components of the surface vector. See <a class="reference internal" href="flatcomp.html#flat-component-definition"><span class="std std-ref">Flat Component</span></a></p></li>
 <li><p>q - The quantum efficiency of the detector. This input should be a float that ranges from 0 to 1, it defaults to 1. This quantity specifies the probability that a given photon will be detected if it impacts the Detector.</p></li>
 <li><dl class="simple">
 <dt>l - The length of the Collimator Plate. This is the extent of the Component in the direction of the surface vector</dt><dd><ul>
@@ -68,7 +68,7 @@
 </div>
 <div class="section" id="moving-a-detector">
 <h2>Moving a Detector<a class="headerlink" href="#moving-a-detector" title="Permalink to this headline">¶</a></h2>
-<p>Detector objects inherit translate, rotate, and unitrotate from Flat Component, see the function usage <span class="xref std std-ref">here</span></p>
+<p>Detector objects inherit translate, rotate, and unitrotate from Flat Component, see the function usage <a class="reference internal" href="flatcomp.html#flat-component-motion"><span class="std std-ref">here</span></a></p>
 <p><a class="reference internal" href="#detector-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="trace">
@@ -119,9 +119,11 @@
 <p>This example will trace a circular beam of photons to a Detector’s surface and then plot them.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">prtp.Detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="c1"># Rays have been defined in a circular beam elsewhere</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
    <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">q</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
@@ -146,9 +148,11 @@
 <p>This example will perform the same trace as before but with Gaussian noise added beforehand.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">prtp.Detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="c1"># Rays have been defined in a circular beam elsewhere</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
    <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">q</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
@@ -173,9 +177,11 @@
 <p>This example will trace photons that do not hit the detector dead on, rather, the detector is at a slight angle with respect to the incoming photons.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 <span class="kn">from</span> <span class="nn">prtp.Detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="c1"># Rays have been defined in a circular beam elsewhere</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
    <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">q</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
@@ -241,6 +247,7 @@
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
 </ul>
 
 <div class="relations">

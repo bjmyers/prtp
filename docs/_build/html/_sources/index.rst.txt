@@ -20,6 +20,7 @@ The Python Raytrace Package (PRTP) is a package of Python functions that simulat
    grating
    wolteroptics
    sources
+   combination
 
 
 Indices and tables

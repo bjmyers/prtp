@@ -1,0 +1,666 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Combination &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Sources" href="sources.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="combination">
+<span id="combination-top"></span><h1>Combination<a class="headerlink" href="#combination" title="Permalink to this headline">¶</a></h1>
+<p>Combinations are used when you wish to trace rays to more than one component at a time. Due to the nature of Combinations, photons can only hit one of the Components included in a Combination. As such, they should be used when photons will hit no more than one of the Components. For example, a Wolter Type One Mirror is not a Combination since photons hit the primary, then the secondary mirror. A detector array, however, would be an excellent use for a Combination, as each photon will hit one of the Detectors, or will miss entirely.</p>
+<p>There are two types of Combinations which are specialized for their specific purposes. <a class="reference internal" href="wolteroptics.html#wolter-module"><span class="std std-ref">WolterModules</span></a> have a special initialization syntax that allows them to be generated while automatically containing all of the mirrors they need. Grating Stacks have two types of traces that can only be used when a Combination contains only Flat Components, so these traces cannot be used for a generic Combination Object</p>
+<div class="section" id="initializing-a-combination">
+<h2>Initializing a Combination<a class="headerlink" href="#initializing-a-combination" title="Permalink to this headline">¶</a></h2>
+<p>Generic Combinations are initialized without any arguments. The initialization process creates a Combination object that has a single parameter known as “componentlist” which is simply a list containing all of the components.</p>
+<p>Initializing a Combination object is very easy:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-components">
+<h2>Adding Components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
+<p>If you have some Combination object c, you can modify it directly by accessing the list as “c.componentlist” But accessing the list directly can be risky, it is easy to change the list unexpectedly. A safer way to add components is with the addComponent() function. This function takes two arguments:</p>
+<ul class="simple">
+<li><p>comp - The Component you wish to add to the Combination.</p></li>
+<li><p>index - The index at which you wish to add the Component. This argument defaults to None, in which case the Component will be appended to the end of the list. For example, if index was set to 3, the component will either be added at index 3 (with later components pushed back) or at the end of the componentlist if it had a length less than 3.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+
+<span class="n">comb</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+
+<span class="n">c0</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">Grating</span><span class="p">()</span>
+
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c0</span><span class="p">)</span>
+
+<span class="c1"># Without an index argument, the component will be added at the end</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+
+<span class="c1"># If the index argument is too large, the component</span>
+<span class="c1"># will be added at the end</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Add the Grating to be the second item in the list</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="apply-to-all">
+<h2>Apply to All<a class="headerlink" href="#apply-to-all" title="Permalink to this headline">¶</a></h2>
+<p>applyToAll() is a function that allows the user to perform some action on every component in a Combination without using a loop or accessing the componentlist. It takes arguments:</p>
+<ul class="simple">
+<li><p>func - The function you wish to apply</p></li>
+<li><dl class="simple">
+<dt>kwargs - The arguments that are required by func.</dt><dd><ul>
+<li><p>Some functions require that their inputs are astropy quantities, check the arguments the function requires to see what form kwargs should be in.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<p>If a Combination c is filled with Flat Components, you can perform unitrotate on each Component with the following syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="o">.</span><span class="n">applyToAll</span><span class="p">(</span><span class="n">FlatComponent</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">,</span><span class="n">theta</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-sub-components">
+<h2>Get Sub-Components<a class="headerlink" href="#get-sub-components" title="Permalink to this headline">¶</a></h2>
+<p>As discussed before, the list of components contained within this Combination can be accessed with c.componentlist (if c is an initialized Combination object). However, sometimes one or more of these components will be a Combination, and sometimes it is necessary to retrieve the components inside of that Combination.</p>
+<p>Suppose that you had a Combination that contained two GratingStacks, and each GratingStack contained ten Gratings. Calling c.componentlist will only give you the two Grating Stacks. If you wanted to perform some complicated operation on every Grating, you could access these using the getSubComponents() function.</p>
+</div>
+<div class="section" id="setting-attributes">
+<h2>Setting Attributes<a class="headerlink" href="#setting-attributes" title="Permalink to this headline">¶</a></h2>
+<p>The function setAttribute allows you to change the value of a certain parameter for every Component in this Combination. setAttribute() takes the following arguments:</p>
+<ul class="simple">
+<li><p>name - The name of the parameter you wish to change</p></li>
+<li><dl class="simple">
+<dt>value - The value to which you would like to change the parameter.</dt><dd><ul>
+<li><p>Note: This function cannot check for astropy units, check what form the parameter should be in before you call this function.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<p>Suppose we have a Combination that Contains CollimatorPlates, but we have not yet set the collision function, but we want to make sure they all have CollimatorPlate.wires as a collision function, we can do so with the following lines of code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Suppose the Combination c is filled with CollimatorPlates</span>
+<span class="n">c</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;collisionfunction&#39;</span><span class="p">,</span><span class="n">CollimatorPlate</span><span class="o">.</span><span class="n">wires</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;sep&#39;</span><span class="p">,</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">setAttribute</span><span class="p">(</span><span class="s1">&#39;thickness&#39;</span><span class="p">,</span><span class="mf">0.5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="in-place-motion">
+<h2>In-Place Motion<a class="headerlink" href="#in-place-motion" title="Permalink to this headline">¶</a></h2>
+<p>In-place motion means that each component is moved individually. Other motion functions will move the entire Combination. There are two function which deal with in-place rotation.</p>
+<p>Note that for all motion functions we will be using the following Combination which is defined by placing two Collimator Plates next to each other:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block lets us see what the Collimator Plates look like:</p>
+<div class="figure align-center">
+<img alt="_images/comb_basic_example.png" src="_images/comb_basic_example.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+<div class="section" id="unitrotateinplace">
+<h3>Unitrotateinplace<a class="headerlink" href="#unitrotateinplace" title="Permalink to this headline">¶</a></h3>
+<p>The function unitrotateinplace calls unitrotate on every component in the Combination. This means that the centers of the components will not be moved, but their surface and normal vectors will be rotated (if applicable).</p>
+<p>unitrotateinplace takes the same arguments as unitrotate:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
+<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>axis - The axis about which you want to rotate. 1, 2, and 3 specify the x, y, and x axes, respectively.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">unitrotateinplace</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_unitrotateinplace_example1.png" src="_images/comb_unitrotateinplace_example1.png" />
+</div>
+<p>That example rotated both Collimator Plates 20 degrees. But, by passing in a list of theta values, we can rotate each component a separate angle:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="c1"># Note the list syntax, we need to add the unit to the list,</span>
+<span class="c1"># we cannot just use a list of values with units</span>
+<span class="c1"># c.unitrotateinplace(theta=[20*u.deg,40*u.deg]) would not work</span>
+<span class="n">c</span><span class="o">.</span><span class="n">unitrotateinplace</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">40</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_unitrotateinplace_example2.png" src="_images/comb_unitrotateinplace_example2.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="rotateinplace">
+<h3>Rotateinplace<a class="headerlink" href="#rotateinplace" title="Permalink to this headline">¶</a></h3>
+<p>The function rotateinplace calls rotate on every component in the Combination. This means that the centers of the components will not be moved, but their surface and normal vectors will be rotated (if applicable).</p>
+<p>rotateinplace takes the same arguments as rotate:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
+<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ux,uy,uz - These three parameters define the axis about which you want to rotate</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">rotateinplace</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_rotateinplace_example1.png" src="_images/comb_rotateinplace_example1.png" />
+</div>
+<p>That example rotated both Collimator Plates 20 degrees about the axis &lt;1,1,0&gt;. But, by passing in a list of theta values, we can rotate each component a separate angle:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="c1"># Note the list syntax, we need to add the unit to the list,</span>
+<span class="c1"># we cannot just use a list of values with units</span>
+<span class="c1"># c.rotateinplace(theta=[20*u.deg,40*u.deg]) would not work</span>
+<span class="n">c</span><span class="o">.</span><span class="n">rotateinplace</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">40</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_rotateinplace_example2.png" src="_images/comb_rotateinplace_example2.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="bulk-motion">
+<h2>Bulk Motion<a class="headerlink" href="#bulk-motion" title="Permalink to this headline">¶</a></h2>
+<p>While In-place motion moves each component in the combination individually, bulk motion moves the entire combination.</p>
+<p>For bulk motion examples we will be using the same Combination we used for in-place motion, which is two adjacent Collimator Plates:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This code block lets us see what the Collimator Plates look like:</p>
+<div class="figure align-center">
+<img alt="_images/comb_basic_example.png" src="_images/comb_basic_example.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+<div class="section" id="translate">
+<h3>Translate<a class="headerlink" href="#translate" title="Permalink to this headline">¶</a></h3>
+<p>Combination.translate() functions as one would expect it to, there is no difference between in-place translation and bulk translation so only one function exists. This function iterates through every component in the Combination and translates it. translate() takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>dx - The amount by which you want to move the components in the x-direction, defaults to 0 mm.</dt><dd><ul>
+<li><p>dx must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>dy - The amount by which you want to move the components in the y-direction, defaults to 0 mm.</dt><dd><ul>
+<li><p>dy must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>dz - The amount by which you want to move the components in the z-direction, defaults to 0 mm.</dt><dd><ul>
+<li><p>dz must be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dy</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">dz</span><span class="o">=-</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_translate_example.png" src="_images/comb_translate_example.png" />
+</div>
+<p>Note that the Collimator Plates are oriented in the same way, but their centers have been moved from where they previously were.</p>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="defining-a-rotation-point">
+<h3>Defining a Rotation Point<a class="headerlink" href="#defining-a-rotation-point" title="Permalink to this headline">¶</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Attempting to perform bulk rotation (unitrotate or rotate) without first defining a rotation point will raise an error.</p>
+</div>
+<p>When we were looking at in-place motion, each component was rotated about its center. But now we are rotating each component about a point. Obviously, we need to define a rotation point in order to perform bulk rotations. This is done with the function defineRotationPoint() function, which takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>x,y,z - The x, y, and z positions of the rotation point, respectively. They all default to 0 mm.</dt><dd><ul>
+<li><p>These arguments must all be in units of length, see the section on astropy units</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="c1"># Initialize a blank Combination object</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+
+<span class="c1"># Define the rotation point at &lt;x,y,z&gt; = &lt;1,2,3&gt; mm</span>
+<span class="n">c</span><span class="o">.</span><span class="n">defineRotationPoint</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">1</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="unit-rotate">
+<h3>Unit Rotate<a class="headerlink" href="#unit-rotate" title="Permalink to this headline">¶</a></h3>
+<p>The function unitrotate() rotates the entire Combination about one of the unit axes.</p>
+<p>This function takes the same arguments as unitrotate for an individual component:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
+<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>axis - The axis about which you want to rotate. 1, 2, and 3 specify the x, y, and x axes, respectively.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">defineRotationPoint</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">45</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_unitrotate_example.png" src="_images/comb_unitrotate_example.png" />
+</div>
+<p>That example rotated both Collimator Plates 45 degrees, note that the centers of the Plates are not in the same place, they have also been rotated. By passing in a list of theta values, we can rotate each component a separate angle:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">defineRotationPoint</span><span class="p">()</span>
+
+<span class="c1"># Note the list syntax, we need to add the unit to the list,</span>
+<span class="c1"># we cannot just use a list of values with units</span>
+<span class="c1"># c.unitrotate(theta=[30*u.deg,60*u.deg]) would not work</span>
+<span class="n">c</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">60</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_unitrotate_example2.png" src="_images/comb_unitrotate_example2.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="rotate">
+<h3>Rotate<a class="headerlink" href="#rotate" title="Permalink to this headline">¶</a></h3>
+<p>The function rotate() rotates the entire Combination about a user-defined axis.</p>
+<p>This function takes the same arguments as rotate for an individual component:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
+<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>ux,uy,uz - These three parameters define the axis about which you want to rotate</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">defineRotationPoint</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">45</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_rotate_example.png" src="_images/comb_rotate_example.png" />
+</div>
+<p>That example rotated both Collimator Plates 45 degrees about the axis &lt;x,y,z&gt; = &lt;1,1,0&gt;, note that the centers of the Plates are not in the same place, they have also been rotated. By passing in a list of theta values, we can rotate each component a separate angle:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+<span class="n">col</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="n">l</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">3</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="n">c</span><span class="o">.</span><span class="n">defineRotationPoint</span><span class="p">()</span>
+
+<span class="c1"># Note the list syntax, we need to add the unit to the list,</span>
+<span class="c1"># we cannot just use a list of values with units</span>
+<span class="c1"># c.rotate(theta=[30*u.deg,60*u.deg]) would not work</span>
+<span class="n">c</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="p">[</span><span class="mi">30</span><span class="p">,</span><span class="mi">60</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">6</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/comb_rotate_example2.png" src="_images/comb_rotate_example2.png" />
+</div>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="trace">
+<h2>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h2>
+<p>trace() is the most important function in any Component, and the Combination is no exception. When trace() is called, the input Rays will be traced to the first component in this Combination. The rays which hit the first component will be saved, while the remaining rays will be backed up to their original positions and traced to the second component. The rays which hit the second component will be saved and the entire process repeats for every component in this Combination.</p>
+<p>In the end, rays which did not hit any component will be removed.</p>
+<p>It is important to note that the Rays will be traced to the Components in the order that they were added to the Combination, so the user must be careful if the components overlap to make sure that they are added in the correct order.</p>
+<p>trace() takes the following arguments:</p>
+<ul class="simple">
+<li><p>rays - The rays object that you want to trace, it is not returned, but is modified in place by the call to this function</p></li>
+<li><p>considerweights - A boolean that dictates whether or not the rays are weighted. This is True when things like quantum efficiency of detectors or reflectivity of Gratings is being considered. Defaults to False</p></li>
+<li><p>eliminate - A string, if it is equal to ‘remove’, photons which miss every component in the Combination will be removed from the Rays object. If it is any other string, photons which miss every component will have their x-positions be set to NaN. Defaults to ‘remove’.</p></li>
+</ul>
+<p>The function trace() returns a tuple containing information about the Combination’s efficiency, this tuple is used by Instrument objects.</p>
+<p>For examples, see any of the motion examples on this page.</p>
+<p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Combination</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#initializing-a-combination">Initializing a Combination</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-components">Adding Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#apply-to-all">Apply to All</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#get-sub-components">Get Sub-Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-attributes">Setting Attributes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#in-place-motion">In-Place Motion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unitrotateinplace">Unitrotateinplace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotateinplace">Rotateinplace</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#bulk-motion">Bulk Motion</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#translate">Translate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#defining-a-rotation-point">Defining a Rotation Point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#unit-rotate">Unit Rotate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#rotate">Rotate</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="sources.html" title="previous chapter">Sources</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/combination.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -15,16 +15,16 @@ A Grating requires the following arguments:
 * nx,ny,nz - The components of the normal vector. See :ref:`Flat Component <flat-component-definition>`
 * sx,sy,sz - The components of the surface vector. See :ref:`Flat Component <flat-component-definition>`
    * In gratings, the surface vector has a very specific definition. It is defined as the average groove direction. For parallel gratings, it is the same direction as every groove. For radial gratings, it is the same direction as the central groove. 
-* l - The length of the Grating. This is the extent of the Grating in the direction of the surface vector
+* l - The length of the Grating. This is the extent of the Grating in the direction of the surface vector, defaults to None.
    * If l is None, the length and width of the Grating will not be considered. That is, the grating will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on Astropy Units.
-* w - The width of the Grating. This is the extent of the Grating in the direction of the cross product of the surface and normal vectors (sxn).
+* w - The width of the Grating. This is the extent of the Grating in the direction of the cross product of the surface and normal vectors (sxn), defaults to None.
    * If w is not None, it must be in units of length. See the section on Astropy Units.
-* collfunc - A function that defines how photons will be removed from the surface. It is used in the same manner as a Collimator Plate's collision function, but is not typically used for Gratings. See the section on :ref:`Collision Functions<coll-funcs>`
-* pfunc - A function that determines the groove period that each photon experiences. If None, the Grating will be initialized as an ideal parallel or radial grating. See the section on period functions for more information.
-* radial - A boolean. If True, the Grating will be radial. If False, the Grating will be parallel.
-* d - The groove period at the center point of the Grating, defaults to 160 nm, the groove period for OGRE gratings.
+* collfunc - A function that defines how photons will be removed from the surface. It is used in the same manner as a Collimator Plate's collision function, but is not typically used for Gratings. See the section on :ref:`Collision Functions<coll-funcs>`, defaults to None.
+* pfunc - A function that determines the groove period that each photon experiences. If None, the Grating will be initialized as an ideal parallel or radial grating. See the section on period functions for more information. Defaults to None.
+* radial - A boolean. If True, the Grating will be radial. If False, the Grating will be parallel. Defaults to True.
+* d - The groove period at the center point of the Grating, defaults to 160 nm, the groove period for OGRE gratings. Defaults to 160 nm.
    * d must be in units of length, see the section on Astropy Units.
-* fdist - The distance to the Grating's focus. This parameter defaults to None and it only relevant for radial Gratings.
+* fdist - The distance to the Grating's focus. This parameter defaults to None and it only relevant for radial Gratings. Defaults to None
    * If fdist is not None, it must be in units of length, see the section on Astropy units.
 
 
@@ -95,7 +95,7 @@ We will start with the simpler case. In an ideal parallel grating, each photon e
       # produce the groove periods using a mean of 0,
       # a standard deviation of y, and a length the same as
       # that of the rays object.
-      ds = np.random.normal(0,y,len(rays))
+      ds = np.random.normal(d,y,len(rays))
 
       return ds
 
@@ -103,7 +103,7 @@ Then, if you have define some Grating grat, this function can be added as a peri
 
 .. code-block:: python
 
-   grat.pfunc = noise
+   grat.periodfunction = noise
 
 Now you can simulate the Grating using your custom period function.
 
@@ -186,7 +186,7 @@ Then, if you have define some Grating grat, this function can be added as a peri
 
 .. code-block:: python
 
-   grat.pfunc = parallel
+   grat.periodfunction = parallel
 
 :ref:`Back to Top<grating-top>`
 
