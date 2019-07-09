@@ -12,8 +12,7 @@ class GratingStack(Combination):
     '''
     
     @u.quantity_input(rx=u.mm,ry=u.mm,rz=u.mm)
-    def __init__(self,autoreflect=True,
-    rx=0*u.mm, ry=0*u.mm, rz=0*u.mm, keeporder=True):
+    def __init__(self,rx=None, ry=None, rz=None, keeporder=True):
         '''
         Initializes the GratingStack:
         
@@ -30,34 +29,13 @@ class GratingStack(Combination):
         in the self.componentlist parameter
         '''
         Combination.__init__(self)
-        self.rx = rx.to(u.mm)
-        self.ry = ry.to(u.mm)
-        self.rz = rz.to(u.mm)
+        if rx is not None:
+            self.rx = rx.to(u.mm)
+        if ry is not None:
+            self.ry = ry.to(u.mm)
+        if rz is not None:
+            self.rz = rz.to(u.mm)
         self.keeporder = keeporder
-    
-    
-    ## Parameter Functions
-    # The parameters of a Grating are very important for its behavior, these
-    # functions allow the user to modify the parameters of every Grating in the
-    # stack
-    
-    def modifyParam(name,value):
-        '''
-        Function modifyParam:
-        Changes a parameter of each Grating in the Stack
-        
-        Inputs:
-        name - String, the name of the parameter you want to add or change
-        value - The value you want to assign to that parameter
-        
-        Notes:
-        - This function will assign the same value to each Grating in the Stack
-        - This function cannot check for correct units, an error will be 
-            generated later down the line
-        '''
-        for g in self.componentlist:
-            setattr(g,name,value)
-    
     
     ## Ray-Tracing Functions
     
@@ -74,7 +52,7 @@ class GratingStack(Combination):
             missed photons will be replaced with NaNs in the x-position
         
         Outputs:
-        finalrays - The rays that have been traced through the Stack
+        Efficiency information about the stack
         
         Notes:
         - Assumes that each Grating has been given the necessary parameters, 
@@ -218,7 +196,7 @@ class GratingStack(Combination):
         i = 0
         while True:
             
-            # Check if we've gotten everything
+            # Check if we've successfully traced everything
             if (orderarr[:,0] == -1).all():
                 break
             
@@ -242,9 +220,9 @@ class GratingStack(Combination):
             
             # Keep those which have hit the Grating
             if eliminate == 'remove':
-                newrays.remove(np.logical_and(np.logical_not(hit),tarray))
+                newrays.remove(np.logical_or(np.logical_not(hit),np.logical_not(tarray)))
             else:
-                newrays.x[np.logical_not(hit)] = np.nan
+                newrays.x[np.logical_or(np.logical_not(hit),np.logical_not(tarray))] = np.nan
             
             if (np.sum(hit) != 0):
                 # These operations can only be done on non-empty Rays Objects
