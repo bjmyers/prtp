@@ -248,7 +248,7 @@ class GratingStack(Combination):
             # Use this hit trutharray to find which of the original rays have 
             # hit the Grating
             test = tarray.copy()
-            tarray[tarray] = hit
+            tarray[tarray] = hit[tarray]
             
             # Remove the rays which have hit this Grating
             if eliminate == 'remove':
