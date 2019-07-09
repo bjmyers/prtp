@@ -11,6 +11,8 @@ from scipy.optimize import curve_fit
 def centroid(rays,weights=None):
     """Compute the centroid of the rays in the xy plane
     """
+    if len(rays) == 0:
+        return np.nan
     x,y = rays.x,rays.y
     cx = np.average(x,weights=weights)
     cy = np.average(y,weights=weights)
@@ -19,6 +21,8 @@ def centroid(rays,weights=None):
 def rmsCentroid(rays,weights=None):
     """Compute the RMS of rays from centroid in xy plane
     """
+    if len(rays) == 0:
+        return np.nan
     x,y = rays.x,rays.y
     cx,cy = centroid(rays,weights=weights)
     rho = (x-cx)**2 + (y-cy)**2
@@ -26,6 +30,8 @@ def rmsCentroid(rays,weights=None):
 
 def rmsX(rays,weights=None):
     """RMS from centroid in the X direction"""
+    if len(rays) == 0:
+        return np.nan
     x = rays.x
     cx = np.average(x,weights=weights)
     rmsx = np.sqrt(np.average((x-cx)**2,weights=weights))
@@ -33,6 +39,8 @@ def rmsX(rays,weights=None):
 
 def rmsY(rays,weights=None):
     """RMS from centroid in the Y direction"""
+    if len(rays) == 0:
+        return np.nan
     y = rays.y
     cy = np.average(y,weights=weights)
     rmsy = np.sqrt(np.average((y-cy)**2,weights=weights))
@@ -42,6 +50,8 @@ def rho(rays,weights=None,cent=False):
     """
     Compute distance from centroid for all rays
     """
+    if len(rays) == 0:
+        return np.nan
     x,y = rays.x,rays.y
     if cent is True:
         cx,cy = centroid(rays,weights=weights)
@@ -55,6 +65,8 @@ def rhocdf(rays,weights=None,cent=True):
     """
     Compute the radial CDF of the ray distribution
     """
+    if len(rays) == 0:
+        return np.nan
     r = rho(rays,weights=weights,cent=cent)
     if weights is None:
         weights = np.repeat(1,len(r))
@@ -68,6 +80,8 @@ def rhocdf(rays,weights=None,cent=True):
 
 def hpd(rays,weights=None):
     """Compute HPD by taking median of radii from centroid"""
+    if len(rays) == 0:
+        return np.nan
     r = rho(rays,weights=weights)
     if weights is not None:
         r,cdf = rhocdf(rays,weights=weights)
@@ -81,6 +95,8 @@ def hpdY(rays,weights=None):
     """Compute HPD in y direction by taking median of radii from centroid
     Does rho need to be absolute value???
     """
+    if len(rays) == 0:
+        return np.nan
     y = rays.y
     cy = np.average(y,weights=weights)
     rho = np.abs(y-cy)
