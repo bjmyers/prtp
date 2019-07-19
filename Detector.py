@@ -10,7 +10,8 @@ class Detector(FlatComponent):
     ## Initialization Functions:
     
     @u.quantity_input(x=u.mm,y=u.mm,z=u.mm,l=u.mm,w=u.mm)
-    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,l=1*u.mm,w=1*u.mm,xpix=10,ypix=10):
+    def __init__(self,x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,
+        q=1.,l=1*u.mm,w=1*u.mm,xpix=10,ypix=10):
         '''
         Initializes a Detector Object, requires the following arguments:
         
@@ -41,6 +42,12 @@ class Detector(FlatComponent):
         
         # Initialize the pixels array
         self.pixels = np.zeros((xpix,ypix))
+        
+        # This param tells what type of noise is added in view()
+        self.noise = None
+        
+        # This param stores how many custom noise frames have been added
+        self.numframes= 0
     
     
     def copy(self):
@@ -72,7 +79,8 @@ class Detector(FlatComponent):
         rays - A Rays object that has been traced to the Grating Plane
         
         Outputs:
-        tarray - A trutharray, containing True if the photon has hit the detector, contains False if the photon missed the detector
+        tarray - A trutharray, containing True if the photon has hit the 
+            detector, contains False if the photon missed the detector
         
         Notes:
         - The function cannot tell if the Rays have been traced, so this is up to the user.
@@ -84,7 +92,9 @@ class Detector(FlatComponent):
     def removemissed(self,rays,considerweights=False,eliminate='remove'):
         '''
         Function removemissed:
-        Removes the rays which have missed the Detector. Also removes some photons according to the quantum efficiency (e.g: if self.q = .1, 10% of the photons that hit will be removed)
+        Removes the rays which have missed the Detector. Also removes some 
+            photons according to the quantum efficiency (e.g: if self.q = .1, 
+            10% of the photons that hit will be removed)
         
         Inputs:
         rays - a Rays Object which has been traced to this CollimatorPlate
@@ -138,7 +148,8 @@ class Detector(FlatComponent):
     def addGaussianNoise(self,mean=0,std=1):
         '''
         Function addGaussianNoise:
-        Adds Gaussian noise to the pixel array
+        Tells the detector that Gaussian Noise must be added when the photons 
+            are viewed
         
         Inputs:
         mean - The mean of the Gaussian Distribution
@@ -147,7 +158,47 @@ class Detector(FlatComponent):
         Outputs:
         None
         '''
-        self.pixels += np.random.normal(loc=mean,scale=std,size=self.pixels.shape)
+        self.noise = 'gaussian'
+        self.mean = mean
+        self.std = std
+    
+    def addNoise(self,noise):
+        '''
+        Adds a custom noise profile to this detector.
+        
+        Inputs:
+        noise - A sample frame containing only noise, could be a dark frame,
+            bias frame, flat field, etc: It must be a 2D array with the same
+            shape as the pixel array. The values of the noise input are saved,
+            and if a noise frame has been added previously, the values are 
+            averaged.
+        
+        Outputs:
+        None
+        
+        Notes:
+        - When view() is called and self.noise is 'custom', noise will be added
+            to the pixel array in a poisson distribution with lambda equal to 
+            the values given by noisevalues.
+        - Noise Frames must be added consecutively, called addGaussianNoise()
+            will delete any noise frames that have been previously added. For
+            example, if you want to average 10 noise frames, you need ten
+            calls to addNoise without calling addGaussianNoise at all.
+        '''
+        # Refresh numframes if noise was not custom before
+        if self.noise != 'custom':
+            self.numframes = 0
+            self.noisevalues = np.zeros((self.xpix,self.ypix))
+        
+        self.noise = 'custom'
+        
+        # Using previous means, calculate the new mean when the inputted noise
+        # is added to the dataset
+        self.noisevalues *= self.numframes
+        self.noisevalues += noise
+        self.noisevalues /= (self.numframes + 1)
+        
+        self.numframes += 1
     
     
     ## Viewing Functions:
@@ -160,17 +211,27 @@ class Detector(FlatComponent):
         Shows what the readout of the Detector should look like
         
         Inputs:
-        rays - A Rays object that has been traced to the Detector and has had the missed rays removed
-            if Rays is None, this function will simply return the current pixel array
+        rays - A Rays object that has been traced to the Detector and has had 
+            the missed rays removed
+            if Rays is None, this function will simply return the current 
+                pixel array
         
         Output:
-        temppixels - A pixel array of the Detector readout, can be viewed easily with plt.imshow()
+        temppixels - A pixel array of the Detector readout, can be viewed 
+            easily with plt.imshow()
         
         Notes:
         - The original self.pixels is unmodified by this function
         '''
         if rays is None:
             return self.pixels
+        
+        if self.noise == 'gaussian':
+            self.pixels += np.random.normal(loc=self.mean,scale=self.std,
+                                            size=self.pixels.shape)
+        if self.noise == 'custom':
+            self.pixels += np.random.poisson(lam=self.noisevalues,
+                                            size=self.pixels.shape)
         
         x,y = self.getPosns(rays)
         
@@ -215,10 +276,3 @@ class Detector(FlatComponent):
         '''
         self.trace_to_surf(rays)
         return self.removemissed(rays,considerweights,eliminate)
-    
-    
-    
-  
-
-
-
