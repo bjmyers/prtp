@@ -21,16 +21,16 @@ Creating a Wolter Optic
 A WolterOptic object requires the following arguments
 
 * x,y,z - The position in Cartesian Coordinates of the Component's focus.
-   * These parameters must be in units of length. See the section on Astropy Units.
+   * These parameters must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * nx,ny,nz - These three quantities describe the vector which extends outward from the Component's focus. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively. This vector is denoted as the positive z-axis in the mirrors coordinate system.
 * r0 - The radius of the Component at the point where the primary and secondary mirror converge.
-   * r0 must be in units of length. See the section on Astropy Units.
+   * r0 must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * z0 - The distance from the focus (in the n-direction) of the intersection of the primary and secondary mirrors.
-   * z0 must be in units of length. See the section on Astropy Units.
+   * z0 must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * axial\_length - The length of the mirror in the n-direction, defaults to None.
-   * axial\_length must be in units of length. See the section on Astropy Units.
+   * axial\_length must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * mirror\_sep - The separation between the primary and secondary mirrors in the n-direction, defaults to None.
-   * mirror\_sep must be in units of length. See the section on Astropy Units.
+   * mirror\_sep must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 
 Note: If both axial_length and mirror_sep are None, the mirror will extend infinitely, no rays will miss such a mirror.
  
@@ -61,7 +61,7 @@ translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm)
 This function moves the center of the component in space, it takes arguments:
 
 * dx,dy,dz - The amount by which you want to move the mirror's focus in the x, y, and z directions, respectively.
-   * These parameters must be in units of length. See the section on Astropy units
+   * These parameters must be in units of length. See the section on :ref:`Astropy Units <units-top>`
 
 Example: Take the WolterOptic we defined before and move it 2 mm in x and -3 mm in y.
 
@@ -85,7 +85,7 @@ unitrotate(self,theta=0*u.rad,axis=1)
 This function rotates the Wolter Optic about one of the unit axes. Since the only vector is the n-vector, this is what it rotated. It takes arguments:
 
 * theta - The amount that you want to rotate about the specified axis.
-    * This parameter must be in units of angle. See the section on Astropy units
+    * This parameter must be in units of angle. See the section on :ref:`Astropy Units <units-top>`
 * axis - An integer that should take the values 1,2, or 3. 
    * If axis = 1: The mirror will be rotated about the x-axis
    * If axis = 2: The mirror will be rotated about the y-axis
@@ -116,7 +116,7 @@ rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0)
 This function rotates the Wolter Optic about an arbitrary, user-defined axis. It takes arguments:
 
 * theta - The amount that you want to rotate about the user-defined axis.
-    * This parameter must be in units of angle. See the section on Astropy units
+    * This parameter must be in units of angle. See the section on :ref:`Astropy Units <units-top>`
 * ux,uy,uz - These three parameters define the axis about which you want to rotate. ux, uy, and uz describe the distance that the vector extends in the x, y, and z directions, respectively.
 
 Note: The rotation is performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.

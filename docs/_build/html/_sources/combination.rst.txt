@@ -21,6 +21,8 @@ Initializing a Combination object is very easy:
    from prtp.Combination import Combination
    c = Combination()
 
+.. _add-components:
+
 Adding Components
 --------------------
 
@@ -77,6 +79,7 @@ If a Combination c is filled with Flat Components, you can perform unitrotate on
 
    c.applyToAll(FlatComponent.unitrotate,theta=20*u.deg,axis=2)
 
+.. _get-subcomponents:
 
 Get Sub-Components
 --------------------
@@ -85,6 +88,7 @@ As discussed before, the list of components contained within this Combination ca
 
 Suppose that you had a Combination that contained two GratingStacks, and each GratingStack contained ten Gratings. Calling c.componentlist will only give you the two Grating Stacks. If you wanted to perform some complicated operation on every Grating, you could access these using the getSubComponents() function.
 
+.. _set-attribute:
 
 Setting Attributes
 ---------------------
@@ -107,6 +111,8 @@ Suppose we have a Combination that Contains CollimatorPlates, but we have not ye
    c.setAttribute('thickness',0.5*u.mm)
 
 :ref:`Back to Top<combination-top>`
+
+.. _in-place-motion:
 
 In-Place Motion
 ---------------------
@@ -149,7 +155,7 @@ The function unitrotateinplace calls unitrotate on every component in the Combin
 unitrotateinplace takes the same arguments as unitrotate:
 
 * theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination's componentlist. In this case, each component will be rotated a unique amount.
-   * theta should be in units of angle, see the section on astropy units.
+   * theta should be in units of angle, see the section on :ref:`Astropy Units <units-top>`.
 * axis - The axis about which you want to rotate. 1, 2, and 3 specify the x, y, and x axes, respectively.
 
 Example:
@@ -217,7 +223,7 @@ The function rotateinplace calls rotate on every component in the Combination. T
 rotateinplace takes the same arguments as rotate:
 
 * theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination's componentlist. In this case, each component will be rotated a unique amount.
-   * theta should be in units of angle, see the section on astropy units.
+   * theta should be in units of angle, see the section on :ref:`Astropy Units <units-top>`.
 * ux,uy,uz - These three parameters define the axis about which you want to rotate
 
 Example:
@@ -277,6 +283,7 @@ That example rotated both Collimator Plates 20 degrees about the axis <1,1,0>. B
 
 :ref:`Back to Top<combination-top>`
 
+.. _bulk-motion:
 
 Bulk Motion
 ---------------
@@ -317,11 +324,11 @@ Translate
 Combination.translate() functions as one would expect it to, there is no difference between in-place translation and bulk translation so only one function exists. This function iterates through every component in the Combination and translates it. translate() takes the following arguments:
 
 * dx - The amount by which you want to move the components in the x-direction, defaults to 0 mm.
-   * dx must be in units of length, see the section on astropy units
+   * dx must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * dy - The amount by which you want to move the components in the y-direction, defaults to 0 mm.
-   * dy must be in units of length, see the section on astropy units
+   * dy must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * dz - The amount by which you want to move the components in the z-direction, defaults to 0 mm.
-   * dz must be in units of length, see the section on astropy units
+   * dz must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 
 Example:
 
@@ -362,7 +369,7 @@ Defining a Rotation Point
 When we were looking at in-place motion, each component was rotated about its center. But now we are rotating each component about a point. Obviously, we need to define a rotation point in order to perform bulk rotations. This is done with the function defineRotationPoint() function, which takes the following arguments:
 
 * x,y,z - The x, y, and z positions of the rotation point, respectively. They all default to 0 mm.
-   * These arguments must all be in units of length, see the section on astropy units
+   * These arguments must all be in units of length, see the section on :ref:`Astropy Units <units-top>`
 
 
 Example:
@@ -388,7 +395,7 @@ The function unitrotate() rotates the entire Combination about one of the unit a
 This function takes the same arguments as unitrotate for an individual component:
 
 * theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination's componentlist. In this case, each component will be rotated a unique amount.
-   * theta should be in units of angle, see the section on astropy units.
+   * theta should be in units of angle, see the section on :ref:`Astropy Units <units-top>`.
 * axis - The axis about which you want to rotate. 1, 2, and 3 specify the x, y, and x axes, respectively.
 
 Example:
@@ -459,7 +466,7 @@ The function rotate() rotates the entire Combination about a user-defined axis.
 This function takes the same arguments as rotate for an individual component:
 
 * theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination's componentlist. In this case, each component will be rotated a unique amount.
-   * theta should be in units of angle, see the section on astropy units.
+   * theta should be in units of angle, see the section on :ref:`Astropy Units <units-top>`.
 * ux,uy,uz - These three parameters define the axis about which you want to rotate
 
 Example:
@@ -530,6 +537,8 @@ trace() is the most important function in any Component, and the Combination is 
 In the end, rays which did not hit any component will be removed.
 
 It is important to note that the Rays will be traced to the Components in the order that they were added to the Combination, so the user must be careful if the components overlap to make sure that they are added in the correct order.
+
+.. _comb-trace-args:
 
 trace() takes the following arguments:
 

@@ -15,9 +15,9 @@ A Collimator Plate requires the following arguments:
 * nx,ny,nz - The components of the normal vector. See :ref:`Flat Component <flat-component-definition>`
 * sx,sy,sz - The components of the surface vector. See :ref:`Flat Component <flat-component-definition>`
 * l - The length of the Collimator Plate. This is the extent of the Component in the direction of the surface vector
-   * If l is None, the length and width of the Collimator Plate will not be considered. That is, the Component will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on Astropy Units.
+   * If l is None, the length and width of the Collimator Plate will not be considered. That is, the Component will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * w - The width of the Collimator Plate. This is the extent of the Component in the direction of the cross product of the surface and normal vectors (sxn).
-   * If w is not None, it must be in units of length. See the section on Astropy Units.
+   * If w is not None, it must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * collisionfunction - A function that defines how photons will be removed from the surface. More on this in a later section.
 
 
