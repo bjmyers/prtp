@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Grating Stacks &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Wolter Optics" href="wolteroptics.html" />
+    <link rel="prev" title="Gratings" href="grating.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="grating-stacks">
+<span id="grat-stack-top"></span><h1>Grating Stacks<a class="headerlink" href="#grating-stacks" title="Permalink to this headline">¶</a></h1>
+<p>Grating Stacks are a subclass of Combination. They are intended to only hold Flat Components and differ from general Combinations in that they have a special trace method.</p>
+<p>General Combinations will trace rays to the components in the order in which they were added. Grating Stacks can trace with this same functionality, but also can use a type of trace known as “smartTrace.” For each photon, this method traces to the closest compoenent first, then successively through each component until the farthest away one. Therefore the order in which the components were added does not matter at all. A further analysis of the smarttrace method is found in the section on the trace() function.</p>
+<div class="section" id="creating-a-grating-stack">
+<h2>Creating a Grating Stack<a class="headerlink" href="#creating-a-grating-stack" title="Permalink to this headline">¶</a></h2>
+<p>A GratingStack takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>rx, ry, rz - These specify the rotation point of the Grating Stack. These parameters can still be defined later using the function defineRotationPoint(). They all three default to None</dt><dd><ul>
+<li><p>rx, ry, and rz must all be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>keeporder - A boolean. If True, the order in which components were added will be used during traces. That is, this GratingStack will behave like a normal Combination when trace() is called. If False, the order in which components were added will be ignored. In this case, the GratingStack will use the smarttrace method when trace() is called, defaults to True.</p></li>
+</ul>
+</div>
+<div class="section" id="adding-and-accessing-components">
+<h2>Adding and Accessing Components<a class="headerlink" href="#adding-and-accessing-components" title="Permalink to this headline">¶</a></h2>
+<p>GratingStacks inherit <a class="reference internal" href="combination.html#add-components"><span class="std std-ref">addComponent()</span></a> and <a class="reference internal" href="combination.html#get-subcomponents"><span class="std std-ref">getSubComponents()</span></a> from the Combination class.</p>
+<p>Also, the attributes of Gratings are very important, if you need to modify the attributes of a Grating after you’ve added it, refer to the <a class="reference internal" href="combination.html#set-attribute"><span class="std std-ref">setAttribute()</span></a> function from the Combination class.</p>
+<p><a class="reference internal" href="#grat-stack-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="moving-grating-stacks">
+<h2>Moving Grating Stacks<a class="headerlink" href="#moving-grating-stacks" title="Permalink to this headline">¶</a></h2>
+<p>Grating Stacks inherit all of their <a class="reference internal" href="combination.html#in-place-motion"><span class="std std-ref">in-place</span></a> and <a class="reference internal" href="combination.html#bulk-motion"><span class="std std-ref">bulk motion</span></a> from the Combination class. The only difference between the two with respect to motion is that the Grating Stack can define a rotation point when it is initialized.</p>
+</div>
+<div class="section" id="trace">
+<h2>Trace<a class="headerlink" href="#trace" title="Permalink to this headline">¶</a></h2>
+<p>The general trace function is called in the same way as Combination’s Trace function. It takes the same <a class="reference internal" href="combination.html#comb-trace-args"><span class="std std-ref">arguments</span></a> as a general Combination. However, Grating Stacks will decide to use default trace or smart trace based on the value of the keeporder parameter. To use smart trace, make sure that keeporder is set to True.</p>
+<div class="section" id="smart-trace">
+<h3>Smart Trace<a class="headerlink" href="#smart-trace" title="Permalink to this headline">¶</a></h3>
+<p>Smart Trace is a more sophisticated version of the standard Combination trace. The distance to each component is calculated for each photon, and each photon is traced to the closest component first. For this reason, Grating Stacks must only contain Flat Components, because it is not possible to determine the distance to other components.</p>
+<p>For an example of Smart Trace, consider the following diagram:</p>
+<div class="figure align-center">
+<img alt="_images/gratstack_figure.png" src="_images/gratstack_figure.png" />
+</div>
+<p>Suppose the Gratings were added to the stack in the order Grating 1, Grating 2, Grating 3. Suppose we were trying to trace the two photons to the Grating Stack.</p>
+<p>If we used the default trace, both photons would be successfully traced to Grating 1 (the first Grating added) and with no photons remaining, the trace would finish without considering the other two gratings.</p>
+<p>But this is obviously not what happens in reality, we can see that Photon A will hit Grating 1 and Photon B will hit Grating 3. If we used the smart trace (the Grating Stack was initialized with keeporder=True), Photon A would realize that Grating 1 is the closest component while Photon B would realize that Grating 3 is the closest component. With this algorithm, Photon A will be traced successfully to the closest Grating (Grating 1) while Photon B will be successfully traced to its closest Grating (Grating 3).</p>
+<p>However, Smart Trace is a more complicated algorithm, and thus takes slightly more time to run. So it can be useful to see if your Grating Stack needs to be traced using this algorithm. However the time saved is not usually very significant.</p>
+<p><a class="reference internal" href="#grat-stack-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Grating Stacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-grating-stack">Creating a Grating Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-and-accessing-components">Adding and Accessing Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#moving-grating-stacks">Moving Grating Stacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#smart-trace">Smart Trace</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="grating.html" title="previous chapter">Gratings</a></li>
+      <li>Next: <a href="wolteroptics.html" title="next chapter">Wolter Optics</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/gratingstack.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

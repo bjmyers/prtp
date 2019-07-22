@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Instruments &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rays" href="rays.html" />
+    <link rel="prev" title="Modification" href="modification.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="instruments">
+<span id="instrument-top"></span><h1>Instruments<a class="headerlink" href="#instruments" title="Permalink to this headline">¶</a></h1>
+<p>Instruments are objects that allow the user to simulate several components in sequence. Instrument objects allow for the reporting of detailed efficiency information and automated misalignment tests.</p>
+<p>Instruments are unlike Combinations. Combinations contain a list of components but will trace the rays to all of the components at once, so that a single photon will only ever be traced to one of the components. Instruments, however, trace rays to the components in sequence, so the photons will be traced to the first component, then the second, and so on, such that the final surviving photons have been successfully traced to every component in the Instrument.</p>
+<div class="section" id="creating-an-instrument">
+<h2>Creating an Instrument<a class="headerlink" href="#creating-an-instrument" title="Permalink to this headline">¶</a></h2>
+<p>Instrument objects take the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>source - A Source object which will produce the starting rays for this Instrument.</dt><dd><ul>
+<li><p>If you wish to send rays from one Instrument directly into the next. You can do so by creating the first instrument, simulating it, then passing that instrument as the source argument for the second instrument. See the example at the end of this seciton.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>considerweights - A boolean that determines if the photons should be weighted or not for this simulation. If True, the photons will be weighted.</p></li>
+</ul>
+<p>Example 1: A basic Instrument Definition</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">from</span> <span class="nn">prtp.Instrument</span> <span class="kn">import</span> <span class="n">Instrument</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">inst</span> <span class="o">=</span> <span class="n">Instrument</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example 2: Transferring rays from one Instrument to another</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">from</span> <span class="nn">prtp.Instrument</span> <span class="kn">import</span> <span class="n">Instrument</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+
+<span class="n">inst</span> <span class="o">=</span> <span class="n">Instrument</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="c1"># Add components here</span>
+
+<span class="n">inst</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+
+<span class="c1"># Create a new instrument that will start with the rays produced</span>
+<span class="c1"># by the previous instrument</span>
+<span class="n">nextinst</span> <span class="o">=</span> <span class="n">Instrument</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span>
+
+<span class="c1"># Add components to second instrument here</span>
+
+<span class="n">nextinst</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Before defining an instrument with a previous instrument. The previous instrument must be simulated. Otherwise there will be no output rays to transfer and an error will be raised.</p>
+</div>
+<p><a class="reference internal" href="#instrument-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="adding-components">
+<h2>Adding Components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
+<p>Components are added to an Instrument in the same way that they are added to a Combination. That is, they are added to the componentlist parameter with the function addComponent(). This function takes two arguments:</p>
+<ul class="simple">
+<li><p>comp - The Component you wish to add to the Instrument.</p></li>
+<li><p>index - The index at which you wish to add the Component. This argument defaults to None, in which case the Component will be appended to the end of the list. For example, if index was set to 3, the component will either be added at index 3 (with later components pushed back) or at the end of the componentlist if it had a length less than 3.</p></li>
+</ul>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
+<span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+
+<span class="n">comb</span> <span class="o">=</span> <span class="n">Combination</span><span class="p">()</span>
+
+<span class="n">c0</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+<span class="n">c1</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+<span class="n">c2</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">()</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">Grating</span><span class="p">()</span>
+
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c0</span><span class="p">)</span>
+
+<span class="c1"># Without an index argument, the component will be added at the end</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c1</span><span class="p">)</span>
+
+<span class="c1"># If the index argument is too large, the component</span>
+<span class="c1"># will be added at the end</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">c2</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Add the Grating to be the second item in the list</span>
+<span class="n">comb</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#instrument-top"><span class="std std-ref">Back to Top</span></a></p>
+<div class="section" id="adding-a-focus">
+<h3>Adding a Focus<a class="headerlink" href="#adding-a-focus" title="Permalink to this headline">¶</a></h3>
+<p>Often, you will want to focus your rays after sending them through an instrument. Normally, this would be done by accessing the final rays and then calling focusX() on them. However, focusing can be performed within the Instrument using the addFocus() function. This function takes one argument:</p>
+<ul class="simple">
+<li><p>index - The index at which you want to add the focus. This argument follows the same rules as it does in the addComponent() function.</p></li>
+</ul>
+<p>When this function is called, it adds a <a class="reference internal" href="modification.html#modification-top"><span class="std std-ref">Modification</span></a> object which takes the rays and calls the focusX() function on them.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Circularbeam</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+<span class="kn">from</span> <span class="nn">prtp.Instrument</span> <span class="kn">import</span> <span class="n">Instrument</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Circularbeam</span><span class="p">()</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">Grating</span><span class="p">()</span>
+
+<span class="n">inst</span> <span class="o">=</span> <span class="n">Instrument</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">inst</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+<span class="n">inst</span><span class="o">.</span><span class="n">addFocus</span><span class="p">()</span>
+
+<span class="n">inst</span><span class="o">.</span><span class="n">simulate</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="removing-components">
+<h2>Removing Components<a class="headerlink" href="#removing-components" title="Permalink to this headline">¶</a></h2>
+<p>Components can be removed as easily as they can be added. This is done with the function removeComponent(), which takes the following arguments:</p>
+<ul class="simple">
+<li><p>index - The index of the component that you would like to remove.</p></li>
+</ul>
+<p>Note: since this function uses the pop() function on the componentlist, it also returns the component which was removed.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Circularbeam</span>
+<span class="kn">from</span> <span class="nn">prtp.Grating</span> <span class="kn">import</span> <span class="n">Grating</span>
+<span class="kn">from</span> <span class="nn">prtp.Instrument</span> <span class="kn">import</span> <span class="n">Instrument</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Circularbeam</span><span class="p">()</span>
+
+<span class="n">g</span> <span class="o">=</span> <span class="n">Grating</span><span class="p">()</span>
+
+<span class="n">inst</span> <span class="o">=</span> <span class="n">Instrument</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+<span class="n">inst</span><span class="o">.</span><span class="n">addComponent</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+
+<span class="n">inst</span><span class="o">.</span><span class="n">removeComponent</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">inst</span><span class="o">.</span><span class="n">componentlist</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This code block shows that the component list is now empty with the following output:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">&gt;&gt;</span><span class="p">[]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="simulating-the-components">
+<h2>Simulating The Components<a class="headerlink" href="#simulating-the-components" title="Permalink to this headline">¶</a></h2>
+<p>Once you have added the components you would like to call (into an Instrument i, for example), you only need to call i.simulate() to trace the rays to each component in the Instrument.</p>
+<p>The call to i.simulate() will generate rays from the source, then take those rays and trace them to every component in the componentlist, keeping those photons which interact with each component.</p>
+<p>Calling i.simulate() again will generate new rays from the source and send those rays through the componentlist, it will not change the rays which were simulated previously.</p>
+</div>
+<div class="section" id="accessing-simulated-rays">
+<h2>Accessing Simulated Rays<a class="headerlink" href="#accessing-simulated-rays" title="Permalink to this headline">¶</a></h2>
+<p>Once the Instrument has been simulated, the resultant rays can be accessed with the getRays() function, which takes no arguments.</p>
+<p>Note that if the instrument has not yet been simulated, getRays() will return None.</p>
+<p><a class="reference internal" href="#instrument-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="displaying-simulation-information">
+<h2>Displaying Simulation Information<a class="headerlink" href="#displaying-simulation-information" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="efficiency-information">
+<h3>Efficiency Information<a class="headerlink" href="#efficiency-information" title="Permalink to this headline">¶</a></h3>
+<p>Every component in an Instrument produces efficiency information when it is traced. This information includes how many rays were input, and how many rays were successfully traced. This information is collected by the Instrument object and can be displayed with the displayEfficiency() command, which takes no arguments. When the instrument from prtpbasicinstrument.py (in the Examples folder) produces its efficiency information, it produces the following output:</p>
+<p>Method:                        Local Percent:   Global Percent:</p>
+<p>Missed Wolter Optic            000.00000%       000.00000%</p>
+<p>Missed Grating                 050.50000%       050.50000%</p>
+<p>Failed to Reflect off Grating  000.00000%       000.00000%</p>
+<p>Total Throughput: 49.50000%</p>
+<p>^This output is better formatted in a Python shell.</p>
+<p>Note that each method has two percentages, a local and a global percent. The local percent describes what percentage of the rays which attempted to be traced to the component were removed. The global percent describes the percent of the total photons (created by the source) which were removed by this method. We can see that 50.5% of the photons which were traced to the Grating were removed. Since no other photons were removed in this simulation, the global percentage is also 50.5%.</p>
+<p>At the bottom is a total throughput, this describes the percentage of photons which made it through the entire instrument.</p>
+</div>
+<div class="section" id="spectral-resolution">
+<h3>Spectral Resolution<a class="headerlink" href="#spectral-resolution" title="Permalink to this headline">¶</a></h3>
+<p>After an Instrument has been simulated, the spectral resolution of the instrument can be determined using the spectralResolution() command, which takes no arguments. If the instrument has not yet been simulated, an error will be raised.</p>
+<p><a class="reference internal" href="#instrument-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="misalignment-tests">
+<h2>Misalignment Tests<a class="headerlink" href="#misalignment-tests" title="Permalink to this headline">¶</a></h2>
+<p>These tests allow the user to automatically perform misalignments on components and compare the results. They will systematically misalign a given component, simulate the instrument, then record the FWHM of the photons with respect to a given variable. It is highly recommended that a focus be added to the end of the Instrument. Otherwise the FWHM of the photons has little meaning (in x, y, or z, that is).</p>
+<p>All misalignment tests return two arrays. The first one containing the misalignment values, the second one containing the FWHM values.</p>
+<p>These misalignment tests are still in the early stages of development, and thus may not always perform as expected.</p>
+<div class="section" id="single-translation-test">
+<h3>Single Translation Test<a class="headerlink" href="#single-translation-test" title="Permalink to this headline">¶</a></h3>
+<p>This test takes a component and translates it along a specified axis. The function singleTranslateTest() takes the following arguments:</p>
+<ul class="simple">
+<li><p>index - The index of the component you would like to misalign, defaults to 0.</p></li>
+<li><dl class="simple">
+<dt>min, max - The minimum and maximum translational values you would like to test. An equal number of steps will be chosen between these values to be tested. Default to -1 mm and 1 mm, respectively.</dt><dd><ul>
+<li><p>min and max must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>num - The number of different tests you would like to perform. The misalignment values will be equally spaced between the min and max values. Defaults to 10.</p></li>
+<li><p>dim - The dimension along which you would like to translate. This argument should have a value of 1, 2, or 3 for the x, y, or z axis, respectively. Defaults to 1.</p></li>
+<li><p>plot - A boolean that tells the function if you would like to results to be automatically plotted. If True, a plot will be generated showing the full-width at half-max in the desired dimension as a function of misalignment value. Defaults to True.</p></li>
+<li><dl class="simple">
+<dt>param - A string that tells the function the variable that you would like to plot the FWHM of.</dt><dd><ul>
+<li><p>param has potential values: ‘x’, ‘y’, ‘z’, ‘l’, ‘m’, ‘n’, ‘ux’, ‘uy’, or ‘uz’</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="single-unit-rotate-test">
+<h3>Single Unit Rotate Test<a class="headerlink" href="#single-unit-rotate-test" title="Permalink to this headline">¶</a></h3>
+<p>This test takes a component and translates it along a specified axis. The function singleUnitRotateTest() takes the following arguments:</p>
+<ul class="simple">
+<li><p>index - The index of the component you would like to misalign, defaults to 0.</p></li>
+<li><dl class="simple">
+<dt>min, max - The minimum and maximum rotational values you would like to test. An equal number of steps will be chosen between these values to be tested. Default to -1 deg and 1 deg, respectively.</dt><dd><ul>
+<li><p>min and max must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>num - The number of different tests you would like to perform. The misalignment values will be equally spaced between the min and max values. Defaults to 10.</p></li>
+<li><p>axis - The dimension about which you would like to rotate. This argument should have a value of 1, 2, or 3 to rotate about the x, y, or z axis, respectively. Defaults to 1.</p></li>
+<li><p>plot - A boolean that tells the function if you would like to results to be automatically plotted. If True, a plot will be generated showing the full-width at half-max in the desired dimension as a function of misalignment value. Defaults to True.</p></li>
+<li><dl class="simple">
+<dt>param - A string that tells the function the variable that you would like to plot the FWHM of.</dt><dd><ul>
+<li><p>param has potential values: ‘x’, ‘y’, ‘z’, ‘l’, ‘m’, ‘n’, ‘ux’, ‘uy’, or ‘uz’</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="single-rotate-test">
+<h3>Single Rotate Test<a class="headerlink" href="#single-rotate-test" title="Permalink to this headline">¶</a></h3>
+<p>This test takes a component and translates it along a specified axis. The function singleRotateTest() takes the following arguments:</p>
+<ul class="simple">
+<li><p>index - The index of the component you would like to misalign, defaults to 0.</p></li>
+<li><dl class="simple">
+<dt>min, max - The minimum and maximum rotational values you would like to test. An equal number of steps will be chosen between these values to be tested. Default to -1 deg and 1 deg, respectively.</dt><dd><ul>
+<li><p>min and max must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>num - The number of different tests you would like to perform. The misalignment values will be equally spaced between the min and max values. Defaults to 10.</p></li>
+<li><p>ux,uy,uz - These argument describe the axis about which you would like to rotate. These arguments default to 1, 0, and 0, respectively.</p></li>
+<li><p>plot - A boolean that tells the function if you would like to results to be automatically plotted. If True, a plot will be generated showing the full-width at half-max in the desired dimension as a function of misalignment value. Defaults to True.</p></li>
+<li><dl class="simple">
+<dt>param - A string that tells the function the variable that you would like to plot the FWHM of.</dt><dd><ul>
+<li><p>param has potential values: ‘x’, ‘y’, ‘z’, ‘l’, ‘m’, ‘n’, ‘ux’, ‘uy’, or ‘uz’</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p><a class="reference internal" href="#instrument-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Instruments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-an-instrument">Creating an Instrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-components">Adding Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#adding-a-focus">Adding a Focus</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-components">Removing Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulating-the-components">Simulating The Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-simulated-rays">Accessing Simulated Rays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#displaying-simulation-information">Displaying Simulation Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#efficiency-information">Efficiency Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spectral-resolution">Spectral Resolution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#misalignment-tests">Misalignment Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#single-translation-test">Single Translation Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#single-unit-rotate-test">Single Unit Rotate Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#single-rotate-test">Single Rotate Test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="modification.html" title="previous chapter">Modification</a></li>
+      <li>Next: <a href="rays.html" title="next chapter">Rays</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/instrument.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

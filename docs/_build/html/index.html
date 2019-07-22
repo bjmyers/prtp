@@ -52,6 +52,7 @@
 <li class="toctree-l2"><a class="reference internal" href="flatcomp.html#translate">Translate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flatcomp.html#unit-rotate">Unit Rotate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flatcomp.html#rotate">Rotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="flatcomp.html#pitch-roll-and-yaw">Pitch, Roll, and Yaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="flatcomp.html#coordinates">Coordinates</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="flatcomp.html#getting-coordinates">Getting Coordinates</a></li>
 </ul>
@@ -74,6 +75,7 @@
 <li class="toctree-l2"><a class="reference internal" href="detector.html#moving-a-detector">Moving a Detector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detector.html#trace">Trace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detector.html#add-gaussian-noise">Add Gaussian Noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="detector.html#add-custom-noise">Add Custom Noise</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detector.html#view">View</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detector.html#reset">Reset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="detector.html#examples">Examples</a><ul>
@@ -91,6 +93,16 @@
 <li class="toctree-l2"><a class="reference internal" href="grating.html#period-functions">Period Functions</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="grating.html#period-function-for-parallel-gratings">Period Function for Parallel Gratings</a></li>
 <li class="toctree-l3"><a class="reference internal" href="grating.html#period-function-for-radial-gratings">Period Function for Radial Gratings</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="gratingstack.html#creating-a-grating-stack">Creating a Grating Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gratingstack.html#adding-and-accessing-components">Adding and Accessing Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gratingstack.html#moving-grating-stacks">Moving Grating Stacks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gratingstack.html#trace">Trace</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="gratingstack.html#smart-trace">Smart Trace</a></li>
 </ul>
 </li>
 </ul>
@@ -132,6 +144,7 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="sources.html#creating-a-source">Creating a Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sources.html#using-existing-rays">Using Existing Rays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html#misalignments">Misalignments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html#generating-rays">Generating Rays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="sources.html#annulus">Annulus</a></li>
@@ -166,6 +179,68 @@
 <li class="toctree-l2"><a class="reference internal" href="combination.html#trace">Trace</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#creating-a-modification">Creating a Modification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="modification.html#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#creating-an-instrument">Creating an Instrument</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#adding-components">Adding Components</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#adding-a-focus">Adding a Focus</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#removing-components">Removing Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#simulating-the-components">Simulating The Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#accessing-simulated-rays">Accessing Simulated Rays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#displaying-simulation-information">Displaying Simulation Information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#efficiency-information">Efficiency Information</a></li>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#spectral-resolution">Spectral Resolution</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="instrument.html#misalignment-tests">Misalignment Tests</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#single-translation-test">Single Translation Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#single-unit-rotate-test">Single Unit Rotate Test</a></li>
+<li class="toctree-l3"><a class="reference internal" href="instrument.html#single-rotate-test">Single Rotate Test</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#length">Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#truth-arrays">Truth Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#generating-rays">Generating Rays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#copy">Copy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#split">Split</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#removing-rays">Removing Rays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#remove-by-trutharray">Remove by Trutharray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#remove-by-probability">Remove by Probability</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#tag-functions">Tag Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#add-tag">Add Tag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#get-tag">Get Tag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#print-tags">Print Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#combining-tags">Combining Tags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#analysis-functions">Analysis Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#centroid">Centroid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#half-power-diameter">Half-Power Diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#spectral-resolution">Spectral Resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#full-width-at-half-maximum">Full-Width at Half-Maximum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="rays.html#graphing-functions">Graphing Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="rays.html#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 </div>
 </div>
@@ -203,9 +278,14 @@
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">

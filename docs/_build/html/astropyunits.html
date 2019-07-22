@@ -4,27 +4,23 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf-8" />
-    <title>Search &#8212; PRTP 0.0 documentation</title>
+    <title>Astropy Units &#8212; PRTP 0.0 documentation</title>
     <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
     <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <script type="text/javascript" src="_static/language_data.js"></script>
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/javascript" src="_static/searchtools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="#" />
-  <script type="text/javascript" src="searchindex.js" defer></script>
-  
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Rays" href="rays.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
-
 
   </head><body>
   
@@ -36,29 +32,15 @@
 
           <div class="body" role="main">
             
-  <h1 id="search-documentation">Search</h1>
-  <div id="fallback" class="admonition warning">
-  <script type="text/javascript">$('#fallback').hide();</script>
-  <p>
-    Please activate JavaScript to enable the search
-    functionality.
-  </p>
-  </div>
-  <p>
-    From here you can search these documents. Enter your search
-    words into the box below and click "search". Note that the search
-    function will automatically search for all of the words. Pages
-    containing fewer words won't appear in the result list.
-  </p>
-  <form action="" method="get">
-    <input type="text" name="q" value="" />
-    <input type="submit" value="search" />
-    <span id="search-progress" style="padding-left: 10px"></span>
-  </form>
-  
-  <div id="search-results">
-  
-  </div>
+  <div class="section" id="astropy-units">
+<span id="units-top"></span><h1>Astropy Units<a class="headerlink" href="#astropy-units" title="Permalink to this headline">¶</a></h1>
+<p>Astropy units are the way that component dimensions are specified. If you look at the definition for almost any component, some of the arguments must be in certain units. For example, the position of a Flat Component must be in units of length. You can specify any units you want (1e-19 parsec, why not?) as long as they are in units of length.</p>
+<p>Once a quantity with units is passed to the Component, they are immediately converted to default units (usually millimeters and radians, though there are some exceptions. Look for the default arguments, as these almost always have the default units attached.)</p>
+<p>While they are stored by the component, they still have their units attached. But as soon as they are passed to a deeper function, only the value is passed. For example, there is no reference to units in any function in the Rays.py file. You can see this by looking at the rays.x parameter, for example. An array will be returned with no units attached, so it is up to the user to recognize that they are in the default units (millimeters).</p>
+<p>One notable parameter is the wavelength of a Rays object. Looking at rays.wave will show that the default units are nanometers. However, when a wavelength is attached to a Source object, it can be in units of energy or length. If, for example, an energy of 1 eV was passed as the wavelength, it would be automatically converted to the wavelength (in nm) that a photon would need to have an energy of 1 eV.</p>
+<p><a class="reference internal" href="#units-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+
 
           </div>
           
@@ -77,7 +59,7 @@
 
 <h3>Navigation</h3>
 <p class="caption"><span class="caption-text">Contents:</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
 <li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
@@ -91,16 +73,27 @@
 <li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
 <li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
 <li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
-<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Astropy Units</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="rays.html" title="previous chapter">Rays</a></li>
   </ul></li>
 </ul>
 </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
 
 
 
@@ -120,6 +113,9 @@
       Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
+      |
+      <a href="_sources/astropyunits.rst.txt"
+          rel="nofollow">Page source</a>
     </div>
 
     

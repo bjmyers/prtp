@@ -46,14 +46,14 @@
 <li><p>q - The quantum efficiency of the detector. This input should be a float that ranges from 0 to 1, it defaults to 1. This quantity specifies the probability that a given photon will be detected if it impacts the Detector.</p></li>
 <li><dl class="simple">
 <dt>l - The length of the Collimator Plate. This is the extent of the Component in the direction of the surface vector</dt><dd><ul>
-<li><p>l must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>l must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>w - The width of the Collimator Plate. This is the extent of the Component in the direction of the cross product of the surface and normal vectors (sxn).</dt><dd><ul>
-<li><p>w must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>w must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -84,12 +84,53 @@
 </div>
 <div class="section" id="add-gaussian-noise">
 <h2>Add Gaussian Noise<a class="headerlink" href="#add-gaussian-noise" title="Permalink to this headline">¶</a></h2>
-<p>The function addGaussianNoise adds noise to the pixel array for more accurate simulations.</p>
+<p>The function addGaussianNoise tells the Detector what type of noise should be added to the pixel array.</p>
 <p>addGaussianNoise takes the following inputs:</p>
 <ul class="simple">
 <li><p>mean - The mean of the normal distribution being added to the array, defaults to 0.</p></li>
 <li><p>std - The standard deviation of the normal distribution being added to the array, defaults to 1.</p></li>
 </ul>
+<p>Note that this function has no immediate impact on the Detector’s pixel array. Calling this function just saves the arguments so that when the view() function is called, it knows what kind of noise to add.</p>
+<p><a class="reference internal" href="#detector-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="add-custom-noise">
+<h2>Add Custom Noise<a class="headerlink" href="#add-custom-noise" title="Permalink to this headline">¶</a></h2>
+<p>If you have a frame that characterizes the noise of the detector (like a bias frame or dark frame), you can add it in the addNoise() function to generate accurate noise when view() is called.</p>
+<p>addNoise() takes the following inputs:</p>
+<ul class="simple">
+<li><p>noise - A 2D array the same size as the pixel array which has the noise value for each pixel.</p></li>
+</ul>
+<p>When view() is called, each pixel will be given a noise value according to a poisson distribution where lambda is given by the noise argument in addNoise.</p>
+<p>Note: addNoise() can be called more than once. If this is done, the subsequent noise arrays will be averaged together. This allows you to add in many noise files to get an accurate estimate of the detector’s noise.</p>
+<p>Note: if addGaussianNoise() is called after addNoise(), the noise arrays will be lost.</p>
+<p>Finally, when view() is called, the most recent noise function called will be used to add noise values.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Rays</span> <span class="kn">import</span> <span class="n">Rays</span>
+<span class="kn">from</span> <span class="nn">prtp.Detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">Rays</span><span class="p">()</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">xpix</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">ypix</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Add 5 channels of noise</span>
+<span class="n">noise</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+   <span class="n">noise</span><span class="p">[:,</span><span class="mi">20</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">20</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="mi">8</span><span class="p">,</span><span class="mi">12</span><span class="p">,</span><span class="mi">16</span><span class="p">,</span><span class="mi">20</span><span class="p">])</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">addNoise</span><span class="p">(</span><span class="n">noise</span><span class="p">)</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/detector_custom_channel_noise.png" src="_images/detector_custom_channel_noise.png" />
+</div>
 <p><a class="reference internal" href="#detector-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="view">
@@ -234,6 +275,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#moving-a-detector">Moving a Detector</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#add-gaussian-noise">Add Gaussian Noise</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-custom-noise">Add Custom Noise</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#view">View</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#reset">Reset</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#examples">Examples</a><ul>
@@ -245,9 +287,14 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">

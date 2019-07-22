@@ -48,7 +48,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>x,y,z - The position in Cartesian Coordinates of the center of the Component.</dt><dd><ul>
-<li><p>These parameters must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>These parameters must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -80,7 +80,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>dx,dy,dz - The amount by which you want to move the Component’s center in the x, y, and z directions, respectively.</dt><dd><ul>
-<li><p>These parameters must be in units of length. See the section on Astropy units</p></li>
+<li><p>These parameters must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -107,7 +107,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The amount that you want to rotate about the specified axis.</dt><dd><ul>
-<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+<li><p>This parameter must be in units of angle. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -126,7 +126,8 @@
 <p>Example: Let’s take the Flat Component we defined at first and rotate it 20 degrees about the y-axis.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">f</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">20</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -144,7 +145,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The amount that you want to rotate about the user-defined axis.</dt><dd><ul>
-<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+<li><p>This parameter must be in units of angle. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -156,7 +157,8 @@
 <p>Example: Let’s take the Flat Component we defined at first and rotate it 40 degrees about the vector &lt;1,1,0&gt;</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
-<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">f</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">40</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">ux</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">uz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -167,6 +169,33 @@
 </div>
 <p>Flat Component objects have several more functions, but these are primarily called by other objects when tracing rays.</p>
 <p><a class="reference internal" href="#flat-comp-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="pitch-roll-and-yaw">
+<h2>Pitch, Roll, and Yaw<a class="headerlink" href="#pitch-roll-and-yaw" title="Permalink to this headline">¶</a></h2>
+<p>The functions pitch(), roll(), and yaw() allow the user to rotate the Component about the Surface-cross-Normal vector, the Surface vector, and the Normal vector, respectively. See the Coordinates section for a visual depicting these three vectors. All of the functions take one argument:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>theta - The amount you want to rotate about the vector</dt><dd><ul>
+<li><p>theta must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>Note: The rotation is performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.</p>
+<p>Examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.FlatComponent</span> <span class="kn">import</span> <span class="n">FlatComponent</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="n">f</span> <span class="o">=</span> <span class="n">FlatComponent</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">f</span><span class="o">.</span><span class="n">pitch</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+<span class="n">f</span><span class="o">.</span><span class="n">roll</span><span class="p">(</span><span class="n">theta</span><span class="o">=.</span><span class="mo">01</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+
+<span class="n">f</span><span class="o">.</span><span class="n">yaw</span><span class="p">(</span><span class="mi">60</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">arcsec</span><span class="p">)</span>
+</pre></div>
+</div>
 </div>
 <div class="section" id="coordinates">
 <h2>Coordinates<a class="headerlink" href="#coordinates" title="Permalink to this headline">¶</a></h2>
@@ -221,6 +250,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#translate">Translate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#unit-rotate">Unit Rotate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#rotate">Rotate</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pitch-roll-and-yaw">Pitch, Roll, and Yaw</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coordinates">Coordinates</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#getting-coordinates">Getting Coordinates</a></li>
 </ul>
@@ -230,9 +260,14 @@
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">

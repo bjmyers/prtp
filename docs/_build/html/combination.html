@@ -15,6 +15,7 @@
     <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Modification" href="modification.html" />
     <link rel="prev" title="Sources" href="sources.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
@@ -46,7 +47,7 @@
 </div>
 </div>
 <div class="section" id="adding-components">
-<h2>Adding Components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
+<span id="add-components"></span><h2>Adding Components<a class="headerlink" href="#adding-components" title="Permalink to this headline">¶</a></h2>
 <p>If you have some Combination object c, you can modify it directly by accessing the list as “c.componentlist” But accessing the list directly can be risky, it is easy to change the list unexpectedly. A safer way to add components is with the addComponent() function. This function takes two arguments:</p>
 <ul class="simple">
 <li><p>comp - The Component you wish to add to the Combination.</p></li>
@@ -100,12 +101,12 @@
 </div>
 </div>
 <div class="section" id="get-sub-components">
-<h2>Get Sub-Components<a class="headerlink" href="#get-sub-components" title="Permalink to this headline">¶</a></h2>
+<span id="get-subcomponents"></span><h2>Get Sub-Components<a class="headerlink" href="#get-sub-components" title="Permalink to this headline">¶</a></h2>
 <p>As discussed before, the list of components contained within this Combination can be accessed with c.componentlist (if c is an initialized Combination object). However, sometimes one or more of these components will be a Combination, and sometimes it is necessary to retrieve the components inside of that Combination.</p>
 <p>Suppose that you had a Combination that contained two GratingStacks, and each GratingStack contained ten Gratings. Calling c.componentlist will only give you the two Grating Stacks. If you wanted to perform some complicated operation on every Grating, you could access these using the getSubComponents() function.</p>
 </div>
 <div class="section" id="setting-attributes">
-<h2>Setting Attributes<a class="headerlink" href="#setting-attributes" title="Permalink to this headline">¶</a></h2>
+<span id="set-attribute"></span><h2>Setting Attributes<a class="headerlink" href="#setting-attributes" title="Permalink to this headline">¶</a></h2>
 <p>The function setAttribute allows you to change the value of a certain parameter for every Component in this Combination. setAttribute() takes the following arguments:</p>
 <ul class="simple">
 <li><p>name - The name of the parameter you wish to change</p></li>
@@ -128,7 +129,7 @@
 <p><a class="reference internal" href="#combination-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
 <div class="section" id="in-place-motion">
-<h2>In-Place Motion<a class="headerlink" href="#in-place-motion" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h2>In-Place Motion<a class="headerlink" href="#in-place-motion" title="Permalink to this headline">¶</a></h2>
 <p>In-place motion means that each component is moved individually. Other motion functions will move the entire Combination. There are two function which deal with in-place rotation.</p>
 <p>Note that for all motion functions we will be using the following Combination which is defined by placing two Collimator Plates next to each other:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
@@ -162,7 +163,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
-<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+<li><p>theta should be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -231,7 +232,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
-<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+<li><p>theta should be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -295,7 +296,7 @@
 </div>
 </div>
 <div class="section" id="bulk-motion">
-<h2>Bulk Motion<a class="headerlink" href="#bulk-motion" title="Permalink to this headline">¶</a></h2>
+<span id="id2"></span><h2>Bulk Motion<a class="headerlink" href="#bulk-motion" title="Permalink to this headline">¶</a></h2>
 <p>While In-place motion moves each component in the combination individually, bulk motion moves the entire combination.</p>
 <p>For bulk motion examples we will be using the same Combination we used for in-place motion, which is two adjacent Collimator Plates:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Combination</span> <span class="kn">import</span> <span class="n">Combination</span>
@@ -328,21 +329,21 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>dx - The amount by which you want to move the components in the x-direction, defaults to 0 mm.</dt><dd><ul>
-<li><p>dx must be in units of length, see the section on astropy units</p></li>
+<li><p>dx must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>dy - The amount by which you want to move the components in the y-direction, defaults to 0 mm.</dt><dd><ul>
-<li><p>dy must be in units of length, see the section on astropy units</p></li>
+<li><p>dy must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>dz - The amount by which you want to move the components in the z-direction, defaults to 0 mm.</dt><dd><ul>
-<li><p>dz must be in units of length, see the section on astropy units</p></li>
+<li><p>dz must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -386,7 +387,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>x,y,z - The x, y, and z positions of the rotation point, respectively. They all default to 0 mm.</dt><dd><ul>
-<li><p>These arguments must all be in units of length, see the section on astropy units</p></li>
+<li><p>These arguments must all be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -412,7 +413,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
-<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+<li><p>theta should be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -484,7 +485,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The angle that you would like to rotate. Can be a single value if you want to rotate each component the same amount. Can also be a tuple, list or numpy array the same length as this Combination’s componentlist. In this case, each component will be rotated a unique amount.</dt><dd><ul>
-<li><p>theta should be in units of angle, see the section on astropy units.</p></li>
+<li><p>theta should be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -555,7 +556,7 @@
 <p>trace() is the most important function in any Component, and the Combination is no exception. When trace() is called, the input Rays will be traced to the first component in this Combination. The rays which hit the first component will be saved, while the remaining rays will be backed up to their original positions and traced to the second component. The rays which hit the second component will be saved and the entire process repeats for every component in this Combination.</p>
 <p>In the end, rays which did not hit any component will be removed.</p>
 <p>It is important to note that the Rays will be traced to the Components in the order that they were added to the Combination, so the user must be careful if the components overlap to make sure that they are added in the correct order.</p>
-<p>trace() takes the following arguments:</p>
+<p id="comb-trace-args">trace() takes the following arguments:</p>
 <ul class="simple">
 <li><p>rays - The rays object that you want to trace, it is not returned, but is modified in place by the call to this function</p></li>
 <li><p>considerweights - A boolean that dictates whether or not the rays are weighted. This is True when things like quantum efficiency of detectors or reflectivity of Gratings is being considered. Defaults to False</p></li>
@@ -592,6 +593,7 @@
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Combination</a><ul>
@@ -615,6 +617,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#trace">Trace</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">
@@ -622,6 +628,7 @@
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
       <li>Previous: <a href="sources.html" title="previous chapter">Sources</a></li>
+      <li>Next: <a href="modification.html" title="next chapter">Modification</a></li>
   </ul></li>
 </ul>
 </div>

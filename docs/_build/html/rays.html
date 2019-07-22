@@ -1,0 +1,495 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Rays &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Instruments" href="instrument.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="rays">
+<span id="rays-top"></span><h1>Rays<a class="headerlink" href="#rays" title="Permalink to this headline">¶</a></h1>
+<p>Rays are objects which store a group of photons, PRTP is based on manipulating these objects. Most of the operations provided by PRTP can be performed working exclusively with Components and using Rays objects rarely. But this page will provide the basic functions to modify and analyze Rays. The full class is very long and contains hundreds of functions. However the functions themselves are documented in the Rays.py file.</p>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<p>Rays objects contain photons, and these photons need certain parameters in order to be fully described.</p>
+<p>Note: Astropy units are handled entirely at the component level. They are never used by any functions or parameters in the Rays.py file. Therefore any time you work with Rays objects directly, make sure your values are in the default units (millimeters and radians) but do not have any units attached. For example, if you wished to translate some rays 2 meters in x. You would need to pass 2000 as the argument (an integer representing the value if it were converted to mm).</p>
+<p>Rays Parameters:</p>
+<ul class="simple">
+<li><p>x, y, z - These parameters describe the position of the photon</p></li>
+<li><p>l, m, n - These parameters describe the components of the photon’s direction</p></li>
+<li><p>ux, uy, uz - These parameters describe the components of the normal vector of the last surface with which the photon interacted.</p></li>
+<li><p>weights - If the photons are weighted, their weights are stored here. All photons start out with a weight of one. If they hit a detector with a quantum efficiency of 0.75, their weights are multiplied by 0.75. The weight represents the probability that a photon survived to this point.</p></li>
+<li><p>wave - The wavelength of the photons, in nm by default (while position values are in mm)</p></li>
+<li><p>order - The order of the photons, important when reflecting off gratings.</p></li>
+</ul>
+</div>
+<div class="section" id="length">
+<h2>Length<a class="headerlink" href="#length" title="Permalink to this headline">¶</a></h2>
+<p>Rays objects have lengths which describe the number of photons they contain. There are two ways to find the length of the rays object:</p>
+<p>The standard len() function that you would use for a list or 1D array:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The length() function. This function is needed if the photons are weighted. It takes as an argument “considerweights”, a boolean. If False, if will consider every photon the same regardless of its’ weight. If True, this function will return the sum of the photons’ weights:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">length</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">length</span><span class="p">(</span><span class="n">considerweights</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="truth-arrays">
+<h2>Truth Arrays<a class="headerlink" href="#truth-arrays" title="Permalink to this headline">¶</a></h2>
+<p>Truth arrays are a very important concept when dealing with Rays objects and they will appear several times in this page. A truth array is simply a numpy array of booleans that has the same length as the rays object. They can be generated very easily (see examples)</p>
+<p>Generating a solid trutharray (all the same value)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># suppose a rays object rays has been generated elsewhere</span>
+
+<span class="c1"># generate a trutharray that has True for every element</span>
+<span class="n">trutharray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+
+<span class="c1"># generate a trutharray that False for every element</span>
+<span class="n">trutharray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Generate a trutharray based on the photons’ position</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># suppose a rays object rays has been generated elsewhere</span>
+
+<span class="c1"># a comparison operator is all you need to generate a trutharray</span>
+<span class="c1"># this array will be true if the rays have a positive x-position</span>
+<span class="n">trutharray</span> <span class="o">=</span> <span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Combine two truth arrays:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># suppose a rays object rays has been generated elsewhere</span>
+
+<span class="c1"># we will find the rays with a positive x and a positive y</span>
+<span class="n">tarray1</span> <span class="o">=</span> <span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">tarray2</span> <span class="o">=</span> <span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># trutharrays need to be combined with numpy logical operators</span>
+<span class="n">trutharray</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">tarray1</span><span class="p">,</span><span class="n">tarray2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="generating-rays">
+<h2>Generating Rays<a class="headerlink" href="#generating-rays" title="Permalink to this headline">¶</a></h2>
+<p>The best way to generate rays is using a <a class="reference internal" href="sources.html#source-top"><span class="std std-ref">Source</span></a> object. But there a few methods that can be helpful to generate rays objects.</p>
+<div class="section" id="copy">
+<h3>Copy<a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h3>
+<p>The copy() function creates a copy of an existing Rays object. The copied object is a deepcopy of the original, so changing the original will not affect the copy, and vice versa.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Rays</span> <span class="kn">import</span> <span class="n">Rays</span><span class="p">()</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">Rays</span><span class="p">()</span>
+
+<span class="n">copiedrays</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="split">
+<h3>Split<a class="headerlink" href="#split" title="Permalink to this headline">¶</a></h3>
+<p>The split function copies some rays from an existing Rays object. Which photons are copied and which are left untouched is determined by a truth array. The truth array should be True for a photon which is to be copied and False if the photon is to be left alone. The split function does not affect the original Rays object but does create a new object.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="c1"># rays have been defined elsewhere</span>
+
+<span class="c1"># Let&#39;s make a new object which only has the photons that</span>
+<span class="c1"># are within 2 mm of the origin</span>
+<span class="n">trutharray</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">rays</span><span class="o">.</span><span class="n">y</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">rays</span><span class="o">.</span><span class="n">z</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="n">closerays</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">trutharray</span><span class="p">)</span>
+
+<span class="c1"># Lets also make a rays object conatining the photons that</span>
+<span class="c1"># are farther than 2 mm from the origin</span>
+<span class="n">farrays</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">logical_not</span><span class="p">(</span><span class="n">trutharray</span><span class="p">))</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="removing-rays">
+<h2>Removing Rays<a class="headerlink" href="#removing-rays" title="Permalink to this headline">¶</a></h2>
+<p>There are two ways that photons can be removed from a Rays object:</p>
+<div class="section" id="remove-by-trutharray">
+<h3>Remove by Trutharray<a class="headerlink" href="#remove-by-trutharray" title="Permalink to this headline">¶</a></h3>
+<p>The function remove() will remove photons from the Rays object based on a trutharray. The trutharray should be True if the photon is to be removed. The trutharray should be False if the photon is to be kept.</p>
+<p>remove() takes the following arguments:</p>
+<ul class="simple">
+<li><p>trutharray - The trutharray described above</p></li>
+<li><p>tags,delim,orcombination - These parameters are used if you wish to use tags to remove photons, see the <a class="reference internal" href="#combine-tags"><span class="std std-ref">combinetags</span></a> function</p></li>
+</ul>
+<p>Example:</p>
+<p>Let’s remove all of the photons which have an x-position less that 0.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="remove-by-probability">
+<h3>Remove by Probability<a class="headerlink" href="#remove-by-probability" title="Permalink to this headline">¶</a></h3>
+<p>The function probRemove() will remove photons based on a probability, it takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>probability - The probability that an arbitrary photon will survive. Should be a float from 0 to 1. For example, a probability of 1 means that every photon will survive. Defaults to 1.</dt><dd><ul>
+<li><p>probability can also be array-like. If this is the case, each photon can have a unique probability of being removed. The input argument must be the same length as the rays object.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>considerweights - A boolean that tells the function if weighting should be considered or not. If True and if the photons are weighted, the weight of every photon will be multiplied by the probability argument (and none will be removed). If False, photons will have a specified chance to survive, all others will be removed.</p></li>
+</ul>
+<p>Example:</p>
+<p>Suppose the rays just reflected off a grating with a 40% reflectivity (where 40% of the photons successfully reflect). We can simulate the reflectivity with probRemove()</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">probRemove</span><span class="p">(</span><span class="n">probability</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example:</p>
+<p>Let’s give every photon a random chance of being removed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">probRemove</span><span class="p">(</span><span class="n">probability</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">)))</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="tag-functions">
+<h2>Tag Functions<a class="headerlink" href="#tag-functions" title="Permalink to this headline">¶</a></h2>
+<p>Tags allow the user to separate photons into groups within a Rays object. Tags are essentially trutharrays which specify which photons in a Rays object are part of a certain tag.</p>
+<div class="section" id="add-tag">
+<h3>Add Tag<a class="headerlink" href="#add-tag" title="Permalink to this headline">¶</a></h3>
+<p>The addTag() function adds a tag to the specified rays object. It takes two arguments:</p>
+<ul class="simple">
+<li><p>tagname - A string which will be used to refer to the tag in the future. The string is case-sensitive and cannot start with the characters “~” or “!”, as these have special meanings in the <a class="reference internal" href="#combine-tags"><span class="std std-ref">combineTags</span></a> function.</p></li>
+<li><p>trutharray - A truth array that is the same length as the Rays object. All photons given a value of True will be grouped together while all the photons given a value of False will be put into a separate group.</p></li>
+</ul>
+<p>Note that “grouping” the photons in this manner has no immediate effect, but makes it easier to focus on a certain group in the future.</p>
+<p>Example:</p>
+<p>Suppose we have a Rays object called “rays”. These photons have been traced to a Combination of two Gratings. One grating has a negative x-position while the other has a positive x-position. We wish to know which rays are on the negative x grating. We can use a tag to do this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rays</span><span class="o">.</span><span class="n">addTag</span><span class="p">(</span><span class="s1">&#39;Neg-x Grating&#39;</span><span class="p">,(</span><span class="n">rays</span><span class="o">.</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>If in the future you only with to look at the photons which were traced to the positive x grating, you can use the syntax:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pos_x_rays</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">tags</span><span class="o">=</span><span class="s1">&#39;Neg-x Grating&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the above code removed all the photons which had a value of True for the tag, thus leaving only the photons on the positive x grating.
+Also note the call to copy(), this was done so the original rays object would not be modified by our accessing the negative x photons.</p>
+</div>
+<div class="section" id="get-tag">
+<h3>Get Tag<a class="headerlink" href="#get-tag" title="Permalink to this headline">¶</a></h3>
+<p>This function will return the trutharray for a given tag. The getTag() function takes one argument:</p>
+<ul class="simple">
+<li><p>tagname - The name of the tag you wish to view. If the tag does not exist in this Rays object, getTag() will return None.</p></li>
+</ul>
+</div>
+<div class="section" id="print-tags">
+<h3>Print Tags<a class="headerlink" href="#print-tags" title="Permalink to this headline">¶</a></h3>
+<p>If you wish to see what tags have been defined for a certain Rays object, the function printTags() takes no arguments and will print out the names of all tags for this Rays object.</p>
+</div>
+<div class="section" id="combining-tags">
+<span id="combine-tags"></span><h3>Combining Tags<a class="headerlink" href="#combining-tags" title="Permalink to this headline">¶</a></h3>
+<p>The combineTags() function allows the user to combine the trutharrays from several tags into a single trutharray that can be passed to a function like remove(). combineTags() takes the following arguments:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>tags - A string of a list of strings. If this argument is a list of strings, each element should be the name of a tag you wish to combine. If it is a single string, it must contain the names of all the tags separated by a delimiting character.</dt><dd><ul>
+<li><p>For example, the tags “x”, “y”, and “z” could be passed as the tags argument in the list [“x”, “y”, “z”] or the string “x.y.z” with a delimiting character “.”.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>delim - The delimiting character, used if the tags argument is a string. Defaults to None.</p></li>
+<li><p>orcombination - A boolean. The trutharrays can be combined in one of two ways. If orcombination is True, a value of True will be output for a photon if at least one tag has a value of True for that photon. If orcombination is False, a value of True will be output for a photon if every tag has a value of True for that photon. So this argument specifies whether the trutharrays will be combined with a logical_or or a logical_and. Defaults to True.</p></li>
+</ul>
+<p>If you want to invert a tag (that is, use the logical_not of a trutharray), you can specify the name of a tag starting with one of the characters “~” or “!”. For example, if you wished to combine the tags “x”, “y”, and “z”, but wished to invert the trutharray of y, you could pass [“x”,”~y”,”z”] to tags. Or you could pass “x-!y-z” to tags and “-” to delim.</p>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="analysis-functions">
+<h2>Analysis Functions<a class="headerlink" href="#analysis-functions" title="Permalink to this headline">¶</a></h2>
+<p>These functions allow you analyze the Rays in different ways. The most commonly used ones are listed on this page:</p>
+<div class="section" id="centroid">
+<h3>Centroid<a class="headerlink" href="#centroid" title="Permalink to this headline">¶</a></h3>
+<p>The centroid() function takes no arguments and returns the x and y positions of the centroid of the rays. That is, it returns the average x and y positions for the photons.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># rays has been defined elsewhere</span>
+
+<span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">centroid</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="half-power-diameter">
+<h3>Half-Power Diameter<a class="headerlink" href="#half-power-diameter" title="Permalink to this headline">¶</a></h3>
+<p>The function hpd() calculates the mean radii from the centroid</p>
+<p>The function hpdY() calculates the half-power diameter in the y-direction</p>
+<p>Both functions take no arguments</p>
+</div>
+<div class="section" id="spectral-resolution">
+<h3>Spectral Resolution<a class="headerlink" href="#spectral-resolution" title="Permalink to this headline">¶</a></h3>
+<p>The function spectralResolution() takes no arguments and calculates the spectral resolution of the rays according to the following formula:</p>
+<div class="math notranslate nohighlight">
+\[res = \mid \frac{\mu_x}{FWHM_x} \mid = \mid \frac{\mu_x}{\sigma_x * 2.355} \mid\]</div>
+<p>Where mu and sigma represent the mean and standard deviation of the rays’ x-positions, respectively.</p>
+</div>
+<div class="section" id="full-width-at-half-maximum">
+<h3>Full-Width at Half-Maximum<a class="headerlink" href="#full-width-at-half-maximum" title="Permalink to this headline">¶</a></h3>
+<p>The function fwhm() calculates the full-width at half-max of distribution of one of the photons’ parameters. fwhm() takes one argument:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>param - The parameter for which you would like to calculate the FWHM. A string which defaults to ‘x’.</dt><dd><ul>
+<li><p>param can have values x, y, z, l, m, n, ux, uy, or uz</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>The fwhm is calculated using a Gaussian approximation. So for some parameter k, the fwhm of k is calculated:</p>
+<div class="math notranslate nohighlight">
+\[fwhm_k = \sigma_k * 2.355\]</div>
+<p>Where sigma is the standard deviation of the k-values for each photon.</p>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># rays has been defined elsewhere</span>
+
+<span class="c1"># Calculate the FWHM of the distribution of ray z-positions</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">rays</span><span class="o">.</span><span class="n">fwhm</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="s1">&#39;z&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+<div class="section" id="graphing-functions">
+<h2>Graphing Functions<a class="headerlink" href="#graphing-functions" title="Permalink to this headline">¶</a></h2>
+<p>These functions plot the rays so they can be analyzed visually. The three types of plots are histograms, 2D scatterplots, and 3D scatterplots. A histogram requires one parameter input, while a 2D scatterplot requires two parameters (for the x and y axes). The 3D scatterplot is more contrained in the parameters it can use. The full parameter list is given below:</p>
+<ul class="simple">
+<li><p>x - The x-position of the photons</p></li>
+<li><p>y - The y-position of the photons</p></li>
+<li><p>z - The z-position of the photons</p></li>
+<li><p>l - The x-component of the photons’ direction vectors</p></li>
+<li><p>m - The y-component of the photons’ direction vectors</p></li>
+<li><p>n - The z-component of the photons’ direction vectors</p></li>
+<li><p>ux - The x-component of the normal vector of the previous surface</p></li>
+<li><p>uy - The y-component of the normal vector of the previous surface</p></li>
+<li><p>uz - The z-component of the normal vector of the previous surface</p></li>
+<li><p>‘pos’ or ‘position’ + - The distance of the photons from the origin</p></li>
+<li><p>‘dir’ or ‘direction’ + - The magnitude of the photons’ direction vectors</p></li>
+<li><p>‘normal’ or ‘surfacenormal’ + - The magnitude of the normal vectors of the previous surface</p></li>
+</ul>
+<p>Note: The parameters with a + symbol are those that can be used in a 3D scatterplot, though only one parameter can be specified per plot.</p>
+<p>Each function has additional arguments that follow the arguments in matplotlibs hist and scatter function.</p>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+<div class="section" id="examples">
+<h3>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="histogram">
+<h4>Histogram<a class="headerlink" href="#histogram" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="c1"># Graph the distance from the center of the rays</span>
+<span class="n">rays</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">param</span><span class="o">=</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/rays_hist_example.png" src="_images/rays_hist_example.png" />
+</div>
+</div>
+<div class="section" id="d-scatter-plot">
+<h4>2D Scatter Plot<a class="headerlink" href="#d-scatter-plot" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">rad</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter2d</span><span class="p">(</span><span class="n">horiz</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">vert</span><span class="o">=</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;+&#39;</span><span class="p">,</span><span class="n">s</span><span class="o">=</span><span class="mf">50.</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/rays_scatter2d_example.png" src="_images/rays_scatter2d_example.png" />
+</div>
+</div>
+<div class="section" id="id1">
+<h4>3D Scatter Plot:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">PointSource</span>
+<span class="kn">from</span> <span class="nn">prtp.CollimatorPlate</span> <span class="kn">import</span> <span class="n">CollimatorPlate</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">rays</span> <span class="o">=</span> <span class="n">PointSource</span><span class="p">(</span><span class="n">ang</span><span class="o">=</span><span class="mi">5</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">c</span> <span class="o">=</span> <span class="n">CollimatorPlate</span><span class="p">(</span><span class="n">z</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">unitrotate</span><span class="p">(</span><span class="n">theta</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">c</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+<span class="n">rays</span><span class="o">.</span><span class="n">reflect</span><span class="p">()</span>
+
+<span class="c1"># The c argument allows us to color the rays based on</span>
+<span class="c1"># another parameter</span>
+<span class="n">rays</span><span class="o">.</span><span class="n">scatter3d</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s1">&#39;pos&#39;</span><span class="p">,</span><span class="n">c</span><span class="o">=</span><span class="n">rays</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/rays_scatter3d_example.png" src="_images/rays_scatter3d_example.png" />
+</div>
+<p>Note that a colorbar is created automatically when the c argument is specified</p>
+<p><a class="reference internal" href="#rays-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Rays</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#parameters">Parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#length">Length</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#truth-arrays">Truth Arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#generating-rays">Generating Rays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#copy">Copy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#split">Split</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#removing-rays">Removing Rays</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#remove-by-trutharray">Remove by Trutharray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#remove-by-probability">Remove by Probability</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tag-functions">Tag Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#add-tag">Add Tag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-tag">Get Tag</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#print-tags">Print Tags</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combining-tags">Combining Tags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#analysis-functions">Analysis Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#centroid">Centroid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#half-power-diameter">Half-Power Diameter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spectral-resolution">Spectral Resolution</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#full-width-at-half-maximum">Full-Width at Half-Maximum</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graphing-functions">Graphing Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="instrument.html" title="previous chapter">Instruments</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/rays.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

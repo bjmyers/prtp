@@ -1,0 +1,167 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Modification &#8212; PRTP 0.0 documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Instruments" href="instrument.html" />
+    <link rel="prev" title="Combination" href="combination.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="modification">
+<span id="modification-top"></span><h1>Modification<a class="headerlink" href="#modification" title="Permalink to this headline">¶</a></h1>
+<p>A Modification is essentially a “catch-all” component which allows the user to modify rays within an Instrument in the middle of an Instrument.</p>
+<p>For example, suppose the user had a special type of scattering the Rays were supposed to undergo after leaving a Wolter Module. This can not be done by default by any Components. So doing this would require the user to stop the Instrument after tracing to the Wolter Module, get the rays, add the scattering, package the rays back into a source, and feed them into another Instrument containing the rest of the components.</p>
+<p>A Modification would have allowed the user to add the scattering without interrupting the Instrument’s simulation.</p>
+<div class="section" id="creating-a-modification">
+<h2>Creating a Modification<a class="headerlink" href="#creating-a-modification" title="Permalink to this headline">¶</a></h2>
+<p>Modifications are created with a single argument:</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt>function - A function that takes in Rays and modifies them in place, see examples for more information</dt><dd><ul>
+<li><p>The function takes in two arguments: rays and considerweights. Rays is the Rays object you should modify, and considerweights can be used if weighted rays should be treated differentley. Though this argument is not often used, it must be included in the function header.</p></li>
+<li><p>Any return statements will be ignored, the rays should be modified in place.</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<p>When rays are traced to a Modification using the trace() function, the function defined in initialization is called.</p>
+</div>
+<div class="section" id="example">
+<h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<p>Suppose you wanted to simulate a special type of scattering where the l of each photon is offset by a Gaussian.</p>
+<p>Before defining the Modification, we must defined the scattering function. To work within a Modification, the function must take in two arguments, rays and considerweights. However, considerweights will have no effect on our function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">scatter</span><span class="p">(</span><span class="n">rays</span><span class="p">,</span> <span class="n">considerweights</span><span class="p">):</span>
+
+   <span class="c1"># Add the Gaussian with std. of .05</span>
+   <span class="n">rays</span><span class="o">.</span><span class="n">l</span> <span class="o">+=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="o">.</span><span class="mo">05</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">rays</span><span class="p">))</span>
+
+   <span class="c1"># Re-normalize the direction length</span>
+   <span class="n">rays</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">rays</span><span class="o">.</span><span class="n">l</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">rays</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+   <span class="c1"># Do not return rays, we have modified them correctly</span>
+</pre></div>
+</div>
+<p>Now that we have our function defined, we can create a Modification:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Modification</span> <span class="kn">import</span> <span class="n">Modification</span>
+
+<span class="n">m</span> <span class="o">=</span> <span class="n">Modification</span><span class="p">(</span><span class="n">scatter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now our Modification m can be added to an Instrument.</p>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PRTP</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="Overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Components.html">Creating Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flatcomp.html">Flat Components</a></li>
+<li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
+<li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Modification</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-a-modification">Creating a Modification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="combination.html" title="previous chapter">Combination</a></li>
+      <li>Next: <a href="instrument.html" title="next chapter">Instruments</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Bailey Myers.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/modification.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

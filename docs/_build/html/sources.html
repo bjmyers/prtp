@@ -54,7 +54,7 @@
 <li><p>num - The length of the Rays object that this source will generate, defaults to 1000.</p></li>
 <li><dl class="simple">
 <dt>z - The initial z-position of the photons. Changing this parameter when initializing the Source object is the same as adding a misalignment in z.</dt><dd><ul>
-<li><p>z must be in units of length, see the section on astropy units.</p></li>
+<li><p>z must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -71,6 +71,23 @@
 <p>Note: wave and order both default to None. If these values are left as None, the photons will not be correctly diffrected by Gratings, but can be traced to other objects successfully.</p>
 <p>Also, if the wave and order of a Source have not been defined when the Source was initialized but you wish to add them later, the parameters values can still be changed. If you have a source “s”, you can access the wavelength parameter using s.wave, and you can access the order parameter using s.order. Note that any wavelength added in this manner must still be an astropy unit, but it will not be automatically converted to nanometers, this must be done by the user.</p>
 </div>
+<div class="section" id="using-existing-rays">
+<h2>Using Existing Rays<a class="headerlink" href="#using-existing-rays" title="Permalink to this headline">¶</a></h2>
+<p>Often, you will want to send rays from one instrument to another. Instruments must be initialized with a source, so if you have an existing Rays object which you would like to start with, you need to be able to create a Source from these Rays. This is done with the function Source.sourceFromRays(), which takes arguments:</p>
+<ul class="simple">
+<li><p>rays - When this new Source is called to generate rays, this is the object that it will generate.</p></li>
+</ul>
+<p>Note that the rays object stored is not a copy, modifying the rays object you passed to this function may modify the rays produced by the Source object.</p>
+<p>Example: Create a Source which will generate a blank Rays object:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">prtp.Rays</span> <span class="kn">import</span> <span class="n">Rays</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">Source</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">Rays</span><span class="p">()</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Source</span><span class="o">.</span><span class="n">sourceFromRays</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 <div class="section" id="misalignments">
 <h2>Misalignments<a class="headerlink" href="#misalignments" title="Permalink to this headline">¶</a></h2>
 <p>Almost all sources are originally centered around the origin and pointing upwards. But this is unacceptable for some applications. Luckily, the Source class can transform Rays automatically.</p>
@@ -78,14 +95,14 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>dx, dy, dz - These arguments describe how much each ray must be moved in x, y, and z.</dt><dd><ul>
-<li><p>dx, dy, and dz must be in units of length, see the section on Astropy units.</p></li>
+<li><p>dx, dy, and dz must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>dl, dm, dn - These arguments describe how much each ray must be rotated about the x, y, and z, axes, respectively. Note that these differ from most component rotations in which rotate and unitrotate simply change the vectors of the component without translating the component. These rotations will physically move the photons around the axes, similar to the rotation functions for Combination objects. See the example below to see how rotations work.</dt><dd><ul>
-<li><p>dl, dm, and dn must be in angular units, see the seciton on Astropy units.</p></li>
+<li><p>dl, dm, and dn must be in angular units, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -132,14 +149,14 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>rin - The inner radius of the photons, defaults to 1 mm</dt><dd><ul>
-<li><p>rin must be in units of length, see the section on astropy units</p></li>
+<li><p>rin must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>rout - The outer radius of the photons, defaults to 2 mm</dt><dd><ul>
-<li><p>rout must be in units of length, see the section on astropy units</p></li>
+<li><p>rout must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -169,7 +186,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>rad - The radius of the circular beam, defaults to 1 mm.</dt><dd><ul>
-<li><p>rad must be in units of length, see the section on astropy units</p></li>
+<li><p>rad must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -198,42 +215,42 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.</dt><dd><ul>
-<li><p>zset must be in units of length, see the section on astropy units</p></li>
+<li><p>zset must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>rin - The inner radius of the sub-apertured annulus beam, defaults to 0 mm</dt><dd><ul>
-<li><p>rin must be in units of length, see the section on astropy units</p></li>
+<li><p>rin must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>rout - The outer radius of the sub-apertured annulus beam, defaults to 1 mm</dt><dd><ul>
-<li><p>rout must be in units of length, see the section on astropy units</p></li>
+<li><p>rout must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>tmin - The minimum angular extent of the sub-apertured annulus beam, defaults to 0 rad</dt><dd><ul>
-<li><p>tmin must be in units of angle, see the section on astropy units</p></li>
+<li><p>tmin must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>tmax - The maximum angular extent of the sub-apertured annulus beam, defaults to 1 rad</dt><dd><ul>
-<li><p>tmax must be in units of angle, see the section on astropy units</p></li>
+<li><p>tmax must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>lscat -  The scatter in the angular convergence, defaults to 0 arcsec</dt><dd><ul>
-<li><p>lscat must be in units of angle, see the section on astropy units</p></li>
+<li><p>lscat must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -279,42 +296,42 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.</dt><dd><ul>
-<li><p>zset must be in units of length, see the section on astropy units</p></li>
+<li><p>zset must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>xmin - The minimum extent of the beam in the x-direction, defaults to 0 mm</dt><dd><ul>
-<li><p>xmin must be in units of length, see the section on astropy units</p></li>
+<li><p>xmin must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>xmax - The maximum extent of the beam in the x-direction, defaults to 1 mm</dt><dd><ul>
-<li><p>xmax must be in units of length, see the section on astropy units</p></li>
+<li><p>xmax must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>ymin - The minimum extent of the beam in the y-direction, defaults to 0 mm</dt><dd><ul>
-<li><p>ymin must be in units of length, see the section on astropy units</p></li>
+<li><p>ymin must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>ymax - The maximum extent of the beam in the y-direction, defaults to 1 mm</dt><dd><ul>
-<li><p>ymax must be in units of length, see the section on astropy units</p></li>
+<li><p>ymax must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>lscat - The scatter in the angular convergence, defaults to 0 arcsec</dt><dd><ul>
-<li><p>lscat must be in units of angle, see the section on astropy units</p></li>
+<li><p>lscat must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -358,7 +375,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>ang - The angular divergence of the rays</dt><dd><ul>
-<li><p>ang must be in units of angle, see the section on astropy units</p></li>
+<li><p>ang must be in units of angle, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -401,14 +418,14 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>xsize - Half the length in the x-direction. For example, if xsize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.</dt><dd><ul>
-<li><p>xsize must be in units of length, see the section on astropy units.</p></li>
+<li><p>xsize must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>ysize - Half the length in the y-direction. For example, if ysize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.</dt><dd><ul>
-<li><p>ysize must be in units of length, see the section on astropy units.</p></li>
+<li><p>ysize must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -438,14 +455,14 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>xhalfwidth - Half the length in the x-direction. For example, if xhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.</dt><dd><ul>
-<li><p>xhalfwidth must be in units of length, see the section on astropy units.</p></li>
+<li><p>xhalfwidth must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>yhalfwidth - Half the length in the y-direction. For example, if yhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.</dt><dd><ul>
-<li><p>yhalfwidth must be in units of length, see the section on astropy units.</p></li>
+<li><p>yhalfwidth must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -551,9 +568,11 @@
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wolteroptics.html">Wolter Optics</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Sources</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-source">Creating a Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-existing-rays">Using Existing Rays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#misalignments">Misalignments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#generating-rays">Generating Rays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#annulus">Annulus</a></li>
@@ -568,6 +587,10 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">

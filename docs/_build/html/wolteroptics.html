@@ -16,7 +16,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Sources" href="sources.html" />
-    <link rel="prev" title="Gratings" href="grating.html" />
+    <link rel="prev" title="Grating Stacks" href="gratingstack.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -49,7 +49,7 @@
 <ul class="simple">
 <li><dl class="simple">
 <dt>x,y,z - The position in Cartesian Coordinates of the Component’s focus.</dt><dd><ul>
-<li><p>These parameters must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>These parameters must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -57,28 +57,28 @@
 <li><p>nx,ny,nz - These three quantities describe the vector which extends outward from the Component’s focus. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively. This vector is denoted as the positive z-axis in the mirrors coordinate system.</p></li>
 <li><dl class="simple">
 <dt>r0 - The radius of the Component at the point where the primary and secondary mirror converge.</dt><dd><ul>
-<li><p>r0 must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>r0 must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>z0 - The distance from the focus (in the n-direction) of the intersection of the primary and secondary mirrors.</dt><dd><ul>
-<li><p>z0 must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>z0 must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>axial_length - The length of the mirror in the n-direction, defaults to None.</dt><dd><ul>
-<li><p>axial_length must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>axial_length must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
 </li>
 <li><dl class="simple">
 <dt>mirror_sep - The separation between the primary and secondary mirrors in the n-direction, defaults to None.</dt><dd><ul>
-<li><p>mirror_sep must be in units of length. See the section on Astropy Units.</p></li>
+<li><p>mirror_sep must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -106,7 +106,7 @@ Note that all variants of this image are adapted from the original image created
 <ul class="simple">
 <li><dl class="simple">
 <dt>dx,dy,dz - The amount by which you want to move the mirror’s focus in the x, y, and z directions, respectively.</dt><dd><ul>
-<li><p>These parameters must be in units of length. See the section on Astropy units</p></li>
+<li><p>These parameters must be in units of length. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -131,7 +131,7 @@ Note that all variants of this image are adapted from the original image created
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The amount that you want to rotate about the specified axis.</dt><dd><ul>
-<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+<li><p>This parameter must be in units of angle. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -166,7 +166,7 @@ Note that all variants of this image are adapted from the original image created
 <ul class="simple">
 <li><dl class="simple">
 <dt>theta - The amount that you want to rotate about the user-defined axis.</dt><dd><ul>
-<li><p>This parameter must be in units of angle. See the section on Astropy units</p></li>
+<li><p>This parameter must be in units of angle. See the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
 </ul>
 </dd>
 </dl>
@@ -468,6 +468,7 @@ Note that all variants of this image are adapted from the original image created
 <li class="toctree-l1"><a class="reference internal" href="collimatorplate.html">Collimator Plates</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detector.html">Detectors</a></li>
 <li class="toctree-l1"><a class="reference internal" href="grating.html">Gratings</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gratingstack.html">Grating Stacks</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Wolter Optics</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#creating-a-wolter-optic">Creating a Wolter Optic</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#moving-wolter-optics">Moving Wolter Optics</a><ul>
@@ -505,13 +506,17 @@ Note that all variants of this image are adapted from the original image created
 </li>
 <li class="toctree-l1"><a class="reference internal" href="sources.html">Sources</a></li>
 <li class="toctree-l1"><a class="reference internal" href="combination.html">Combination</a></li>
+<li class="toctree-l1"><a class="reference internal" href="modification.html">Modification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="instrument.html">Instruments</a></li>
+<li class="toctree-l1"><a class="reference internal" href="rays.html">Rays</a></li>
+<li class="toctree-l1"><a class="reference internal" href="astropyunits.html">Astropy Units</a></li>
 </ul>
 
 <div class="relations">
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="grating.html" title="previous chapter">Gratings</a></li>
+      <li>Previous: <a href="gratingstack.html" title="previous chapter">Grating Stacks</a></li>
       <li>Next: <a href="sources.html" title="next chapter">Sources</a></li>
   </ul></li>
 </ul>
