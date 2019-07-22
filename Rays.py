@@ -1278,16 +1278,18 @@ class Rays:
     # These functions update the Rays object, this section does NOT include 
     # motion functions or functions that pass photons through optical systems.
     
-    def remove(self,trutharray=None,tags=None,delim=None):
+    def remove(self,trutharray=None,tags=None,delim=None,orcombination=True):
         '''
         Function remove:
         Removes photons from a Rays object given a condition
         
         Inputs:
-        trutharray - The array that specifies which photons will be removed, a 1 (True) will be removed while a 0 (False) will be saved
-        tags, delim - If these arguments are specified, a trutharray will be
-        generated using the self.combinetags(tags,delim) method, this trutharray
-        will be used in the same way the previous argument would be
+        trutharray - The array that specifies which photons will be removed, a 
+            1 (True) will be removed while a 0 (False) will be saved
+        tags, delim, orcombination - If these arguments are specified, a 
+            trutharray will be generated using the self.combinetags(tags,delim) 
+            method, this trutharray will be used in the same way the previous 
+            argument would be
         
         Outputs:
         Nothing
@@ -1299,7 +1301,7 @@ class Rays:
         function
         '''
         if tags is not None:
-            trutharray = self.combineTags(tags,delim)
+            trutharray = self.combineTags(tags,delim,orcombination)
         elif trutharray is not None:
             # Convert trutharray from a numerical to a boolean array
             trutharray = (trutharray != 0)
