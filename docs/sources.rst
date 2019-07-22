@@ -25,7 +25,7 @@ Each Source subclass takes additional arguments, but these arguments are shared 
 
 * num - The length of the Rays object that this source will generate, defaults to 1000.
 * z - The initial z-position of the photons. Changing this parameter when initializing the Source object is the same as adding a misalignment in z.
-   * z must be in units of length, see the section on astropy units.
+   * z must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 * wave - The wavelength of the photons in the Rays object.
    * wave must be in an astropy units that can be converted to nanometers. This means that energies are also accepted (i.e: the wave argument can be given in eV, but the Rays object this Source creates will always measure the wavelength in nm).
 * order - The order of the photons in the Rays object that this source will generate.
@@ -33,6 +33,26 @@ Each Source subclass takes additional arguments, but these arguments are shared 
 Note: wave and order both default to None. If these values are left as None, the photons will not be correctly diffrected by Gratings, but can be traced to other objects successfully.
 
 Also, if the wave and order of a Source have not been defined when the Source was initialized but you wish to add them later, the parameters values can still be changed. If you have a source "s", you can access the wavelength parameter using s.wave, and you can access the order parameter using s.order. Note that any wavelength added in this manner must still be an astropy unit, but it will not be automatically converted to nanometers, this must be done by the user.
+
+Using Existing Rays
+---------------------
+
+Often, you will want to send rays from one instrument to another. Instruments must be initialized with a source, so if you have an existing Rays object which you would like to start with, you need to be able to create a Source from these Rays. This is done with the function Source.sourceFromRays(), which takes arguments:
+
+* rays - When this new Source is called to generate rays, this is the object that it will generate.
+
+Note that the rays object stored is not a copy, modifying the rays object you passed to this function may modify the rays produced by the Source object.
+
+Example: Create a Source which will generate a blank Rays object:
+
+.. code-block:: python
+
+   from prtp.Rays import Rays
+   from prtp.Sources import Source
+
+   r = Rays()
+
+   s = Source.sourceFromRays(r)
 
 Misalignments
 -----------------
@@ -42,9 +62,9 @@ Almost all sources are originally centered around the origin and pointing upward
 Misalignments are generated using the function addMisalignment(), which takes the following arguments:
 
 * dx, dy, dz - These arguments describe how much each ray must be moved in x, y, and z.
-   * dx, dy, and dz must be in units of length, see the section on Astropy units.
+   * dx, dy, and dz must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 * dl, dm, dn - These arguments describe how much each ray must be rotated about the x, y, and z, axes, respectively. Note that these differ from most component rotations in which rotate and unitrotate simply change the vectors of the component without translating the component. These rotations will physically move the photons around the axes, similar to the rotation functions for Combination objects. See the example below to see how rotations work.
-   * dl, dm, and dn must be in angular units, see the seciton on Astropy units.
+   * dl, dm, and dn must be in angular units, see the section on :ref:`Astropy Units <units-top>`.
 
 Note: linear translations (dx, dy, and dz) are performed first, then the rotations are performed in a right-handed manner.
 
@@ -97,9 +117,9 @@ Annulus
 An Annulus is a Source which generates photons in a donut shape, all of the photons have the same direction. In addition to num, z, wave, and order, Annulus takes the following arguments:
 
 * rin - The inner radius of the photons, defaults to 1 mm
-   * rin must be in units of length, see the section on astropy units
+   * rin must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * rout - The outer radius of the photons, defaults to 2 mm
-   * rout must be in units of length, see the section on astropy units
+   * rout must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * zhat - This argument specified the z-component of the photons' velocities. It should be -1 is the photons are pointing in the -x direction and should be 1 if the photons are travelling in the +x direction. Defaults to -1.
 
 
@@ -130,7 +150,7 @@ CircularBeam
 A CircularBeam is a Source which generates photons in a circle, all of the photons have the same direction. In addition to num, z, wave, and order, CircularBeam takes the following arguments:
 
 * rad - The radius of the circular beam, defaults to 1 mm.
-   * rad must be in units of length, see the section on astropy units
+   * rad must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 
 
 Example: 
@@ -161,17 +181,17 @@ A ConvergingBeam is a Source which generates a sup-apertured annulus beam with s
 
 
 * zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.
-   * zset must be in units of length, see the section on astropy units
+   * zset must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * rin - The inner radius of the sub-apertured annulus beam, defaults to 0 mm
-   * rin must be in units of length, see the section on astropy units
+   * rin must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * rout - The outer radius of the sub-apertured annulus beam, defaults to 1 mm
-   * rout must be in units of length, see the section on astropy units
+   * rout must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * tmin - The minimum angular extent of the sub-apertured annulus beam, defaults to 0 rad
-   * tmin must be in units of angle, see the section on astropy units
+   * tmin must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
 * tmax - The maximum angular extent of the sub-apertured annulus beam, defaults to 1 rad
-   * tmax must be in units of angle, see the section on astropy units
+   * tmax must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
 * lscat -  The scatter in the angular convergence, defaults to 0 arcsec
-   * lscat must be in units of angle, see the section on astropy units
+   * lscat must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
 
 Example:
 
@@ -220,17 +240,17 @@ ConvergingBeam2
 A ConvergingBeam2 is a Source which generates a rectangular beam that converges in the x and the y dimensions. In addition to num, z, wave, and order, ConvergingBeam2 takes the following arguments:
 
 * zset - This parameter descibes the convergence of the beam in the z-dimension. A Source defined with zset = 1m will priduce rays with an initial z-position of 1m, but they will converge at z=0. The z argument in this case will translate the initial rays up or down from zset if it is specified. For example, if zset = 1m and z=.1m, the rays will start at z=1.1m and converge at z=0.1m.
-   * zset must be in units of length, see the section on astropy units
+   * zset must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * xmin - The minimum extent of the beam in the x-direction, defaults to 0 mm
-   * xmin must be in units of length, see the section on astropy units 
+   * xmin must be in units of length, see the section on :ref:`Astropy Units <units-top>` 
 * xmax - The maximum extent of the beam in the x-direction, defaults to 1 mm
-   * xmax must be in units of length, see the section on astropy units
+   * xmax must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * ymin - The minimum extent of the beam in the y-direction, defaults to 0 mm
-   * ymin must be in units of length, see the section on astropy units 
+   * ymin must be in units of length, see the section on :ref:`Astropy Units <units-top>` 
 * ymax - The maximum extent of the beam in the y-direction, defaults to 1 mm
-   * ymax must be in units of length, see the section on astropy units
+   * ymax must be in units of length, see the section on :ref:`Astropy Units <units-top>`
 * lscat - The scatter in the angular convergence, defaults to 0 arcsec
-   * lscat must be in units of angle, see the section on astropy units
+   * lscat must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
 
 Example:
 
@@ -276,7 +296,7 @@ PointSource
 A PointSource is a Source which generate rays which start at the origin but propagate outward with a specified angular divergence. In addition to num, z, wave, and order, PointSource takes the following arguments:
 
 * ang - The angular divergence of the rays
-   * ang must be in units of angle, see the section on astropy units
+   * ang must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
 
 Example:
 
@@ -321,9 +341,9 @@ RectArray
 A RectArray is a Source which generates a rectangular beam with a specified width and height, unlike other Sources, the photons here are evenly spaced, rather than randomly generated. In addition to num, z, wave, and order, RectArray takes the following arguments:
 
 * xsize - Half the length in the x-direction. For example, if xsize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.
-   * xsize must be in units of length, see the section on astropy units.
+   * xsize must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 * ysize - Half the length in the y-direction. For example, if ysize is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.
-   * ysize must be in units of length, see the section on astropy units.
+   * ysize must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 
 Note: Unlike other Sources, num does not specify the number of photons in the resulting Rays object. Since this Source has evenly spaced photons, num gives how many photons are along one side of the array, so the total number of photons in the array will be num-squared. The num argument in RectArray defaults to 100 while it defaults to 1000 in most other Source objects.
 
@@ -354,9 +374,9 @@ RectBeam
 A RectBeam is a Source which generates a rectangular beam with a specified width and height, unlike RectArray, these photons are randomly generated within the rectangle. In addition to num, z, wave, and order, RectArray takes the following arguments:
 
 * xhalfwidth - Half the length in the x-direction. For example, if xhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the x-direction.
-   * xhalfwidth must be in units of length, see the section on astropy units.
+   * xhalfwidth must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 * yhalfwidth - Half the length in the y-direction. For example, if yhalfwidth is 5 mm, the rectangular array will extend from -5 mm to 5 mm in the y-direction.
-   * yhalfwidth must be in units of length, see the section on astropy units.
+   * yhalfwidth must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 
 Example:
 

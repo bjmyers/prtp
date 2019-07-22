@@ -20,7 +20,7 @@ Creating a Flat Component
 A Flat Component requires the following arguments
 
 * x,y,z - The position in Cartesian Coordinates of the center of the Component.
-   * These parameters must be in units of length. See the section on Astropy Units.
+   * These parameters must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * nx,ny,nz - These three quantities describe the normal vector, extending outward from the Component's surface. nx, ny, and nz describe the distance that the vector extends in the x, y, and z directions, respectively.
 * sx,sy,sz - These three quantities describe a surface vector. For some components (like Gratings), the surface vector represents a very specific direction. But for most Flat Components, the surface vector just helps the user orient the component. sx, sy, and sz describe the distance that the vector extends in the x, y, and z directions, respectively.
 * collfunc - A function that describes how photons impact and are removed by this Component. Though every Flat Component object can have a collisionfunction, they are used most extensively by CollimatorPlate objects. See the section on :ref:`Collision Functions<coll-funcs>`
@@ -33,13 +33,16 @@ For example, a Flat Component could be initialized using the following syntax:
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
 
 Tracing rays to the Components reveals information about its surface:
 
 .. figure:: ../images/basic_flatcomp_init.png
 
-   Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. Also note that tracing Rays requires the use of Instrument objects, the code for which has been omitted here.
+Rays traced to the basic FlatComponent we just initialized. Note that this image shows a Component that has finite x and y dimensions, these parameters are supported by many subclasses of Flat Component but not in Flat Component instances. 
+
+Also note that the FlatComponent superclass has no trace() method, which would be necessary to generate the above plot. In fact, the above plot was generated using a :ref:`Collimator Plate<coll-plate-top>` object. Every usbsequent plot on this page was generated using these objects, which descend from FlatComponent.
 
 
 :ref:`Back to Top<flat-comp-top>`
@@ -54,7 +57,7 @@ translate(self,dx=0*u.mm,dy=0*u.mm,dz=0*u.mm)
 This function moves the center of the component in space, it takes arguments:
 
 * dx,dy,dz - The amount by which you want to move the Component's center in the x, y, and z directions, respectively.
-   * These parameters must be in units of length. See the section on Astropy units
+   * These parameters must be in units of length. See the section on :ref:`Astropy Units <units-top>`
 
 Example: Take the Flat Component we defined before and move it 2 mm in x and -3 mm in y.
 
@@ -62,7 +65,8 @@ Example: Take the Flat Component we defined before and move it 2 mm in x and -3 
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
    f.translate(dx=2*u.mm,dy=-3*u.mm)
 
 Building an instrument and tracing photons to this Component shows that the center has indeed been moved to (x,y,z) = (2,-3,3)
@@ -79,7 +83,7 @@ unitrotate(self,theta=0*u.rad,axis=1)
 This function rotates the Flat Component about one of the unit axes. It takes arguments:
 
 * theta - The amount that you want to rotate about the specified axis.
-    * This parameter must be in units of angle. See the section on Astropy units
+    * This parameter must be in units of angle. See the section on :ref:`Astropy Units <units-top>`
 * axis - An integer that should take the values 1,2, or 3. 
    * If axis = 1: The Component will be rotated about the x-axis
    * If axis = 2: The Component will be rotated about the y-axis
@@ -93,7 +97,8 @@ Example: Let's take the Flat Component we defined at first and rotate it 20 degr
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
    f.unitrotate(theta=20*u.deg,axis=2)
 
 We can then see (using traced rays) how the Component has been rotated:
@@ -112,7 +117,7 @@ rotate(self,theta=0*u.rad,ux=1,uy=0,uz=0)
 This function rotates the Flat Component about an arbitrary, user-defined axis. It takes arguments:
 
 * theta - The amount that you want to rotate about the user-defined axis.
-    * This parameter must be in units of angle. See the section on Astropy units
+    * This parameter must be in units of angle. See the section on :ref:`Astropy Units <units-top>`
 * ux,uy,uz - These three parameters define the axis about which you want to rotate. ux, uy, and uz describe the distance that the vector extends in the x, y, and z directions, respectively.
 
 Note: The rotation is performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.
@@ -125,7 +130,8 @@ Example: Let's take the Flat Component we defined at first and rotate it 40 degr
 
    from prtp.FlatComponent import FlatComponent
    import astropy.units as u
-   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
    f.rotate(theta=40*u.deg,ux=1,uy=1,uz=0)
 
 This produces a Flat Component that looks something like this:
@@ -138,6 +144,32 @@ This produces a Flat Component that looks something like this:
 Flat Component objects have several more functions, but these are primarily called by other objects when tracing rays.
 
 :ref:`Back to Top<flat-comp-top>`
+
+Pitch, Roll, and Yaw
+----------------------
+
+The functions pitch(), roll(), and yaw() allow the user to rotate the Component about the Surface-cross-Normal vector, the Surface vector, and the Normal vector, respectively. See the Coordinates section for a visual depicting these three vectors. All of the functions take one argument:
+
+* theta - The amount you want to rotate about the vector
+   * theta must be in units of angle, see the section on :ref:`Astropy Units <units-top>`
+
+Note: The rotation is performed in a right-handed fasion, that is, according to the right hand rule where your thumb is the axis of rotation and your fingers curl in the direction of positive rotation.
+
+Examples:
+
+.. code-block:: python
+
+   from prtp.FlatComponent import FlatComponent
+   import astropy.units as u
+   f = FlatComponent(x=0*u.mm,y=0*u.mm,z=0*u.mm,
+      nx=0,ny=0,nz=1,sx=1,sy=0,sz=0)
+
+   f.pitch(theta=2*u.deg)
+
+   f.roll(theta=.01*u.rad)
+
+   f.yaw(60*u.arcsec)
+
 
 Coordinates
 ---------------

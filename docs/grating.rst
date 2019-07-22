@@ -16,16 +16,16 @@ A Grating requires the following arguments:
 * sx,sy,sz - The components of the surface vector. See :ref:`Flat Component <flat-component-definition>`
    * In gratings, the surface vector has a very specific definition. It is defined as the average groove direction. For parallel gratings, it is the same direction as every groove. For radial gratings, it is the same direction as the central groove. 
 * l - The length of the Grating. This is the extent of the Grating in the direction of the surface vector, defaults to None.
-   * If l is None, the length and width of the Grating will not be considered. That is, the grating will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on Astropy Units.
+   * If l is None, the length and width of the Grating will not be considered. That is, the grating will extent infinitely in both direction. If it is not None, it must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * w - The width of the Grating. This is the extent of the Grating in the direction of the cross product of the surface and normal vectors (sxn), defaults to None.
-   * If w is not None, it must be in units of length. See the section on Astropy Units.
+   * If w is not None, it must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * collfunc - A function that defines how photons will be removed from the surface. It is used in the same manner as a Collimator Plate's collision function, but is not typically used for Gratings. See the section on :ref:`Collision Functions<coll-funcs>`, defaults to None.
 * pfunc - A function that determines the groove period that each photon experiences. If None, the Grating will be initialized as an ideal parallel or radial grating. See the section on period functions for more information. Defaults to None.
 * radial - A boolean. If True, the Grating will be radial. If False, the Grating will be parallel. Defaults to True.
 * d - The groove period at the center point of the Grating, defaults to 160 nm, the groove period for OGRE gratings. Defaults to 160 nm.
-   * d must be in units of length, see the section on Astropy Units.
+   * d must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 * fdist - The distance to the Grating's focus. This parameter defaults to None and it only relevant for radial Gratings. Defaults to None
-   * If fdist is not None, it must be in units of length, see the section on Astropy units.
+   * If fdist is not None, it must be in units of length, see the section on :ref:`Astropy Units <units-top>`.
 
 
 Also, if you have one Grating, you can use the copy() function to create another identical one:
