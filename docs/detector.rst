@@ -21,6 +21,12 @@ A Collimator Plate requires the following arguments:
    * w must be in units of length. See the section on :ref:`Astropy Units <units-top>`.
 * xpix - The number of pixels along the width of the axis, i.e: how many pixels lie along a line parallel to the x-unit vector (the surface-cross-normal vector).
 * ypix - The number of pixels along the length of the axis, i.e: how many pixels lie along a line parallel to the y-unit vector (the surface vector).
+* fieldfree - The depth of the field free region of the detector. Defaults to 15 microns.
+   * field free must be in units of length, see the section on :ref:`Astropy Units <units-top>`
+* depletion - The depth of the depletion region of the detector. This parameter currently does not have any effect on the Detector. Defaults to 3 microns.
+   * depletion must be in units of length, see the section on :ref:`Astropy Units <units-top>`
+* considersplits - A boolean to determine if split events should be considered. Should be True if you want to simulate split events, note that this will slow down the view() function significantly. Defaults to False.
+* steps - If considersplits is True, the split events will be calculated using this number of steps. A lower number of steps will be less accurate but will run faster. For small splits (taking up only a few pixels), fewer steps is acceptable.
 
 .. warning::
    Unlike other Flat Components, Detectors MUST have a length and width defined. If no arguments are passed, these dimensions will both default to 1 mm.
@@ -122,6 +128,12 @@ view takes the following arguments:
 
 Note: Once you have the pixel array, the best way to see it is to use pyplot's "imshow" function, see examples at the bottom of this page.
 
+Note: If the value for considersplits of this Detector is True, view() will call the split() function. A helper function that will bin the charge cloud from each photon into the adjacent pixels.
+
+.. warning::
+
+   Calling view when the photons have no wavelength will generate an error.
+
 
 Reset
 --------
@@ -146,7 +158,7 @@ This example will trace a circular beam of photons to a Detector's surface and t
    from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   s = CircularBeam(num=10000,rad=4*u.mm)
+   s = CircularBeam(num=10000,rad=4*u.mm,wave=100*u.eV)
    rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
@@ -178,7 +190,7 @@ This example will perform the same trace as before but with Gaussian noise added
    from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   s = CircularBeam(num=10000,rad=4*u.mm)
+   s = CircularBeam(num=10000,rad=4*u.mm,wave=100*u.eV)
    rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
@@ -186,7 +198,7 @@ This example will perform the same trace as before but with Gaussian noise added
       l=10*u.mm,w=10*u.mm,xpix=100,ypix=100)
 
    d.trace(rays)
-   d.addGaussianNoise(mean=1,std=1)
+   d.addGaussianNoise(mean=20,std=1)
    arr = d.view(rays)
 
    plt.figure()
@@ -209,7 +221,7 @@ This example will trace photons that do not hit the detector dead on, rather, th
    from prtp.Sources import CircularBeam
    import astropy.units as u
    
-   s = CircularBeam(num=10000,rad=4*u.mm)
+   s = CircularBeam(num=10000,rad=4*u.mm,wave=100*u.eV)
    rays = s.generateRays()
 
    d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
@@ -227,6 +239,37 @@ This example will trace photons that do not hit the detector dead on, rather, th
    plt.show()
 
 .. figure:: ../images/detector_rotated_example.png
+
+:ref:`Back to Top<detector-top>`
+
+Split Event
+**************
+
+This example will consider split events. It does so by specifying considersplits=True when the Detector is defined.
+
+.. code-block:: python
+
+   import matplotlib.pyplot as plt
+   from prtp.Detector import Detector
+   from prtp.Sources import CircularBeam
+   import astropy.units as u
+
+   s = CircularBeam(num=100,rad=8*u.mm,wave=100*u.eV)
+   rays = s.generateRays()
+
+   d = Detector(x=0*u.mm,y=0*u.mm,z=2*u.mm,
+      nx=0,ny=0,nz=1,sx=0,sy=1,sz=0,q=1.,
+      l=10*u.mm,w=10*u.mm,xpix=100,ypix=100,
+      considersplits=True,steps=50)
+
+   d.trace(rays)
+   arr = d.view(rays)
+
+   plt.figure()
+   plt.imshow(arr)
+   plt.show()
+
+.. figure:: ../images/detector_split_example.png
 
 :ref:`Back to Top<detector-top>`
 
