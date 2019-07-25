@@ -188,10 +188,13 @@ class Grating(FlatComponent):
             not behave properly
         '''
         
+        if (autoreflect):
+            self.reflect(rays)
+        
         # Define normal vector, focus vector, and their cross product, stacked on themselves so they can be dotted into the rays
         nor = self.Normal()
         s = self.Surface()
-        sxn = np.cross(s,n)
+        sxn = np.cross(s,nor)
         
         # Define velocity components aligned with Grating (if it were in the xy-plane) using dot products
         
@@ -214,9 +217,6 @@ class Grating(FlatComponent):
         n = gratl*sxn[2] + gratm*s[2] + gratn*nor[2]
         
         rays.set(l=l,m=m,n=n)
-        
-        if (autoreflect):
-            self.reflect(rays)
     
     def radgrat(self,rays,order=0,wave=1.,autoreflect=False):
         '''
@@ -226,7 +226,6 @@ class Grating(FlatComponent):
         
         Inputs:
         rays - A Rays object that has been traced to the Grating Plane
-        dpermm - The period of the grooves, can be a float or array
         order - The order of the photon, can be a float or array
         wave - the wavelength of the photon, can be a float or array. When 
             called by trace(), it is automatically in the correct units
@@ -299,7 +298,7 @@ class Grating(FlatComponent):
         '''
         self.trace_to_surf(rays)
         eff1 = self.removemissed(rays,considerweights=considerweights,eliminate=eliminate)
-        if self.radgrat:
+        if self.radial:
             self.radgrat(rays,order=rays.order,wave=rays.wave,autoreflect=True)
             # Need to check l for nans b/c rays.x is not modified
             tarray = np.isnan(rays.l)
