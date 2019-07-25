@@ -271,7 +271,8 @@ class Detector(FlatComponent):
             xposns = (x // xperpix).astype(int)
             yposns = (y // yperpix).astype(int)
             
-            self.pixels[xposns,yposns] += (rays.wave*u.nm).to(u.eV,equivalencies=u.spectral()).value/3.65
+            for i in range(len(xposns)):
+                self.pixels[xposns[i],yposns[i]] += (rays.wave[i]*u.nm).to(u.eV,equivalencies=u.spectral()).value/3.65
         
         return self.pixels
     
