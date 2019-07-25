@@ -60,6 +60,22 @@
 </li>
 <li><p>xpix - The number of pixels along the width of the axis, i.e: how many pixels lie along a line parallel to the x-unit vector (the surface-cross-normal vector).</p></li>
 <li><p>ypix - The number of pixels along the length of the axis, i.e: how many pixels lie along a line parallel to the y-unit vector (the surface vector).</p></li>
+<li><dl class="simple">
+<dt>fieldfree - The depth of the field free region of the detector. Defaults to 15 microns.</dt><dd><ul>
+<li><p>field free must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt>depletion - The depth of the depletion region of the detector. This parameter currently does not have any effect on the Detector. Defaults to 3 microns.</dt><dd><ul>
+<li><p>depletion must be in units of length, see the section on <a class="reference internal" href="astropyunits.html#units-top"><span class="std std-ref">Astropy Units</span></a></p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p>considersplits - A boolean to determine if split events should be considered. Should be True if you want to simulate split events, note that this will slow down the view() function significantly. Defaults to False.</p></li>
+<li><p>steps - If considersplits is True, the split events will be calculated using this number of steps. A lower number of steps will be less accurate but will run faster. For small splits (taking up only a few pixels), fewer steps is acceptable.</p></li>
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -147,6 +163,10 @@
 </li>
 </ul>
 <p>Note: Once you have the pixel array, the best way to see it is to use pyplot’s “imshow” function, see examples at the bottom of this page.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Calling view when the photons have no wavelength will generate an error.</p>
+</div>
 </div>
 <div class="section" id="reset">
 <h2>Reset<a class="headerlink" href="#reset" title="Permalink to this headline">¶</a></h2>
@@ -163,7 +183,7 @@
 <span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">wave</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="p">)</span>
 <span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
@@ -192,7 +212,7 @@
 <span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">wave</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="p">)</span>
 <span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
@@ -200,7 +220,7 @@
    <span class="n">l</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">xpix</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">ypix</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
 
 <span class="n">d</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
-<span class="n">d</span><span class="o">.</span><span class="n">addGaussianNoise</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">d</span><span class="o">.</span><span class="n">addGaussianNoise</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">std</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">arr</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
 
 <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
@@ -221,7 +241,7 @@
 <span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
 <span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
 
-<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">)</span>
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">4</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">wave</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="p">)</span>
 <span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
 
 <span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
@@ -241,6 +261,35 @@
 </div>
 <div class="figure align-center">
 <img alt="_images/detector_rotated_example.png" src="_images/detector_rotated_example.png" />
+</div>
+<p><a class="reference internal" href="#detector-top"><span class="std std-ref">Back to Top</span></a></p>
+</div>
+<div class="section" id="split-event">
+<h3>Split Event<a class="headerlink" href="#split-event" title="Permalink to this headline">¶</a></h3>
+<p>This example will consider split events. It does so by specifying considersplits=True when the Detector is defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">prtp.Detector</span> <span class="kn">import</span> <span class="n">Detector</span>
+<span class="kn">from</span> <span class="nn">prtp.Sources</span> <span class="kn">import</span> <span class="n">CircularBeam</span>
+<span class="kn">import</span> <span class="nn">astropy.units</span> <span class="kn">as</span> <span class="nn">u</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">CircularBeam</span><span class="p">(</span><span class="n">num</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">rad</span><span class="o">=</span><span class="mi">8</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">wave</span><span class="o">=</span><span class="mi">100</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">eV</span><span class="p">)</span>
+<span class="n">rays</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">generateRays</span><span class="p">()</span>
+
+<span class="n">d</span> <span class="o">=</span> <span class="n">Detector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">z</span><span class="o">=</span><span class="mi">2</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span>
+   <span class="n">nx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">ny</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">nz</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">sy</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">sz</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">q</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span>
+   <span class="n">l</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">w</span><span class="o">=</span><span class="mi">10</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">mm</span><span class="p">,</span><span class="n">xpix</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span><span class="n">ypix</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+   <span class="n">considersplits</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span><span class="n">steps</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+
+<span class="n">d</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+<span class="n">arr</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">view</span><span class="p">(</span><span class="n">rays</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="figure align-center">
+<img alt="_images/detector_split_example.png" src="_images/detector_split_example.png" />
 </div>
 <p><a class="reference internal" href="#detector-top"><span class="std std-ref">Back to Top</span></a></p>
 </div>
@@ -282,6 +331,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#basic-photon-trace">Basic Photon Trace</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#photon-trace-with-noise">Photon Trace with Noise</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#misaligned-photon-trace">Misaligned Photon Trace</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#split-event">Split Event</a></li>
 </ul>
 </li>
 </ul>
