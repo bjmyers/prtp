@@ -209,7 +209,7 @@ class Grating(FlatComponent):
             d = self.periodfunction(rays)
         
         # This gives us the new velocity in grating components, we need to convert it to xyz components
-        gratl,gratn,gratm = trans.grat(gratl,gratm,gratn,d,order,wave)
+        gratl,gratm,gratn = trans.grat(gratl,gratm,gratn,d,order,wave)
         
         # Assumes normal and surface vectors are normalized, they should be unless the user has been messing stuff up
         l = gratl*sxn[0] + gratm*s[0] + gratn*nor[0]
