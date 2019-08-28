@@ -184,11 +184,12 @@ def grat(l,m,n,d,order,wave, eliminate="nan"):
     
     # Don't execute if order or wave is None, there is no way we can reflect
     if order is None or wave is None:
-        return x, y, l, m, n
+        return l, m, n
     
+    sn = n / np.abs(n)
     l -= order*wave/d
     with np.errstate(invalid='ignore'):
-        n = np.sqrt(1.0 - l**2 - m**2)
+        n = sn*np.sqrt(1.0 - l**2 - m**2)
     
     # Check for Evanescence
     with np.errstate(invalid='ignore'):
