@@ -7,7 +7,7 @@ def rotatevector(x,y,z,theta,axis):
     #This function rotates a vector in a right handed fashion
     #axis is 1,2,3 for x,y,z axis rotation
     
-    theta = theta.to('rad').value
+    theta = theta
     
     if (axis==1):
         tempy = np.cos(theta)*y - np.sin(theta)*z
@@ -27,7 +27,7 @@ def rotateaxis(x,y,z,ux,uy,uz,theta):
     #This function rotates a vector in a right handed fashion
     #axis is given by input ux,uy,uz
     
-    theta = theta.to('rad').value
+    theta = theta
 
     mag = np.sqrt(ux**2 + uy**2 + uz**2)
     with np.errstate(invalid='ignore'):
