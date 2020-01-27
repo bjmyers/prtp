@@ -136,7 +136,7 @@ class FlatComponent:
         Rotates the Component about an arbitrary axis, defined by ux, uy, and uz
         
         Inputs:
-        theta - The angle by which you want to rotate, in radians, must be an
+        theta - The angle by which you want to rotate, must be an
             astropy unit of angle
         ux,uy,uz - The x, y, and z components of the vector about which you want
             to rotate the Component
@@ -147,6 +147,63 @@ class FlatComponent:
         theta = theta.to(u.rad).value
         self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,ux,uy,uz,theta)
         self.sx,self.sy,self.sz,tx,ty,tz = trans.rotateaxis(self.sx,self.sy,self.sz,ux,uy,uz,theta)
+    
+    @u.quantity_input(theta=u.rad)
+    def pitch(self,theta=0*u.rad):
+        '''
+        Function pitch:
+        Rotates the Component about its sxn vector in a right-handed fashion
+        
+        Inputs:
+        theta - The angle by which you want to rotate, must be an astropy unit
+            of angle
+        
+        Outputs:
+        None
+        '''
+        theta = theta.to(u.rad).value
+        sxn = np.cross(self.Surface(),self.Normal())
+        
+        self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,sxn[0],sxn[1],sxn[2],theta)
+        self.sx,self.sy,self.sz,tx,ty,tz = trans.rotateaxis(self.sx,self.sy,self.sz,sxn[0],sxn[1],sxn[2],theta)
+    
+    @u.quantity_input(theta=u.rad)
+    def roll(self,theta=0*u.rad):
+        '''
+        Function pitch:
+        Rotates the Component about its surface vector in a right-handed fashion
+        
+        Inputs:
+        theta - The angle by which you want to rotate, must be an astropy unit
+            of angle
+        
+        Outputs:
+        None
+        '''
+        theta = theta.to(u.rad).value
+        surf = self.Surface()
+        
+        self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,surf[0],surf[1],surf[2],theta)
+        self.sx,self.sy,self.sz,tx,ty,tz = trans.rotateaxis(self.sx,self.sy,self.sz,surf[0],surf[1],surf[2],theta)
+    
+    @u.quantity_input(theta=u.rad)
+    def yaw(self,theta=0*u.rad):
+        '''
+        Function pitch:
+        Rotates the Component about its normal vector in a right-handed fashion
+        
+        Inputs:
+        theta - The angle by which you want to rotate, must be an astropy unit
+            of angle
+        
+        Outputs:
+        None
+        '''
+        theta = theta.to(u.rad).value
+        norm = self.Normal()
+        
+        self.nx,self.ny,self.nz,tx,ty,tz = trans.rotateaxis(self.nx,self.ny,self.nz,norm[0],norm[1],norm[2],theta)
+        self.sx,self.sy,self.sz,tx,ty,tz = trans.rotateaxis(self.sx,self.sy,self.sz,norm[0],norm[1],norm[2],theta)
 
 
 
